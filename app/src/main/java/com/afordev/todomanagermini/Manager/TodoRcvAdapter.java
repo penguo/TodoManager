@@ -24,9 +24,9 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
     private Context mContext;
     private DBManager dbManager;
     private ArrayList<DataTodo> dataList;
-    private int editModePosition = -1;
     private DateForm date;
     private InputMethodManager imm;
+    public int editModePosition = -1;
 
     public TodoRcvAdapter(Context mContext, DBManager dbManager, DateForm date) {
         this.mContext = mContext;
@@ -83,6 +83,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                         }
                         dbManager.updateTodo(dataList.get(getAdapterPosition()));
                         notifyItemChanged(getAdapterPosition());
+                        notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
                     }
                 }
             });
@@ -226,13 +227,13 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                     case (0):
                         holder.ivCheck.setImageResource(R.drawable.ic_check_false);
                         holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-                        holder.tvTitle.setAlpha(1);
+                        holder.layout.setAlpha(1);
                         break;
                     case (1):
                         holder.ivCheck.setImageResource(R.drawable.ic_check_true);
                         holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                        holder.tvTitle.setAlpha((float) 0.5);
                         holder.layout.setBackgroundResource(R.color.colorBasic);
+                        holder.layout.setAlpha((float) 0.5);
                         break;
                     default:
                         holder.ivCheck.setImageResource(R.drawable.ic_error);
@@ -252,5 +253,53 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
     public void onRefresh() {
         this.dataList = dbManager.getTodoList(date);
         notifyDataSetChanged();
+    }
+
+    public int getSortedPosition(int position) {
+        ArrayList<DataTodo> list = dataList;
+
+        ArrayList<DataTodo> list0 = new ArrayList<>();
+        ArrayList<DataTodo> list1 = new ArrayList<>();
+        ArrayList<DataTodo> list2 = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            switch (list.get(i).getType()) {
+                case (0):
+                    list0.add(list.get(i));
+                    break;
+                case (1):
+                    list1.add(list.get(i));
+                    break;
+                case (2):
+                    list2.add(list.get(i));
+                    break;
+            }
+        }
+        list = new ArrayList<>();
+        list.addAll(list2);
+        list.addAll(list1);
+        list.addAll(list0);
+        list0 = new ArrayList<>();
+        list1 = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            switch (list.get(i).getChecked()) {
+                case (0):
+                    list0.add(list.get(i));
+                    break;
+                case (1):
+                    list1.add(list.get(i));
+                    break;
+            }
+        }
+        list = new ArrayList<>();
+        list.addAll(list0);
+        list.addAll(list1);
+
+        for (int i = 0; i < list.size(); i++) {
+            if (dataList.get(position).getId() == list.get(i).getId()) {
+                dataList = list;
+                return i;
+            }
+        }
+        return 0;
     }
 }
