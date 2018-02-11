@@ -130,6 +130,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                         }
                         dbManager.updateTodo(dataList.get(getAdapterPosition()));
                         notifyItemChanged(getAdapterPosition());
+                        notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
                     }
                 }
             });

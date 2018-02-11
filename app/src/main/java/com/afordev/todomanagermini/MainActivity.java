@@ -1,8 +1,12 @@
 package com.afordev.todomanagermini;
 
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,11 +18,14 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.DatePicker;
 import android.widget.Toast;
 
 import com.afordev.todomanagermini.Manager.DBManager;
 import com.afordev.todomanagermini.Manager.DateForm;
+import com.afordev.todomanagermini.Manager.ScreenOnReceiver;
+import com.afordev.todomanagermini.Manager.ScreenService;
 import com.afordev.todomanagermini.Manager.TodoRcvAdapter;
 
 import java.util.ArrayList;
@@ -32,11 +39,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private SwipeRefreshLayout mSwipe;
     private DateForm date;
     private DBManager dbManager = new DBManager(this, "todo.db", null, 1);
+    private boolean isServiceOn;
+    private MenuItem menuService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initSet();
 
         mToolbar = findViewById(R.id.today_toolbar);
         setSupportActionBar(mToolbar);
@@ -51,6 +61,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setDate(new DateForm(Calendar.getInstance()));
     }
 
+    public void initSet() {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+
+        isServiceRunningCheck();
+    }
+
     public void setDate(DateForm date) {
         this.date = date;
         mToolbar.setTitle(date.toString());
@@ -62,6 +79,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu_today, menu);
+        menuService = menu.findItem(R.id.menu_service);
+        if(isServiceOn){
+            menuService.setTitle("잠금 화면에 표시하지 않음");
+        }else{
+            menuService.setTitle("잠금 화면에 표시");
+        }
         return true;
     }
 
@@ -71,12 +94,25 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             case (R.id.menu_cal):
                 dateSelectOption();
                 return true;
-            default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
-                Toast.makeText(getApplicationContext(), "나머지 버튼 클릭됨", Toast.LENGTH_LONG).show();
-                return super.onOptionsItemSelected(item);
+            case (R.id.menu_today):
+                setDate(new DateForm(Calendar.getInstance()));
+                return true;
+            case (R.id.menu_service):
+                if (!isServiceOn) {
+                    Toast.makeText(this, "잠금화면에 TodoManager가 표시됩니다.", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(this, ScreenService.class);
+                    startService(intent);
+                    menuService.setTitle("잠금 화면에 표시하지 않음");
+                } else {
+                    Toast.makeText(this, "잠금화면에 TodoManager가 표시되지 않습니다.", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(this, ScreenService.class);
+                    stopService(intent);
+                    menuService.setTitle("잠금 화면에 표시");
+                }
+                isServiceRunningCheck();
+                return true;
         }
+        return false;
     }
 
     @Override
@@ -89,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void onBackPressed() {
         if (todoRcvAdapter.editModePosition == -1) {
             super.onBackPressed();
-        }else{
+        } else {
             AlertDialog.Builder dialog = new AlertDialog.Builder(this);
             dialog.setMessage("작업 중인 정보가 사라집니다.");
             dialog.setCancelable(true);
@@ -111,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             dialog.show();
         }
     }
+
     public void dateSelectOption() {
         DatePickerDialog dpDialog;
         dpDialog = new DatePickerDialog(this, listener, date.getYear(), date.getMonth() - 1, date.getDay());
@@ -120,7 +157,20 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private DatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-            setDate(new DateForm(year, monthOfYear+1, dayOfMonth));
+            setDate(new DateForm(year, monthOfYear + 1, dayOfMonth));
         }
     };
+
+    public boolean isServiceRunningCheck() {
+        ActivityManager manager = (ActivityManager) this.getSystemService(Activity.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if ("com.afordev.todomanagermini.Manager.ScreenService".equals(service.service.getClassName())) {
+                isServiceOn = true;
+                return true;
+            }
+        }
+        isServiceOn = false;
+        return false;
+    }
+
 }
