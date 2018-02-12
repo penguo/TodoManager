@@ -49,7 +49,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="APP으로 이동"
+                    android:text="APP 이동"
                     android:textColor="@android:color/black"
                     android:textSize="16sp" />
             </LinearLayout>
@@ -78,7 +78,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="잠금 화면 해제"
+                    android:text="잠금 해제"
                     android:textColor="@android:color/black"
                     android:textSize="16sp" />
             </LinearLayout>
