@@ -7,7 +7,7 @@
     tools:context="com.afordev.todomanagermini.LockActivity">
 
     <include
-        android:id="@+id/main_ui"
+        android:id="@+id/lock_ui"
         layout="@layout/ui_today"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -26,20 +26,63 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <Button
-            android:id="@+id/lock_btn_app"
+        <LinearLayout
+            android:id="@+id/lock_layout_btn_enter"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="APP으로 바로가기"
-            android:textSize="16sp" />
+            android:background="?android:attr/selectableItemBackground"
+            android:orientation="horizontal"
+            android:padding="16dp">
 
-        <Button
-            android:id="@+id/lock_btn_backpressed"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/button_bg"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    style="@style/Icon"
+                    app:srcCompat="@drawable/ic_input" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="APP으로 이동"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lock_layout_btn_back"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="화면 잠금 해제"
-            android:textSize="16sp" />
+            android:background="?android:attr/selectableItemBackground"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/button_bg"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    style="@style/Icon"
+                    app:srcCompat="@drawable/ic_lock_open" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="잠금 화면 해제"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+            </LinearLayout>
+        </LinearLayout>
+
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?android:attr/selectableItemBackground"
-    android:minHeight="72dp">
+    android:background="?android:attr/selectableItemBackground">
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/item_todo_layout_edit"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:background="@color/colorAccentLight"
+        android:minHeight="72dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -59,8 +59,9 @@
     <android.support.constraint.ConstraintLayout
         android:id="@+id/item_todo_layout_new"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:background="@color/colorBasic"
+        android:minHeight="72dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -98,8 +99,9 @@
     <android.support.constraint.ConstraintLayout
         android:id="@+id/item_todo_layout"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:background="@color/colorBasic"
+        android:minHeight="72dp"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

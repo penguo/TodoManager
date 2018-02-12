@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.afordev.todomanagermini.Manager.DBManager;
 import com.afordev.todomanagermini.Manager.DateForm;
@@ -26,7 +27,7 @@ public class LockActivity extends AppCompatActivity implements SwipeRefreshLayou
     private TodoRcvAdapter todoRcvAdapter;
     private SwipeRefreshLayout mSwipe;
     private DBManager dbManager = new DBManager(this, "todo.db", null, 1);
-    private Button btnApp, btnBack;
+    private LinearLayout layoutBtnEnter, layoutBtnBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,11 +38,11 @@ public class LockActivity extends AppCompatActivity implements SwipeRefreshLayou
         setSupportActionBar(mToolbar);
         rcvTodo = findViewById(R.id.today_rcv);
         mSwipe = findViewById(R.id.today_swipe);
-        btnApp = findViewById(R.id.lock_btn_app);
-        btnBack = findViewById(R.id.lock_btn_backpressed);
+        layoutBtnEnter = findViewById(R.id.lock_layout_btn_enter);
+        layoutBtnBack = findViewById(R.id.lock_layout_btn_back);
 
-        btnApp.setOnClickListener(this);
-        btnBack.setOnClickListener(this);
+        layoutBtnEnter.setOnClickListener(this);
+        layoutBtnBack.setOnClickListener(this);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         DividerItemDecoration did = new DividerItemDecoration(this, llm.getOrientation());
         rcvTodo.addItemDecoration(did);
@@ -52,7 +53,7 @@ public class LockActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     public void setDate(DateForm date) {
         mToolbar.setTitle(date.toString());
-        todoRcvAdapter = new TodoRcvAdapter(this, dbManager, date);
+        todoRcvAdapter = new TodoRcvAdapter(this, dbManager, date, true);
         rcvTodo.setAdapter(todoRcvAdapter);
     }
 
@@ -63,41 +64,14 @@ public class LockActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     @Override
-    public void onBackPressed() {
-        if (todoRcvAdapter.editModePosition == -1) {
-            super.onBackPressed();
-        } else {
-            AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-            dialog.setMessage("작업 중인 정보가 사라집니다.");
-            dialog.setCancelable(true);
-            dialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    int i = todoRcvAdapter.editModePosition;
-                    todoRcvAdapter.editModePosition = -1;
-                    todoRcvAdapter.notifyItemChanged(i);
-                    dialog.dismiss();
-                }
-            });
-            dialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-            dialog.show();
-        }
-    }
-
-    @Override
     public void onClick(View view) {
-        switch(view.getId()){
-            case(R.id.lock_btn_app):
+        switch (view.getId()) {
+            case (R.id.lock_layout_btn_enter):
                 Intent intent = new Intent(LockActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
                 break;
-            case(R.id.lock_btn_backpressed):
+            case (R.id.lock_layout_btn_back):
                 finish();
                 break;
         }

@@ -27,18 +27,24 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
     private DateForm date;
     private InputMethodManager imm;
     public int editModePosition = -1;
+    private boolean isLockScreen;
 
-    public TodoRcvAdapter(Context mContext, DBManager dbManager, DateForm date) {
+    public TodoRcvAdapter(Context mContext, DBManager dbManager, DateForm date, boolean isLockScreen) {
         this.mContext = mContext;
         this.dbManager = dbManager;
         this.dataList = dbManager.getTodoList(date);
         this.date = date;
+        this.isLockScreen = isLockScreen;
         imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
     }
 
     @Override
     public int getItemCount() {
-        return dataList.size() + 1;
+        if (!isLockScreen) {
+            return dataList.size() + 1;
+        } else {
+            return dataList.size();
+        }
     }
 
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -69,6 +75,8 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                 public void onClick(View view) {
                     if (getAdapterPosition() == dataList.size()) {
                         itemView.performLongClick();
+                    } else if (editModePosition != -1) {
+                        Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
                     } else {
                         switch (dataList.get(getAdapterPosition()).getChecked()) {
                             case (0):
@@ -87,32 +95,37 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                     }
                 }
             });
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    if (editModePosition >= 0) {
-                        DataTodo data;
-                        if (editModePosition == dataList.size()) {
-                            data = new DataTodo(-1, etTitle.getText().toString(), date.toDBString(), 0, 0);
-                            dbManager.insertTodo(data);
-                            onRefresh();
-                        } else {
-                            data = dataList.get(editModePosition);
-                            data.setTitle(etTitle.getText().toString());
-                            dbManager.updateTodo(data);
-                            notifyItemChanged(editModePosition);
+            if (!isLockScreen) {
+                itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        if (editModePosition >= 0) {
+                            DataTodo data;
+                            if (editModePosition == dataList.size()) {
+                                data = new DataTodo(-1, etTitle.getText().toString(), date.toDBString(), 0, 0);
+                                dbManager.insertTodo(data);
+                                onRefresh();
+                            } else {
+                                data = dataList.get(editModePosition);
+                                data.setTitle(etTitle.getText().toString());
+                                dbManager.updateTodo(data);
+                                notifyItemChanged(editModePosition);
+                            }
                         }
+                        editModePosition = getAdapterPosition();
+                        notifyItemChanged(getAdapterPosition());
+                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                        return false;
                     }
-                    editModePosition = getAdapterPosition();
-                    notifyItemChanged(getAdapterPosition());
-                    return false;
-                }
-            });
+                });
+            }
             ivLeft.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (getAdapterPosition() == dataList.size()) {
                         Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
+                    } else if (editModePosition != -1) {
+                        Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
                     } else {
                         switch (dataList.get(getAdapterPosition()).getType()) {
                             case (0):
@@ -131,6 +144,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                         dbManager.updateTodo(dataList.get(getAdapterPosition()));
                         notifyItemChanged(getAdapterPosition());
                         notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
+
                     }
                 }
             });
@@ -181,6 +195,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                 }
             });
         }
+
     }
 
     @Override

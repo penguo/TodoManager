@@ -8,6 +8,8 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:itemBackground">@android:color/white</item>
         <item name="android:itemTextAppearance">@style/myCustomMenuTextApearance</item>
+        <item name="colorControlHighlight">@color/colorAccent</item>
+
     </style>
 
     <style name="myCustomMenuTextApearance" parent="@android:style/TextAppearance.Widget.IconMenu.Item">

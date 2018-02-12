@@ -8,5 +8,5 @@
     <color name="colorAccentLight">#ff9e80</color>
     <color name="colorAccentLight100">#96ff9e80</color>
     <color name="colorAccentLight50">#50ff9e80</color>
-    <color name="colorBasic">#ffffff</color>
+    <color name="colorBasic">#00ffffff</color>
 </resources>
