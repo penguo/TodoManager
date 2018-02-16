@@ -6,5 +6,5 @@ package com.afordev.todomanagermini.Manager;
 
 public class Manager {
 
-    public static String APPVERSION = "dev-180216-build12";
+    public static String APPVERSION = "dev-180217-build4";
 }

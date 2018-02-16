@@ -134,6 +134,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                     newDataTodo = new DataTodo(-1, "", date.toDBString(), "", 0, 0);
                     editModePosition = getAdapterPosition();
                     notifyItemChanged(getAdapterPosition());
+                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
                 }
             });
             ivLeft.setOnClickListener(new View.OnClickListener() {
@@ -170,9 +171,11 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                     if (!isMenuExpand) {
                         isMenuExpand = true;
                         notifyItemChanged(editModePosition);
+                        imm.hideSoftInputFromWindow(etTitle.getWindowToken(), 0);
                     } else {
                         isMenuExpand = false;
                         notifyItemChanged(editModePosition);
+                        imm.hideSoftInputFromWindow(etTitle.getWindowToken(), 0);
                     }
                 }
             });

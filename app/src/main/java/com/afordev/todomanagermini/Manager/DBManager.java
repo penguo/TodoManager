@@ -99,7 +99,7 @@ public class DBManager extends SQLiteOpenHelper {
     public ArrayList<DataTodo> getTodoList(DateForm date) {
         db = getReadableDatabase();
         ArrayList<DataTodo> list = new ArrayList<>();
-        Cursor cursor = db.rawQuery("SELECT * FROM Todo WHERE Date = '" + date.toDBString() + "';", null);
+        Cursor cursor = db.rawQuery("SELECT * FROM Todo WHERE Date Like '" + date.toDBString() + "%';", null);
         while (cursor.moveToNext()) {
             DataTodo data = new DataTodo(cursor.getInt(0),
                     cursor.getString(1),
