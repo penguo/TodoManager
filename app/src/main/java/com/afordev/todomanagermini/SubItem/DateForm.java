@@ -1,4 +1,6 @@
-package com.afordev.todomanagermini.Manager;
+package com.afordev.todomanagermini.SubItem;
+
+import android.util.Log;
 
 import java.util.Calendar;
 
@@ -9,6 +11,7 @@ import java.util.Calendar;
 public class DateForm {
 
     private int year = 2000, month = 1, day = 1, dayOfWeek = 0;
+    private TimeForm time;
 
     public DateForm(String date) {
         String[] st = date.split(",");
@@ -16,6 +19,10 @@ public class DateForm {
             year = Integer.parseInt(st[0]);
             month = Integer.parseInt(st[1]);
             day = Integer.parseInt(st[2]);
+        } catch (Exception e) {
+        }
+        try {
+            this.time = new TimeForm(Integer.parseInt(st[3]), Integer.parseInt(st[4]));
         } catch (Exception e) {
         }
         Calendar cal = Calendar.getInstance();
@@ -39,6 +46,10 @@ public class DateForm {
         dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
     }
 
+    public TimeForm getTime() {
+        return time;
+    }
+
     public int getDay() {
         return day;
     }
@@ -53,6 +64,31 @@ public class DateForm {
 
     public int getDayOfWeek() {
         return dayOfWeek;
+    }
+
+    public String getDayOfWeekToString() {
+        switch (dayOfWeek) {
+            case (1):
+                return "일요일";
+            case (2):
+                return "월요일";
+            case (3):
+                return "화요일";
+            case (4):
+                return "수요일";
+            case (5):
+                return "목요일";
+            case (6):
+                return "금요일";
+            case (7):
+                return "토요일";
+            default:
+                return "null";
+        }
+    }
+
+    public void setTime(TimeForm time) {
+        this.time = time;
     }
 
     public void setDay(int day) {
@@ -87,6 +123,12 @@ public class DateForm {
         sb.append(month);
         sb.append(",");
         sb.append(day);
+        if(time != null){
+            sb.append(",");
+            sb.append(time.getHour());
+            sb.append(",");
+            sb.append(time.getMinute());
+        }
         return sb.toString();
     }
 

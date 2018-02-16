@@ -15,12 +15,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.WindowManager;
 import android.widget.DatePicker;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afordev.todomanagermini.Manager.DBManager;
-import com.afordev.todomanagermini.Manager.DateForm;
+import com.afordev.todomanagermini.Manager.Manager;
+import com.afordev.todomanagermini.SubItem.DateForm;
 import com.afordev.todomanagermini.Manager.ScreenService;
 import com.afordev.todomanagermini.Manager.TodoRcvAdapter;
 
@@ -37,6 +38,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private boolean isServiceOn;
     private MenuItem menuService;
     private SharedPreferences prefs;
+
+    private TextView tvVersion;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setSupportActionBar(mToolbar);
         rcvTodo = findViewById(R.id.today_rcv);
         mSwipe = findViewById(R.id.today_swipe);
+        tvVersion = findViewById(R.id.main_tv_version);
+        tvVersion.setText(Manager.APPVERSION);
 
         LinearLayoutManager llm = new LinearLayoutManager(this);
         DividerItemDecoration did = new DividerItemDecoration(this, llm.getOrientation());
@@ -57,8 +63,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     public void initSet() {
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         prefs = getSharedPreferences("SetLock", MODE_PRIVATE);
         checkService();
     }

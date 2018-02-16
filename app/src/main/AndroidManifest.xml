@@ -20,11 +20,14 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="com.afordev.todomanagermini.Manager.ScreenOnReceiver" />
+        <receiver android:name="com.afordev.todomanagermini.Manager.ScreenReceiver" />
 
         <service android:name="com.afordev.todomanagermini.Manager.ScreenService" />
 
-        <activity android:name="com.afordev.todomanagermini.LockActivity"></activity>
+        <activity
+            android:name="com.afordev.todomanagermini.LockActivity"
+            android:screenOrientation="sensorPortrait"
+            android:showOnLockScreen="true"></activity>
     </application>
 
 </manifest>

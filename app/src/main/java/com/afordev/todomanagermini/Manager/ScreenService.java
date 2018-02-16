@@ -7,7 +7,7 @@ import android.os.IBinder;
 
 public class ScreenService extends Service {
 
-    private ScreenOnReceiver mReceiver = null;
+    private ScreenReceiver mReceiver = null;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -18,8 +18,8 @@ public class ScreenService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		
-		mReceiver = new ScreenOnReceiver();
-		IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+		mReceiver = new ScreenReceiver();
+		IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
 		registerReceiver(mReceiver, filter);
 	}
 
@@ -30,8 +30,8 @@ public class ScreenService extends Service {
 		if(intent != null){
 			if(intent.getAction()==null){
 				if(mReceiver==null){
-					mReceiver = new ScreenOnReceiver();
-					IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+					mReceiver = new ScreenReceiver();
+					IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
 					registerReceiver(mReceiver, filter);
 				}
 			}

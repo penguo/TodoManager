@@ -9,7 +9,7 @@ import android.telephony.TelephonyManager;
 
 import com.afordev.todomanagermini.LockActivity;
 
-public class ScreenOnReceiver extends BroadcastReceiver {
+public class ScreenReceiver extends BroadcastReceiver {
 
     private KeyguardManager km = null;
     private KeyguardManager.KeyguardLock keyLock = null;
@@ -17,7 +17,7 @@ public class ScreenOnReceiver extends BroadcastReceiver {
     private boolean isPhoneIdle = true;
 
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+        if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
 
             if (km == null)
                 km = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);

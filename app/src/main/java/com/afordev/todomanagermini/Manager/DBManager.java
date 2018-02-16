@@ -5,8 +5,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.afordev.todomanagermini.SubItem.DataTodo;
+import com.afordev.todomanagermini.SubItem.DateForm;
+
 import java.util.ArrayList;
-import java.util.Calendar;
 
 /**
  * Created by pengu on 2018-02-11.
@@ -28,6 +30,7 @@ public class DBManager extends SQLiteOpenHelper {
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "Title TEXT, " +
                 "Date TEXT," +
+                "Tags TEXT," +
                 "Checked Integer, " +
                 "Type Integer); ");
     }
@@ -53,6 +56,7 @@ public class DBManager extends SQLiteOpenHelper {
                 " null, " +
                 "'" + data.getTitle() + "', " +
                 "'" + data.getDate().toDBString() + "', " +
+                "'" + data.getTags() + "', " +
                 data.getChecked() + "," +
                 data.getType() + ");");
         db.close();
@@ -63,6 +67,7 @@ public class DBManager extends SQLiteOpenHelper {
         db.execSQL(" UPDATE Todo SET " +
                 "Title = '" + data.getTitle() + "', " +
                 "Date = '" + data.getDate().toDBString() + "', " +
+                "Tags = '" + data.getTags() + "', " +
                 "Checked = " + data.getChecked() + ", " +
                 "Type = " + data.getType() + " " +
                 "WHERE _id = " + data.getId() + " ; ");
@@ -83,8 +88,9 @@ public class DBManager extends SQLiteOpenHelper {
             data = new DataTodo(cursor.getInt(0),
                     cursor.getString(1),
                     cursor.getString(2),
-                    cursor.getInt(3),
-                    cursor.getInt(4));
+                    cursor.getString(3),
+                    cursor.getInt(4),
+                    cursor.getInt(5));
         }
         cursor.close();
         return data;
@@ -98,8 +104,9 @@ public class DBManager extends SQLiteOpenHelper {
             DataTodo data = new DataTodo(cursor.getInt(0),
                     cursor.getString(1),
                     cursor.getString(2),
-                    cursor.getInt(3),
-                    cursor.getInt(4));
+                    cursor.getString(3),
+                    cursor.getInt(4),
+                    cursor.getInt(5));
             list.add(data);
         }
         cursor.close();
@@ -107,15 +114,15 @@ public class DBManager extends SQLiteOpenHelper {
         ArrayList<DataTodo> list0 = new ArrayList<>();
         ArrayList<DataTodo> list1 = new ArrayList<>();
         ArrayList<DataTodo> list2 = new ArrayList<>();
-        for(int i = 0; i<list.size();i++){
-            switch(list.get(i).getType()){
-                case(0):
+        for (int i = 0; i < list.size(); i++) {
+            switch (list.get(i).getType()) {
+                case (0):
                     list0.add(list.get(i));
                     break;
-                case(1):
+                case (1):
                     list1.add(list.get(i));
                     break;
-                case(2):
+                case (2):
                     list2.add(list.get(i));
                     break;
             }
@@ -126,12 +133,12 @@ public class DBManager extends SQLiteOpenHelper {
         list.addAll(list0);
         list0 = new ArrayList<>();
         list1 = new ArrayList<>();
-        for(int i = 0; i<list.size();i++){
-            switch(list.get(i).getChecked()){
-                case(0):
+        for (int i = 0; i < list.size(); i++) {
+            switch (list.get(i).getChecked()) {
+                case (0):
                     list0.add(list.get(i));
                     break;
-                case(1):
+                case (1):
                     list1.add(list.get(i));
                     break;
             }

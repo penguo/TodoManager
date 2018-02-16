@@ -1,11 +1,11 @@
-package com.afordev.todomanagermini.Manager;
+package com.afordev.todomanagermini.SubItem;
 
 /**
  * Created by penguo on 2018-02-11.
  */
 
 public class DataTodo {
-    private String title;
+    private String title, tags;
     private DateForm date;
     private int id, checked, type;
 
@@ -13,14 +13,16 @@ public class DataTodo {
         this.id = -1;
         this.title = "null";
         this.date = new DateForm("2000,1,1");
+        this.tags = "";
         this.checked = 0;
         this.type = 0;
     }
 
-    public DataTodo(int id, String title, String date, int checked, int type) {
+    public DataTodo(int id, String title, String date, String tags, int checked, int type) {
         this.id = id;
         this.title = title;
         this.date = new DateForm(date);
+        this.tags = tags;
         this.checked = checked;
         this.type = type;
     }
@@ -45,6 +47,14 @@ public class DataTodo {
         return checked;
     }
 
+    public String getTags() {
+        return tags;
+    }
+
+    public String[] getTagList(){
+        return tags.split(",");
+    }
+
     public void setDate(DateForm date) {
         this.date = date;
     }
@@ -63,5 +73,9 @@ public class DataTodo {
 
     public void setChecked(int checked) {
         this.checked = checked;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 }
