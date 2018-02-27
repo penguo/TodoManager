@@ -1,6 +1,7 @@
 package com.afordev.todomanagermini.Manager;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -71,13 +73,14 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
         return viewHolder;
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView tvTitle, tvTag, tvEditTag;
         private EditText etTitle;
         private ImageView ivLeft, ivCheck, ivEditLeft, ivEditSave;
         private ConstraintLayout layoutNew;
         private LinearLayout layout, layoutEdit, layoutExpand, layoutItemEx;
         private Button btnDelete, btnTag, btnTime, btnCancel;
+        private Button btnPDelete, btnPEdit, btnPDelay, btnPCheck;
 
         public ViewHolder(final View itemView) {
             super(itemView);
@@ -98,10 +101,49 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
             tvTag = itemView.findViewById(R.id.item_todo_tv_tag);
             tvEditTag = itemView.findViewById(R.id.item_todo_tv_edit_tag);
             layoutItemEx = itemView.findViewById(R.id.item_todo_layout_itemex);
+            btnPDelete = itemView.findViewById(R.id.item_todo_btn_pdelete);
+            btnPEdit = itemView.findViewById(R.id.item_todo_btn_pedit);
+            btnPDelay = itemView.findViewById(R.id.item_todo_btn_pdelay);
+            btnPCheck = itemView.findViewById(R.id.item_todo_btn_pcheck);
 
-            layout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+            if (!isLockScreen) {
+                if (isToday) {
+                    layout.setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View view) {
+                            if (editModePosition == -1) {
+                                isMenuExpand = false;
+                                editModePosition = getAdapterPosition();
+                                notifyItemChanged(getAdapterPosition());
+                                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                                return false;
+                            } else {
+                                Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
+                                return false;
+                            }
+                        }
+                    });
+                }
+            }
+            layout.setOnClickListener(this);
+            layoutNew.setOnClickListener(this);
+            ivLeft.setOnClickListener(this);
+            ivEditLeft.setOnClickListener(this);
+            ivEditSave.setOnClickListener(this);
+            btnDelete.setOnClickListener(this);
+            btnCancel.setOnClickListener(this);
+            btnTime.setOnClickListener(this);
+            btnTag.setOnClickListener(this);
+            btnPDelete.setOnClickListener(this);
+            btnPEdit.setOnClickListener(this);
+            btnPDelay.setOnClickListener(this);
+            btnPCheck.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            switch (view.getId()) {
+                case (R.id.item_todo_layout):
                     if (isToday) {
                         if (editModePosition != -1) {
                             Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
@@ -134,38 +176,17 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                             notifyItemChanged(itemExpandPosition);
                         }
                     }
-                }
-            });
-            if (!isLockScreen) {
-                layout.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
-                        if (editModePosition == -1) {
-                            isMenuExpand = false;
-                            editModePosition = getAdapterPosition();
-                            notifyItemChanged(getAdapterPosition());
-                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-                            return false;
-                        } else {
-                            Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
-                            return false;
-                        }
-                    }
-                });
-            }
-            layoutNew.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+                    break;
+
+                case (R.id.item_todo_layout_new):
                     isMenuExpand = false;
                     newDataTodo = new DataTodo(-1, "", date.toDBString(), "", 0, 0);
                     editModePosition = getAdapterPosition();
                     notifyItemChanged(getAdapterPosition());
                     imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-                }
-            });
-            ivLeft.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+                    break;
+
+                case (R.id.item_todo_iv_left):
                     if (getAdapterPosition() == dataList.size()) {
                         Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
                     } else if (editModePosition != -1) {
@@ -189,11 +210,9 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                         notifyItemChanged(getAdapterPosition());
                         notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
                     }
-                }
-            });
-            ivEditLeft.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+                    break;
+
+                case (R.id.item_todo_iv_edit_left):
                     if (!isMenuExpand) {
                         isMenuExpand = true;
                         notifyItemChanged(editModePosition);
@@ -203,11 +222,9 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                         notifyItemChanged(editModePosition);
                         imm.hideSoftInputFromWindow(etTitle.getWindowToken(), 0);
                     }
-                }
-            });
-            ivEditSave.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+                    break;
+
+                case (R.id.item_todo_iv_edit_save):
                     DataTodo data;
                     if (editModePosition == dataList.size()) {
                         data = newDataTodo;
@@ -222,11 +239,10 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                     }
                     editModePosition = -1;
                     imm.hideSoftInputFromWindow(etTitle.getWindowToken(), 0);
-                }
-            });
-            btnDelete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+                    break;
+
+                case (R.id.item_todo_btn_pdelete):
+                case (R.id.item_todo_btn_delete):
                     if (getAdapterPosition() != dataList.size()) {
                         AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
                         dialog.setMessage("정말로 삭제하시겠습니까? 모든 내용이 삭제되며 복구되지 않습니다.");
@@ -250,11 +266,9 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                         editModePosition = -1;
                         notifyItemChanged(getAdapterPosition());
                     }
-                }
-            });
-            btnCancel.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+                    break;
+
+                case (R.id.item_todo_btn_cancel):
                     if (getAdapterPosition() != dataList.size()) {
                         AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
                         dialog.setMessage("작업 중인 정보가 사라집니다.");
@@ -279,24 +293,58 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                         editModePosition = -1;
                         notifyItemChanged(getAdapterPosition());
                     }
-                }
-            });
-            btnTime.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+                    break;
+
+                case (R.id.item_todo_btn_time):
                     if (editModePosition != dataList.size()) {
-                        TimeSelectOption(dataList.get(editModePosition).getDate().getTime());
+                        timeSelectOption(dataList.get(editModePosition).getDate().getTime());
                     } else {
-                        TimeSelectOption(newDataTodo.getDate().getTime());
+                        timeSelectOption(newDataTodo.getDate().getTime());
                     }
-                }
-            });
-            btnTag.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+                    break;
+
+                case (R.id.item_todo_btn_tag):
                     Toast.makeText(mContext, "다음 버전에 추가될 예정.", Toast.LENGTH_SHORT).show();
-                }
-            });
+                    break;
+
+                case (R.id.item_todo_btn_pedit):
+                    if (editModePosition == -1) {
+                        isMenuExpand = false;
+                        editModePosition = getAdapterPosition();
+                        notifyItemChanged(getAdapterPosition());
+                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                    } else {
+                        Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+
+                case (R.id.item_todo_btn_pdelay):
+                    dateSelectOption(dataList.get(editModePosition).getDate());
+                    break;
+
+                case (R.id.item_todo_btn_pcheck):
+                    if (editModePosition != -1) {
+                        Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        switch (dataList.get(getAdapterPosition()).getChecked()) {
+                            case (0):
+                                dataList.get(getAdapterPosition()).setChecked(1);
+                                break;
+                            case (1):
+                                dataList.get(getAdapterPosition()).setChecked(0);
+                                break;
+                            default:
+                                Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
+                                break;
+                        }
+                        dbManager.updateTodo(dataList.get(getAdapterPosition()));
+                        itemExpandPosition = -1;
+                        notifyItemChanged(getAdapterPosition());
+                        notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
+                    }
+                    break;
+
+            }
         }
     }
 
@@ -413,6 +461,13 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                         holder.ivCheck.setImageResource(R.drawable.ic_error);
                         break;
                 }
+                if (!isToday) {
+                    if (position != itemExpandPosition) {
+                    } else {
+                        holder.layout.setBackgroundResource(R.drawable.btn_accentlight);
+                        holder.layout.setAlpha(1);
+                    }
+                }
             }
         }
     }
@@ -477,8 +532,24 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
         return 0;
     }
 
+    public void dateSelectOption(DateForm date) {
+        DatePickerDialog dpDialog;
 
-    public void TimeSelectOption(TimeForm timeForm) {
+        dpDialog = new DatePickerDialog(mContext, listenerDate, date.getYear(), date.getMonth() - 1, date.getDay());
+        dpDialog.show();
+    }
+
+    private DatePickerDialog.OnDateSetListener listenerDate = new DatePickerDialog.OnDateSetListener() {
+        @Override
+        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+            DateForm date = new DateForm(year, monthOfYear + 1, dayOfMonth);
+            date.setTime(dataList.get(itemExpandPosition).getDate().getTime());
+            dataList.get(itemExpandPosition).setDate(date);
+            dbManager.updateTodo(dataList.get(itemExpandPosition));
+        }
+    };
+
+    public void timeSelectOption(TimeForm timeForm) {
         TimePickerDialog dialog;
         if (timeForm != null) {
             dialog = new TimePickerDialog(mContext, listenerTime, timeForm.getHour(), timeForm.getMinute(), false);
