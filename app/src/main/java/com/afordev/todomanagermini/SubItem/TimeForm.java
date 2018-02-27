@@ -16,8 +16,10 @@ public class TimeForm {
     public String toString() {
         StringBuffer sb = new StringBuffer();
         int h = this.hour;
-        if (h <= 12) {
+        if (h <= 11) {
             sb.append("오전 ");
+        } else if (h == 12) {
+            sb.append("오후 ");
         } else {
             sb.append("오후 ");
             h -= 12;

@@ -34,7 +34,8 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
     private DateForm date;
     private InputMethodManager imm;
     public int editModePosition = -1;
-    private boolean isLockScreen, isMenuExpand;
+    private boolean isLockScreen, isMenuExpand, isToday;
+    public int itemExpandPosition = -1;
     private DataTodo newDataTodo;
 
     public TodoRcvAdapter(Context mContext, DBManager dbManager, DateForm date, boolean isLockScreen) {
@@ -43,6 +44,15 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
         this.dataList = dbManager.getTodoList(date);
         this.date = date;
         this.isLockScreen = isLockScreen;
+        if (isLockScreen) {
+            isToday = true;
+        } else {
+            if (date.toString().equals((new DateForm(Calendar.getInstance())).toString())) {
+                isToday = true;
+            } else {
+                isToday = false;
+            }
+        }
         imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
     }
 
@@ -62,11 +72,11 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView tvTitle, tvTag;
+        private TextView tvTitle, tvTag, tvEditTag;
         private EditText etTitle;
         private ImageView ivLeft, ivCheck, ivEditLeft, ivEditSave;
         private ConstraintLayout layoutNew;
-        private LinearLayout layout, layoutEdit, layoutExpand;
+        private LinearLayout layout, layoutEdit, layoutExpand, layoutItemEx;
         private Button btnDelete, btnTag, btnTime, btnCancel;
 
         public ViewHolder(final View itemView) {
@@ -86,27 +96,43 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
             btnTime = itemView.findViewById(R.id.item_todo_btn_time);
             btnCancel = itemView.findViewById(R.id.item_todo_btn_cancel);
             tvTag = itemView.findViewById(R.id.item_todo_tv_tag);
+            tvEditTag = itemView.findViewById(R.id.item_todo_tv_edit_tag);
+            layoutItemEx = itemView.findViewById(R.id.item_todo_layout_itemex);
 
             layout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (editModePosition != -1) {
-                        Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        switch (dataList.get(getAdapterPosition()).getChecked()) {
-                            case (0):
-                                dataList.get(getAdapterPosition()).setChecked(1);
-                                break;
-                            case (1):
-                                dataList.get(getAdapterPosition()).setChecked(0);
-                                break;
-                            default:
-                                Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
-                                break;
+                    if (isToday) {
+                        if (editModePosition != -1) {
+                            Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            switch (dataList.get(getAdapterPosition()).getChecked()) {
+                                case (0):
+                                    dataList.get(getAdapterPosition()).setChecked(1);
+                                    break;
+                                case (1):
+                                    dataList.get(getAdapterPosition()).setChecked(0);
+                                    break;
+                                default:
+                                    Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
+                                    break;
+                            }
+                            dbManager.updateTodo(dataList.get(getAdapterPosition()));
+                            notifyItemChanged(getAdapterPosition());
+                            notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
                         }
-                        dbManager.updateTodo(dataList.get(getAdapterPosition()));
-                        notifyItemChanged(getAdapterPosition());
-                        notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
+                    } else {
+                        int i = itemExpandPosition;
+                        if (itemExpandPosition == getAdapterPosition()) {
+                            itemExpandPosition = -1;
+                            notifyItemChanged(getAdapterPosition());
+                        } else {
+                            itemExpandPosition = getAdapterPosition();
+                            if (i >= 0) {
+                                notifyItemChanged(i);
+                            }
+                            notifyItemChanged(itemExpandPosition);
+                        }
                     }
                 }
             });
@@ -276,34 +302,64 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        if (editModePosition == position) {
+        DataTodo data;
+        if (position < dataList.size()) {
+            data = dataList.get(position);
+        } else {
+            data = new DataTodo();
+        }
+        if (editModePosition == position) { // Edit Mode
             holder.layout.setVisibility(View.GONE);
             holder.layoutNew.setVisibility(View.GONE);
             holder.layoutEdit.setVisibility(View.VISIBLE);
-            if (position == dataList.size()) { // new
-                holder.etTitle.setText("");
-                holder.btnDelete.setVisibility(View.GONE);
-            } else {
-                DataTodo data = dataList.get(position);
+            if (holder.etTitle.getText().toString().equals("")) {
                 holder.etTitle.setText(data.getTitle());
-                holder.btnDelete.setVisibility(View.VISIBLE);
             }
             holder.etTitle.requestFocus();
+            if (position == dataList.size()) { // new
+                holder.btnDelete.setVisibility(View.GONE);
+            } else {
+                holder.btnDelete.setVisibility(View.VISIBLE);
+            }
             if (!isMenuExpand) {
                 holder.layoutExpand.setVisibility(View.GONE);
             } else {
                 holder.layoutExpand.setVisibility(View.VISIBLE);
             }
+            if (data.getDate().getTime() == null && data.getTags().equals("")) {
+                holder.tvEditTag.setVisibility(View.GONE);
+            } else {
+                holder.tvEditTag.setVisibility(View.VISIBLE);
+                StringBuffer sb = new StringBuffer();
+                if (data.getDate().getTime() != null) {
+                    sb.append(data.getDate().getTime().toString());
+                }
+                if (data.getDate().getTime() != null && !data.getTags().equals("")) {
+                    sb.append(", ");
+                }
+                if (!data.getTags().equals("")) {
+                    String[] st = data.getTagList();
+                    for (int i = 0; i < st.length; i++) {
+                        sb.append("#" + st[i] + " ");
+                    }
+                }
+                holder.tvEditTag.setText(sb.toString());
+            }
         } else {
             holder.layoutEdit.setVisibility(View.GONE);
-            if (position == dataList.size()) {
+            if (position == dataList.size()) { // New Mode
                 holder.layout.setVisibility(View.GONE);
                 holder.layoutNew.setVisibility(View.VISIBLE);
-            } else {
+                holder.layoutItemEx.setVisibility(View.GONE);
+            } else { // Item Mode
                 holder.layout.setVisibility(View.VISIBLE);
                 holder.layoutNew.setVisibility(View.GONE);
-
-                DataTodo data = dataList.get(position);
+                if (itemExpandPosition == position) {
+                    holder.layoutItemEx.setVisibility(View.VISIBLE);
+                } else {
+                    holder.layoutItemEx.setVisibility(View.GONE);
+                }
+                holder.etTitle.setText("");
                 holder.tvTitle.setText(data.getTitle());
                 if (data.getDate().getTime() == null && data.getTags().equals("")) {
                     holder.tvTag.setVisibility(View.GONE);

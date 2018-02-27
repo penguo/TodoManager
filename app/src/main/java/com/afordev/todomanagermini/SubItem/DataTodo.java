@@ -11,7 +11,7 @@ public class DataTodo {
 
     public DataTodo() {
         this.id = -1;
-        this.title = "null";
+        this.title = "";
         this.date = new DateForm("2000,1,1");
         this.tags = "";
         this.checked = 0;
