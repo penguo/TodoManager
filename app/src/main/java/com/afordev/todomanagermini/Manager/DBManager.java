@@ -9,6 +9,7 @@ import com.afordev.todomanagermini.SubItem.DataTodo;
 import com.afordev.todomanagermini.SubItem.DateForm;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * Created by pengu on 2018-02-11.
@@ -16,11 +17,25 @@ import java.util.ArrayList;
 
 public class DBManager extends SQLiteOpenHelper {
 
+    private static DBManager instance;
     SQLiteDatabase db;
     Context context;
 
-    public DBManager(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+    public static DBManager getInstance(Context mContext) {
+        if (instance == null) {
+            instance = new DBManager(mContext, "todo.db", null, 1);
+        } else {
+            instance.setContext(mContext);
+        }
+        return instance;
+    }
+
+    private DBManager(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
+        this.context = context;
+    }
+
+    public void setContext(Context context) {
         this.context = context;
     }
 
@@ -67,8 +82,8 @@ public class DBManager extends SQLiteOpenHelper {
         db.execSQL(" UPDATE Todo SET " +
                 "Title = '" + data.getTitle() + "', " +
                 "Date = '" + data.getDate().toDBString() + "', " +
-                "Tags = '" + data.getTags() + "', " +
                 "Checked = " + data.getChecked() + ", " +
+                "Tags = '" + data.getTags() + "', " +
                 "Type = " + data.getType() + " " +
                 "WHERE _id = " + data.getId() + " ; ");
         db.close();
@@ -146,6 +161,38 @@ public class DBManager extends SQLiteOpenHelper {
         list = new ArrayList<>();
         list.addAll(list0);
         list.addAll(list1);
+        return list;
+    }
+
+    public ArrayList<DataTodo> searchTodo(int select, String word) {
+        db = getReadableDatabase();
+        ArrayList<DataTodo> list = new ArrayList<>();
+        String query;
+        switch (select) {
+            case (0):
+                query = "SELECT * FROM Todo WHERE Title Like '%" + word + "%' OR Tags Like '%" + word + "%';";
+                break;
+            case (1):
+                query = "SELECT * FROM Todo WHERE Title Like '%" + word + "%';";
+                break;
+            case (2):
+                query = "SELECT * FROM Todo WHERE Tags Like '%" + word + "%';";
+                break;
+            default:
+                query = "SELECT * FROM Todo Where Date = 'NOTHING FOUNDED';";
+                break;
+        }
+        Cursor cursor = db.rawQuery(query, null);
+        while (cursor.moveToNext()) {
+            DataTodo data = new DataTodo(cursor.getInt(0),
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getString(3),
+                    cursor.getInt(4),
+                    cursor.getInt(5));
+            list.add(data);
+        }
+        cursor.close();
         return list;
     }
 }

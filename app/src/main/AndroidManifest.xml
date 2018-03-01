@@ -12,7 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.afordev.todomanagermini.MainActivity">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -20,14 +20,16 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="com.afordev.todomanagermini.Manager.ScreenReceiver" />
+        <receiver android:name=".Manager.ScreenReceiver" />
 
-        <service android:name="com.afordev.todomanagermini.Manager.ScreenService" />
+        <service android:name=".Manager.ScreenService" />
 
         <activity
-            android:name="com.afordev.todomanagermini.LockActivity"
+            android:name=".LockActivity"
             android:screenOrientation="sensorPortrait"
-            android:showOnLockScreen="true"></activity>
+            android:showOnLockScreen="true" />
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".SearchActivity"></activity>
     </application>
 
 </manifest>

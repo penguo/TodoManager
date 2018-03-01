@@ -2,7 +2,9 @@
 <resources>
     <color name="colorPrimary">#00695c</color>
     <color name="colorPrimaryDark">#004d40</color>
-    <color name="colorPrimaryLight">#e0f2f1</color>
+    <color name="colorPrimaryLight">#b2dfdb</color>
     <color name="colorAccent">#ff6e40</color>
     <color name="colorAccentLight">#b4ff9e80</color>
+
+    <color name="hashtagText">#006064</color>
 </resources>

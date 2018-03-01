@@ -3,6 +3,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/menu_search"
+        android:icon="@drawable/ic_search_white"
+        android:title="검색"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/menu_cal"
         android:icon="@drawable/ic_calendar_white"
         android:title="날짜 선택"
@@ -11,6 +16,6 @@
         android:id="@+id/menu_today"
         android:title="오늘로 이동" />
     <item
-        android:id="@+id/menu_service"
-        android:title="잠금 화면에 표시" />
+        android:id="@+id/menu_setting"
+        android:title="설정" />
 </menu>

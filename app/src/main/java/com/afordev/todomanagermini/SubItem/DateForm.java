@@ -129,7 +129,6 @@ public class DateForm {
             sb.append(",");
             sb.append(time.getMinute());
         }
-        Log.e("check", sb.toString());
         return sb.toString();
     }
 

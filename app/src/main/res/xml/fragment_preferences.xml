@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="기본 설정">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="pref_lock_screen"
+            android:title="잠금 화면 표시" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="리스트 설정">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="pref_auto_sort"
+            android:title="자동 정렬" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="pref_immediately_check"
+            android:summary="클릭 시 완료 여부를 묻지 않고 바로 체크됩니다."
+            android:title="클릭시 즉시 체크" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="앱 설정">
+        <Preference
+            android:summary="0.4"
+            android:title="앱 버전" />
+        <Preference android:title="데이터 동기화 설정" />
+    </PreferenceCategory>
+</PreferenceScreen>

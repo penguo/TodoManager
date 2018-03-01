@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.afordev.todomanagermini.Manager.DBManager;
+import com.afordev.todomanagermini.Manager.LockRcvAdapter;
 import com.afordev.todomanagermini.SubItem.DateForm;
 import com.afordev.todomanagermini.Manager.TodoRcvAdapter;
 
@@ -20,9 +21,9 @@ import java.util.Calendar;
 public class LockActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, View.OnClickListener {
 
     private RecyclerView rcvTodo;
-    private TodoRcvAdapter todoRcvAdapter;
+    private LockRcvAdapter lockRcvAdapter;
     private SwipeRefreshLayout mSwipe;
-    private DBManager dbManager = new DBManager(this, "todo.db", null, 1);
+    private DBManager dbManager = DBManager.getInstance(this);
     private LinearLayout layoutBtnEnter, layoutBtnBack;
     private TextView tvDate;
 
@@ -50,13 +51,13 @@ public class LockActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void initSet() {
         DateForm date = new DateForm(Calendar.getInstance());
         tvDate.setText(date.getMonth() + "월 " + date.getDay() + "일 " + date.getDayOfWeekToString());
-        todoRcvAdapter = new TodoRcvAdapter(this, dbManager, date, true);
-        rcvTodo.setAdapter(todoRcvAdapter);
+        lockRcvAdapter = new LockRcvAdapter(this, dbManager);
+        rcvTodo.setAdapter(lockRcvAdapter);
     }
 
     @Override
     public void onRefresh() {
-        todoRcvAdapter.onRefresh();
+        lockRcvAdapter.onRefresh();
         mSwipe.setRefreshing(false);
     }
 

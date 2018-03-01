@@ -4,7 +4,8 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,12 +18,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.DatePicker;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afordev.todomanagermini.Manager.DBManager;
 import com.afordev.todomanagermini.Manager.Manager;
 import com.afordev.todomanagermini.SubItem.DateForm;
-import com.afordev.todomanagermini.Manager.ScreenService;
 import com.afordev.todomanagermini.Manager.TodoRcvAdapter;
 
 import java.util.Calendar;
@@ -31,13 +30,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private Toolbar mToolbar;
     private RecyclerView rcvTodo;
-    private TodoRcvAdapter todoRcvAdapter;
+    public TodoRcvAdapter todoRcvAdapter;
     private SwipeRefreshLayout mSwipe;
     private DateForm date;
-    private DBManager dbManager = new DBManager(this, "todo.db", null, 1);
-    private boolean isServiceOn;
-    private MenuItem menuService;
-    private SharedPreferences prefs;
+    private DBManager dbManager = DBManager.getInstance(this);
+    private boolean isToday;
 
     private TextView tvVersion;
 
@@ -46,31 +43,46 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initSet();
+        Manager.checkService(this);
 
-        mToolbar = findViewById(R.id.today_toolbar);
+        mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         rcvTodo = findViewById(R.id.today_rcv);
         mSwipe = findViewById(R.id.today_swipe);
         tvVersion = findViewById(R.id.main_tv_version);
-        tvVersion.setText(Manager.APPVERSION);
+        tvVersion.setText(Manager.VERSIONNAME + Manager.VERSIONCODE);
 
         LinearLayoutManager llm = new LinearLayoutManager(this);
         DividerItemDecoration did = new DividerItemDecoration(this, llm.getOrientation());
         rcvTodo.addItemDecoration(did);
         rcvTodo.setLayoutManager(llm);
         mSwipe.setOnRefreshListener(this);
-        setDate(new DateForm(Calendar.getInstance()));
+        setData();
     }
 
-    public void initSet() {
-        prefs = getSharedPreferences("SetLock", MODE_PRIVATE);
-        checkService();
+    public void initSet(){
+        PackageInfo pInfo = null;
+        try {
+            pInfo = getPackageManager().getPackageInfo(
+                    this.getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        Manager.VERSIONCODE = pInfo.versionCode;
+        Manager.VERSIONNAME = pInfo.versionName;
     }
 
-    public void setDate(DateForm date) {
-        this.date = date;
-        mToolbar.setTitle(date.toString());
-        todoRcvAdapter = new TodoRcvAdapter(this, dbManager, date, false);
+    public void setData() {
+        try {
+            date = new DateForm(getIntent().getStringExtra("date"));
+            isToday = false;
+            mToolbar.setTitle(date.toString());
+        } catch (Exception e) {
+            date = new DateForm(Calendar.getInstance());
+            isToday = true;
+            mToolbar.setTitle("오늘의 할 일");
+        }
+        todoRcvAdapter = new TodoRcvAdapter(this, dbManager, date);
         rcvTodo.setAdapter(todoRcvAdapter);
     }
 
@@ -78,40 +90,28 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu_today, menu);
-        menuService = menu.findItem(R.id.menu_service);
-        if (isServiceOn) {
-            menuService.setTitle("잠금 화면에 표시하지 않음");
-        } else {
-            menuService.setTitle("잠금 화면에 표시");
-        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
             case (R.id.menu_cal):
                 dateSelectOption();
                 return true;
             case (R.id.menu_today):
-                setDate(new DateForm(Calendar.getInstance()));
-                return true;
-            case (R.id.menu_service):
-                if (!isServiceOn) {
-                    Toast.makeText(this, "잠금화면에 TodoManager가 표시됩니다.", Toast.LENGTH_SHORT).show();
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putBoolean("SetLock", true);
-                    editor.apply();
-                    checkService();
-                    menuService.setTitle("잠금 화면에 표시하지 않음");
-                } else {
-                    Toast.makeText(this, "잠금화면에 TodoManager가 표시되지 않습니다.", Toast.LENGTH_SHORT).show();
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putBoolean("SetLock", false);
-                    editor.apply();
-                    checkService();
-                    menuService.setTitle("잠금 화면에 표시");
+                if (!isToday) {
+                    finish();
                 }
+                return true;
+            case (R.id.menu_setting):
+                intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivityForResult(intent, Manager.RC_MAIN_TO_SETTING);
+                return true;
+            case(R.id.menu_search):
+                intent = new Intent(MainActivity.this, SearchActivity.class);
+                startActivityForResult(intent, Manager.RC_MAIN_TO_SEARCH);
                 return true;
         }
         return false;
@@ -159,19 +159,37 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private DatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-            setDate(new DateForm(year, monthOfYear + 1, dayOfMonth));
+            DateForm temp = new DateForm(year, monthOfYear + 1, dayOfMonth);
+            DateForm today = new DateForm(Calendar.getInstance());
+            if (temp.getYear() == today.getYear() &&
+                    temp.getMonth() == today.getMonth() &&
+                    temp.getDay() == today.getDay()) {
+                if (!isToday) {
+                    finish();
+                }
+            } else {
+                Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                intent.putExtra("date", temp.toDBString());
+                if (!isToday) {
+                    finish();
+                }
+                startActivity(intent);
+            }
         }
     };
 
-    public void checkService() {
-        isServiceOn = prefs.getBoolean("SetLock", false);
-        if (isServiceOn) {
-            Intent intent = new Intent(this, ScreenService.class);
-            startService(intent);
-        } else {
-            Intent intent = new Intent(this, ScreenService.class);
-            stopService(intent);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Manager.RC_MAIN_TO_SETTING) {
+            if (resultCode == RESULT_OK) {
+                onRefresh();
+            }
+        }
+        if (requestCode == Manager.RC_MAIN_TO_SEARCH) {
+            if (resultCode == RESULT_OK) {
+                onRefresh();
+            }
         }
     }
-
 }

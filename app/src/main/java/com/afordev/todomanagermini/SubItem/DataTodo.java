@@ -1,5 +1,7 @@
 package com.afordev.todomanagermini.SubItem;
 
+import java.util.ArrayList;
+
 /**
  * Created by penguo on 2018-02-11.
  */
@@ -51,8 +53,16 @@ public class DataTodo {
         return tags;
     }
 
-    public String[] getTagList(){
-        return tags.split(",");
+    public ArrayList<String> getTagList() {
+        ArrayList<String> list = new ArrayList<>();
+        String[] st = tags.split(",");
+        for (int i = 0; i < st.length; i++) {
+            list.add(st[i]);
+        }
+        if(list.contains("")){
+            list.remove("");
+        }
+        return list;
     }
 
     public void setDate(DateForm date) {
@@ -77,5 +87,16 @@ public class DataTodo {
 
     public void setTags(String tags) {
         this.tags = tags;
+    }
+
+    public void setTagList(ArrayList<String> list) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < list.size(); i++) {
+            sb.append(list.get(i));
+            if (i < list.size() - 1) {
+                sb.append(",");
+            }
+        }
+        this.tags = sb.toString();
     }
 }
