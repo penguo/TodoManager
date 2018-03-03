@@ -1,4 +1,13 @@
 <resources>
     <string name="app_name">TodoM</string>
     <string name="auto_complete_textview">현재 등록된 태그</string>
+    <string-array name="dayofweek">
+        <item>일</item>
+        <item>월</item>
+        <item>화</item>
+        <item>수</item>
+        <item>목</item>
+        <item>금</item>
+        <item>토</item>
+    </string-array>
 </resources>

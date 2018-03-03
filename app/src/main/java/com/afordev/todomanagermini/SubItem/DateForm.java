@@ -1,144 +1,171 @@
 package com.afordev.todomanagermini.SubItem;
 
-import android.util.Log;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.util.Calendar;
 
 /**
- * Created by pengu on 2018-02-11.
+ * Created by penguo on 2018-03-03.
  */
 
-public class DateForm {
+public class DateForm implements Parcelable{
+    private int year, month, day;
+    private int hour, minute, dayofweek;
 
-    private int year = 2000, month = 1, day = 1, dayOfWeek = 0;
-    private TimeForm time;
-
-    public DateForm(String date) {
-        String[] st = date.split(",");
-        try {
-            year = Integer.parseInt(st[0]);
-            month = Integer.parseInt(st[1]);
-            day = Integer.parseInt(st[2]);
-        } catch (Exception e) {
-        }
-        try {
-            this.time = new TimeForm(Integer.parseInt(st[3]), Integer.parseInt(st[4]));
-        } catch (Exception e) {
-        }
+    public DateForm(long second) {
         Calendar cal = Calendar.getInstance();
-        cal.set(year, month - 1, day);
-        dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
-    }
-
-    public DateForm(int year, int month, int day) {
-        this.year = year;
-        this.month = month;
-        this.day = day;
-        Calendar cal = Calendar.getInstance();
-        cal.set(year, month - 1, day);
-        dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+        cal.setTimeInMillis(second * 60000);
+        year = cal.get(Calendar.YEAR);
+        month = cal.get(Calendar.MONTH);
+        day = cal.get(Calendar.DATE);
+        hour = cal.get(Calendar.HOUR_OF_DAY);
+        minute = cal.get(Calendar.MINUTE);
+        dayofweek = cal.get(Calendar.DAY_OF_WEEK);
     }
 
     public DateForm(Calendar cal) {
-        this.year = cal.get(Calendar.YEAR);
-        this.month = cal.get(Calendar.MONTH) + 1;
-        this.day = cal.get(Calendar.DATE);
-        dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+        year = cal.get(Calendar.YEAR);
+        month = cal.get(Calendar.MONTH);
+        day = cal.get(Calendar.DATE);
+        hour = 0;
+        minute = 0;
+        dayofweek = cal.get(Calendar.DAY_OF_WEEK);
     }
 
-    public TimeForm getTime() {
-        return time;
+    public DateForm(int year, int month, int day) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month, this.day);
+        this.year = year;
+        this.month = month;
+        this.day = day;
+        hour = 0;
+        minute = 0;
+        this.dayofweek = cal.get(Calendar.DAY_OF_WEEK);
     }
 
-    public int getDay() {
-        return day;
+    protected DateForm(Parcel in) {
+        year = in.readInt();
+        month = in.readInt();
+        day = in.readInt();
+        hour = in.readInt();
+        minute = in.readInt();
+        dayofweek = in.readInt();
     }
 
-    public int getMonth() {
-        return month;
+    public static final Creator<DateForm> CREATOR = new Creator<DateForm>() {
+        @Override
+        public DateForm createFromParcel(Parcel in) {
+            return new DateForm(in);
+        }
+
+        @Override
+        public DateForm[] newArray(int size) {
+            return new DateForm[size];
+        }
+    };
+
+    public void addDate(int i) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month, day, hour, minute);
+        cal.add(Calendar.DATE, i);
+        year = cal.get(Calendar.YEAR);
+        month = cal.get(Calendar.MONTH);
+        day = cal.get(Calendar.DATE);
+        hour = cal.get(Calendar.HOUR_OF_DAY);
+        minute = cal.get(Calendar.MINUTE);
+        dayofweek = cal.get(Calendar.DAY_OF_WEEK);
+    }
+
+    public long getSecond() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month, day, hour, minute);
+        return cal.getTimeInMillis() / 60000;
+    }
+
+    public void set(int year, int month, int day) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month, day);
+        this.year = year;
+        this.month = month;
+        this.day = day;
+        hour = 0;
+        minute = 0;
+        this.dayofweek = cal.get(Calendar.DAY_OF_WEEK);
+    }
+
+    public int compareTo(DateForm anotherDate) {
+        DateForm date1 = new DateForm(this.getSecond());
+        date1.setHour(0);
+        date1.setMinute(0);
+        DateForm date2 = new DateForm(anotherDate.getSecond());
+        date2.setHour(0);
+        date2.setMinute(0);
+        if (date1.getSecond() < date2.getSecond()) {
+            return 1;
+        } else if (date1.getSecond() > date2.getSecond()) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+
+    public int getDayofweek() {
+        return dayofweek;
+    }
+
+    public int getMinute() {
+        return minute;
+    }
+
+    public int getHour() {
+        return hour;
     }
 
     public int getYear() {
         return year;
     }
 
-    public int getDayOfWeek() {
-        return dayOfWeek;
+    public int getMonth() {
+        return month;
     }
 
-    public String getDayOfWeekToString() {
-        switch (dayOfWeek) {
-            case (1):
-                return "일요일";
-            case (2):
-                return "월요일";
-            case (3):
-                return "화요일";
-            case (4):
-                return "수요일";
-            case (5):
-                return "목요일";
-            case (6):
-                return "금요일";
-            case (7):
-                return "토요일";
-            default:
-                return "null";
-        }
-    }
-
-    public void setTime(TimeForm time) {
-        this.time = time;
+    public int getDay() {
+        return day;
     }
 
     public void setDay(int day) {
         this.day = day;
     }
 
-    public void setMonth(int month) {
-        this.month = month;
+    public void setMinute(int minute) {
+        this.minute = minute;
+    }
+
+    public void setHour(int hour) {
+        this.hour = hour;
     }
 
     public void setYear(int year) {
         this.year = year;
     }
 
-    public void setDayOfWeek(int dayOfWeek) {
-        this.dayOfWeek = dayOfWeek;
+    public void setMonth(int month) {
+        this.month = month;
     }
 
     @Override
-    public String toString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append(year + "년 ");
-        sb.append(month + "월 ");
-        sb.append(day + "일");
-        return sb.toString();
+    public int describeContents() {
+        return 0;
     }
 
-    public String toDBString() {
-        StringBuffer sb = new StringBuffer();
-        sb.append(year);
-        sb.append(",");
-        sb.append(month);
-        sb.append(",");
-        sb.append(day);
-        if (time != null) {
-            sb.append(",");
-            sb.append(time.getHour());
-            sb.append(",");
-            sb.append(time.getMinute());
-        }
-        return sb.toString();
-    }
-
-    public Calendar getCalendar() {
-        Calendar cal = Calendar.getInstance();
-        if (time == null) {
-            cal.set(year, month - 1, day);
-        } else {
-            cal.set(year, month - 1, day, time.getHour(), time.getMinute());
-        }
-        return cal;
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(year);
+        parcel.writeInt(month);
+        parcel.writeInt(day);
+        parcel.writeInt(hour);
+        parcel.writeInt(minute);
+        parcel.writeInt(dayofweek);
     }
 }

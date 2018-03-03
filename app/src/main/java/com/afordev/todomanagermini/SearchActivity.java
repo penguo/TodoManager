@@ -14,12 +14,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afordev.todomanagermini.Manager.DBManager;
 import com.afordev.todomanagermini.Manager.SearchRcvAdapter;
+import com.afordev.todomanagermini.SubItem.DataTodo;
 
 import java.util.ArrayList;
 
@@ -34,6 +36,7 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
     private SearchRcvAdapter searchRcvAdapter;
     private ImageView ivSearch;
     private int selectedItemPos;
+    private LinearLayout layoutTop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +45,7 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
 
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
+        layoutTop = findViewById(R.id.search_layout_top);
         etSearch = findViewById(R.id.search_et_word);
         etSearch.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
         etSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -57,30 +61,40 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
         rcvSearch = findViewById(R.id.search_rcv);
         ivSearch = findViewById(R.id.search_iv_search);
 
+        setData();
+    }
+
+    public void setData() {
+        ArrayList<DataTodo> dataList = getIntent().getParcelableArrayListExtra("list");
         searchRcvAdapter = new SearchRcvAdapter(this, dbManager, -1, "");
         LinearLayoutManager llm = new LinearLayoutManager(this);
         DividerItemDecoration did = new DividerItemDecoration(this, llm.getOrientation());
         rcvSearch.addItemDecoration(did);
         rcvSearch.setLayoutManager(llm);
         rcvSearch.setAdapter(searchRcvAdapter);
-
-        items = new ArrayList<>();
-        items.add("전체");
-        items.add("제목");
-        items.add("태그");
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(
-                this,
-                R.layout.support_simple_spinner_dropdown_item,
-                items);
-        spinner.setAdapter(spinnerAdapter);
-        spinner.setSelection(0);
-        spinner.setOnItemSelectedListener(this);
-        ivSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                search();
-            }
-        });
+        if (dataList == null) {
+            items = new ArrayList<>();
+            items.add("전체");
+            items.add("제목");
+            items.add("태그");
+            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(
+                    this,
+                    R.layout.support_simple_spinner_dropdown_item,
+                    items);
+            spinner.setAdapter(spinnerAdapter);
+            spinner.setSelection(0);
+            spinner.setOnItemSelectedListener(this);
+            ivSearch.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    search();
+                }
+            });
+        } else {
+            layoutTop.setVisibility(View.GONE);
+            searchRcvAdapter = new SearchRcvAdapter(this, dbManager, dataList);
+            rcvSearch.setAdapter(searchRcvAdapter);
+        }
     }
 
     @Override
@@ -105,13 +119,13 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
             searchRcvAdapter = new SearchRcvAdapter(this, dbManager, selectedItemPos, etSearch.getText().toString());
             rcvSearch.setAdapter(searchRcvAdapter);
             StringBuffer sb = new StringBuffer();
-            switch(selectedItemPos){
-                case(0):
+            switch (selectedItemPos) {
+                case (0):
                     break;
-                case(1):
+                case (1):
                     sb.append("제목에서의 ");
                     break;
-                case(2):
+                case (2):
                     sb.append("태그에서의 ");
                     break;
             }

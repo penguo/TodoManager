@@ -13,8 +13,8 @@ import android.widget.TextView;
 
 import com.afordev.todomanagermini.Manager.DBManager;
 import com.afordev.todomanagermini.Manager.LockRcvAdapter;
+import com.afordev.todomanagermini.Manager.Manager;
 import com.afordev.todomanagermini.SubItem.DateForm;
-import com.afordev.todomanagermini.Manager.TodoRcvAdapter;
 
 import java.util.Calendar;
 
@@ -26,6 +26,7 @@ public class LockActivity extends AppCompatActivity implements SwipeRefreshLayou
     private DBManager dbManager = DBManager.getInstance(this);
     private LinearLayout layoutBtnEnter, layoutBtnBack;
     private TextView tvDate;
+    private DateForm date;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +50,8 @@ public class LockActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     public void initSet() {
-        DateForm date = new DateForm(Calendar.getInstance());
-        tvDate.setText(date.getMonth() + "월 " + date.getDay() + "일 " + date.getDayOfWeekToString());
+        date = new DateForm(Calendar.getInstance());
+        tvDate.setText(Manager.getDateForm(this, date));
         lockRcvAdapter = new LockRcvAdapter(this, dbManager);
         rcvTodo.setAdapter(lockRcvAdapter);
     }

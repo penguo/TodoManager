@@ -29,7 +29,6 @@ import com.afordev.todomanagermini.MainActivity;
 import com.afordev.todomanagermini.R;
 import com.afordev.todomanagermini.SubItem.DataTodo;
 import com.afordev.todomanagermini.SubItem.DateForm;
-import com.afordev.todomanagermini.SubItem.TimeForm;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -48,9 +47,9 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
     public TodoRcvAdapter(Context mContext, DBManager dbManager, DateForm date) {
         this.mContext = mContext;
         this.dbManager = dbManager;
-        this.dataList = dbManager.getTodoList(date);
         this.date = date;
-        if (date.toString().equals((new DateForm(Calendar.getInstance())).toString())) {
+        this.dataList = dbManager.getTodoList(date);
+        if (date.compareTo(new DateForm(Calendar.getInstance())) == 0) {
             isToday = true;
         } else {
             isToday = false;
@@ -155,6 +154,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                         if (editModePosition != -1) {
                             Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
                         } else {
+                            tempTodo = dataList.get(getAdapterPosition());
                             switch (dataList.get(getAdapterPosition()).getChecked()) {
                                 case (0):
                                     dataList.get(getAdapterPosition()).setChecked(1);
@@ -193,7 +193,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
 
                 case (R.id.item_todo_layout_new):
                     if (editModePosition == -1) {
-                        tempTodo = new DataTodo(-1, "", date.toDBString(), "", 0, 0);
+                        tempTodo = new DataTodo(-1, "", date.getSecond(), "", 0, 0, 0);
                         editModePosition = getAdapterPosition();
                         notifyItemChanged(getAdapterPosition());
                         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
@@ -301,7 +301,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                     break;
 
                 case (R.id.item_todo_btn_time):
-                    timeSelectOption(tempTodo.getDate().getTime());
+                    timeSelectOption();
                     break;
 
                 case (R.id.item_todo_btn_tag):
@@ -320,7 +320,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                     break;
 
                 case (R.id.item_todo_btn_pdelay):
-                    dateSelectOption(dataList.get(itemExpandPosition).getDate());
+                    dateSelectOption();
                     break;
 
                 case (R.id.item_todo_btn_pcheck):
@@ -371,15 +371,15 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
             } else {
                 holder.btnDelete.setVisibility(View.VISIBLE);
             }
-            if (data.getDate().getTime() == null && data.getTags().equals("")) {
+            if (data.getIsTimeActivated() == 0 && data.getTags().equals("")) {
                 holder.tvEditTag.setVisibility(View.GONE);
             } else {
                 holder.tvEditTag.setVisibility(View.VISIBLE);
                 StringBuffer sb = new StringBuffer();
-                if (data.getDate().getTime() != null) {
-                    sb.append(data.getDate().getTime().toString());
+                if (data.getIsTimeActivated() == 1) {
+                    sb.append(Manager.getTimeForm(data.getDate()));
                 }
-                if (data.getDate().getTime() != null && !data.getTags().equals("")) {
+                if (data.getIsTimeActivated() == 1 && !data.getTags().equals("")) {
                     sb.append(", ");
                 }
                 if (!data.getTags().equals("")) {
@@ -406,15 +406,15 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                 }
                 holder.etTitle.setText("");
                 holder.tvTitle.setText(data.getTitle());
-                if (data.getDate().getTime() == null && data.getTags().equals("")) {
+                if (data.getIsTimeActivated() == 0 && data.getTags().equals("")) {
                     holder.tvTag.setVisibility(View.GONE);
                 } else {
                     holder.tvTag.setVisibility(View.VISIBLE);
                     StringBuffer sb = new StringBuffer();
-                    if (data.getDate().getTime() != null) {
-                        sb.append(data.getDate().getTime().toString());
+                    if (data.getIsTimeActivated() == 1) {
+                        sb.append(Manager.getTimeForm(data.getDate()));
                     }
-                    if (data.getDate().getTime() != null && !data.getTags().equals("")) {
+                    if (data.getIsTimeActivated() == 1 && !data.getTags().equals("")) {
                         sb.append(", ");
                     }
                     if (!data.getTags().equals("")) {
@@ -531,43 +531,34 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
         return 0;
     }
 
-    public void dateSelectOption(DateForm date) {
-        DatePickerDialog dpDialog;
-
-        dpDialog = new DatePickerDialog(mContext, listenerDate, date.getYear(), date.getMonth() - 1, date.getDay());
+    public void dateSelectOption() {
+        DatePickerDialog dpDialog = new DatePickerDialog(mContext, listenerDate,
+                tempTodo.getDate().getYear(),
+                tempTodo.getDate().getMonth(),
+                tempTodo.getDate().getDay());
         dpDialog.show();
     }
 
     private DatePickerDialog.OnDateSetListener listenerDate = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-            DateForm date = new DateForm(year, monthOfYear + 1, dayOfMonth);
-            date.setTime(dataList.get(itemExpandPosition).getDate().getTime());
-            dataList.get(itemExpandPosition).setDate(date);
-            dbManager.updateTodo(dataList.get(itemExpandPosition));
+            tempTodo.getDate().set(year, monthOfYear, dayOfMonth);
         }
     };
 
-    public void timeSelectOption(TimeForm timeForm) {
-        TimePickerDialog dialog;
-        if (timeForm != null) {
-            dialog = new TimePickerDialog(mContext, listenerTime, timeForm.getHour(), timeForm.getMinute(), false);
-        } else {
-            Calendar cal = Calendar.getInstance();
-            dialog = new TimePickerDialog(mContext, listenerTime, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), false);
-        }
+    public void timeSelectOption() {
+        TimePickerDialog dialog = new TimePickerDialog(mContext, listenerTime,
+                tempTodo.getDate().getHour(),
+                tempTodo.getDate().getMinute(), false);
+
         dialog.show();
     }
 
     private TimePickerDialog.OnTimeSetListener listenerTime = new TimePickerDialog.OnTimeSetListener() {
         @Override
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            if (editModePosition != dataList.size()) {
-                dataList.get(editModePosition).getDate().setTime(new TimeForm(hourOfDay, minute));
-                dbManager.updateTodo(dataList.get(editModePosition));
-            } else {
-                tempTodo.getDate().setTime(new TimeForm(hourOfDay, minute));
-            }
+            tempTodo.getDate().setHour(hourOfDay);
+            tempTodo.getDate().setMinute(minute);
         }
     };
 

@@ -1,32 +1,64 @@
 package com.afordev.todomanagermini.SubItem;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * Created by penguo on 2018-02-11.
  */
 
-public class DataTodo {
+public class DataTodo implements Parcelable{
     private String title, tags;
     private DateForm date;
-    private int id, checked, type;
+    private int id, checked, type, isTimeActivated;
 
     public DataTodo() {
         this.id = -1;
         this.title = "";
-        this.date = new DateForm("2000,1,1");
+        this.date = new DateForm(Calendar.getInstance());
         this.tags = "";
         this.checked = 0;
         this.type = 0;
+        this.isTimeActivated = 0;
     }
 
-    public DataTodo(int id, String title, String date, String tags, int checked, int type) {
+    public DataTodo(int id, String title, long second, String tags, int checked, int type, int isTimeActivited) {
         this.id = id;
         this.title = title;
-        this.date = new DateForm(date);
+        this.date = new DateForm(second);
         this.tags = tags;
         this.checked = checked;
         this.type = type;
+        this.isTimeActivated = isTimeActivited;
+    }
+
+    protected DataTodo(Parcel in) {
+        title = in.readString();
+        tags = in.readString();
+        date = in.readParcelable(DateForm.class.getClassLoader());
+        id = in.readInt();
+        checked = in.readInt();
+        type = in.readInt();
+        isTimeActivated = in.readInt();
+    }
+
+    public static final Creator<DataTodo> CREATOR = new Creator<DataTodo>() {
+        @Override
+        public DataTodo createFromParcel(Parcel in) {
+            return new DataTodo(in);
+        }
+
+        @Override
+        public DataTodo[] newArray(int size) {
+            return new DataTodo[size];
+        }
+    };
+
+    public int getIsTimeActivated() {
+        return isTimeActivated;
     }
 
     public DateForm getDate() {
@@ -59,10 +91,14 @@ public class DataTodo {
         for (int i = 0; i < st.length; i++) {
             list.add(st[i]);
         }
-        if(list.contains("")){
+        if (list.contains("")) {
             list.remove("");
         }
         return list;
+    }
+
+    public void setIsTimeActivated(int isTimeActivated) {
+        this.isTimeActivated = isTimeActivated;
     }
 
     public void setDate(DateForm date) {
@@ -98,5 +134,21 @@ public class DataTodo {
             }
         }
         this.tags = sb.toString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(title);
+        parcel.writeString(tags);
+        parcel.writeParcelable(date, i);
+        parcel.writeInt(id);
+        parcel.writeInt(checked);
+        parcel.writeInt(type);
+        parcel.writeInt(isTimeActivated);
     }
 }

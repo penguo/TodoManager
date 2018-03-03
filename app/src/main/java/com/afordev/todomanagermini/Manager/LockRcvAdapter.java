@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -87,15 +86,15 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
         DataTodo data = dataList.get(position);
         holder.layout.setVisibility(View.VISIBLE);
         holder.tvTitle.setText(data.getTitle());
-        if (data.getDate().getTime() == null && data.getTags().equals("")) {
+        if (data.getIsTimeActivated() == 0 && data.getTags().equals("")) {
             holder.tvTag.setVisibility(View.GONE);
         } else {
             holder.tvTag.setVisibility(View.VISIBLE);
             StringBuffer sb = new StringBuffer();
-            if (data.getDate().getTime() != null) {
-                sb.append(data.getDate().getTime().toString());
+            if (data.getIsTimeActivated() == 1) {
+                sb.append(Manager.getTimeForm(data.getDate()));
             }
-            if (data.getDate().getTime() != null && !data.getTags().equals("")) {
+            if (data.getIsTimeActivated() == 1 && !data.getTags().equals("")) {
                 sb.append(", ");
             }
             if (!data.getTags().equals("")) {

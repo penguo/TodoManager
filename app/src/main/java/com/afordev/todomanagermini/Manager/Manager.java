@@ -21,10 +21,9 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.afordev.todomanagermini.MainActivity;
 import com.afordev.todomanagermini.R;
-import com.afordev.todomanagermini.SettingsFragment;
 import com.afordev.todomanagermini.SubItem.DataTodo;
+import com.afordev.todomanagermini.SubItem.DateForm;
 import com.greenfrvr.hashtagview.HashtagView;
 
 import java.util.ArrayList;
@@ -35,6 +34,7 @@ import java.util.ArrayList;
 
 public class Manager {
 
+    public static final int RC_MAIN_TO_MAIN = 1000;
     public static final int RC_MAIN_TO_SETTING = 1001;
     public static final int RC_MAIN_TO_SEARCH = 1002;
 
@@ -134,4 +134,27 @@ public class Manager {
         dialog.show();
     }
 
+    public static String getDateForm(Context mContext, DateForm date) {
+        StringBuffer sb = new StringBuffer();
+        sb.append((date.getMonth() + 1) + "월 ");
+        sb.append(date.getDay() + "일 ");
+        sb.append(mContext.getResources().getStringArray(R.array.dayofweek)[date.getDayofweek() - 1] + "요일");
+        return sb.toString();
+    }
+
+    public static String getTimeForm(DateForm date) {
+        StringBuffer sb = new StringBuffer();
+        int hour = date.getHour();
+        if (hour < 12) {
+            sb.append("오후 ");
+            if (hour != 12) {
+                hour -= 12;
+            }
+        } else {
+            sb.append("오전 ");
+        }
+        sb.append(hour + "시 ");
+        sb.append(date.getMinute() + "분");
+        return sb.toString();
+    }
 }

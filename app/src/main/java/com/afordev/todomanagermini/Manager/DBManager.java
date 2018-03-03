@@ -23,7 +23,7 @@ public class DBManager extends SQLiteOpenHelper {
 
     public static DBManager getInstance(Context mContext) {
         if (instance == null) {
-            instance = new DBManager(mContext, "todo.db", null, 1);
+            instance = new DBManager(mContext, "todo.db", null, 4);
         } else {
             instance.setContext(mContext);
         }
@@ -44,47 +44,46 @@ public class DBManager extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE Todo ( " +
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "Title TEXT, " +
-                "Date TEXT," +
+                "Date Integer," +
                 "Tags TEXT," +
                 "Checked Integer, " +
-                "Type Integer); ");
+                "Type Integer, " +
+                "IsTimeActivated Integer); ");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         switch (newVersion) {
-            case (1):
+            case (4):
+                onCreate(db);
                 break;
         }
     }
 
-    public void reset() {
-        db = getWritableDatabase();
-        db.execSQL(" DROP TABLE Todo; ");
-        onCreate(db);
-        db.close();
-    }
-
     public void insertTodo(DataTodo data) {
         db = getWritableDatabase();
+        long second = data.getDate().getSecond();
         db.execSQL(" INSERT INTO Todo VALUES ( " +
                 " null, " +
                 "'" + data.getTitle() + "', " +
-                "'" + data.getDate().toDBString() + "', " +
+                second + ", " +
                 "'" + data.getTags() + "', " +
-                data.getChecked() + "," +
-                data.getType() + ");");
+                data.getChecked() + ", " +
+                data.getType() + ", " +
+                data.getIsTimeActivated() + ");");
         db.close();
     }
 
     public void updateTodo(DataTodo data) {
         db = getWritableDatabase();
+        long second = data.getDate().getSecond();
         db.execSQL(" UPDATE Todo SET " +
                 "Title = '" + data.getTitle() + "', " +
-                "Date = '" + data.getDate().toDBString() + "', " +
+                "Date = " + second + ", " +
                 "Checked = " + data.getChecked() + ", " +
                 "Tags = '" + data.getTags() + "', " +
-                "Type = " + data.getType() + " " +
+                "Type = " + data.getType() + ", " +
+                "IsTimeActivated = " + data.getIsTimeActivated() + " " +
                 "WHERE _id = " + data.getId() + " ; ");
         db.close();
     }
@@ -102,26 +101,36 @@ public class DBManager extends SQLiteOpenHelper {
         while (cursor.moveToNext()) {
             data = new DataTodo(cursor.getInt(0),
                     cursor.getString(1),
-                    cursor.getString(2),
+                    cursor.getLong(2),
                     cursor.getString(3),
                     cursor.getInt(4),
-                    cursor.getInt(5));
+                    cursor.getInt(5),
+                    cursor.getInt(6));
         }
         cursor.close();
         return data;
     }
 
-    public ArrayList<DataTodo> getTodoList(DateForm date) {
+    public ArrayList<DataTodo> getTodoList(final DateForm date) {
         db = getReadableDatabase();
         ArrayList<DataTodo> list = new ArrayList<>();
-        Cursor cursor = db.rawQuery("SELECT * FROM Todo WHERE Date Like '" + date.toDBString() + "%';", null);
+        DateForm temp = new DateForm(date.getSecond());
+        temp.setHour(0);
+        temp.setMinute(0);
+        long secondL = temp.getSecond();
+        temp.addDate(1);
+        long secondR = temp.getSecond();
+        Cursor cursor = db.rawQuery("SELECT * FROM Todo " +
+                "WHERE Date >= " + secondL + " " +
+                "AND Date < " + secondR + ";", null);
         while (cursor.moveToNext()) {
             DataTodo data = new DataTodo(cursor.getInt(0),
                     cursor.getString(1),
-                    cursor.getString(2),
+                    cursor.getLong(2),
                     cursor.getString(3),
                     cursor.getInt(4),
-                    cursor.getInt(5));
+                    cursor.getInt(5),
+                    cursor.getInt(6));
             list.add(data);
         }
         cursor.close();
@@ -186,45 +195,65 @@ public class DBManager extends SQLiteOpenHelper {
         while (cursor.moveToNext()) {
             DataTodo data = new DataTodo(cursor.getInt(0),
                     cursor.getString(1),
-                    cursor.getString(2),
+                    cursor.getLong(2),
                     cursor.getString(3),
                     cursor.getInt(4),
-                    cursor.getInt(5));
+                    cursor.getInt(5),
+                    cursor.getInt(6));
             list.add(data);
         }
         cursor.close();
         return list;
     }
 
-    public ArrayList<DataTodo> getMissedHalfStarList(DateForm targetDate) {
+    public ArrayList<DataTodo> getMissedHalfStarList(final DateForm date) {
         db = getReadableDatabase();
         ArrayList<DataTodo> list = new ArrayList<>();
-        targetDate.getCalendar().add(Calendar.DATE, -1);
-        Cursor cursor = db.rawQuery("SELECT * FROM Todo Where Date Like '" + targetDate.toDBString() + "%' AND Type = 1 AND Checked = 0;", null);
+        DateForm temp = new DateForm(date.getSecond());
+        temp.setHour(0);
+        temp.setMinute(0);
+        long secondL = temp.getSecond();
+        temp.addDate(1);
+        long secondR = temp.getSecond();
+        Cursor cursor = db.rawQuery("SELECT * FROM Todo " +
+                "WHERE Date >= " + secondL + " " +
+                "AND Date < " + secondR + " " +
+                "AND Type = 1 " +
+                "AND Checked = 0;", null);
         while (cursor.moveToNext()) {
             DataTodo data = new DataTodo(cursor.getInt(0),
                     cursor.getString(1),
-                    cursor.getString(2),
+                    cursor.getLong(2),
                     cursor.getString(3),
                     cursor.getInt(4),
-                    cursor.getInt(5));
+                    cursor.getInt(5),
+                    cursor.getInt(6));
             list.add(data);
         }
         cursor.close();
         return list;
     }
 
-    public ArrayList<DataTodo> getMissedStarList(DateForm targetDate) {
+    public ArrayList<DataTodo> getMissedStarList(final DateForm date) {
         db = getReadableDatabase();
+        DateForm temp = new DateForm(date.getSecond());
+        temp.setHour(0);
+        temp.setMinute(0);
+        temp.addDate(1);
+        long second = temp.getSecond();
         ArrayList<DataTodo> list = new ArrayList<>();
-        Cursor cursor = db.rawQuery("SELECT * FROM Todo Where Date Like '" + targetDate.toDBString() + "%' AND Type = 1 AND Checked = 0;", null);
+        Cursor cursor = db.rawQuery("SELECT * FROM Todo " +
+                "Where Date < " + second + " " +
+                "AND Type = 2 " +
+                "AND Checked = 0;", null);
         while (cursor.moveToNext()) {
             DataTodo data = new DataTodo(cursor.getInt(0),
                     cursor.getString(1),
-                    cursor.getString(2),
+                    cursor.getLong(2),
                     cursor.getString(3),
                     cursor.getInt(4),
-                    cursor.getInt(5));
+                    cursor.getInt(5),
+                    cursor.getInt(6));
             list.add(data);
         }
         cursor.close();
