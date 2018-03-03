@@ -40,7 +40,6 @@ public class Manager {
 
     public static final String PREF_LOCK_SCREEN = "pref_lock_screen";
     public static final String PREF_AUTO_SORT = "pref_auto_sort";
-    public static final String PREF_IMM_CHECK = "pref_immediately_check";
     public static int VERSIONCODE = -1;
     public static String VERSIONNAME = "";
 

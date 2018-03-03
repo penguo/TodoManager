@@ -2,13 +2,31 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    defaultConfig {
-        applicationId "com.afordev.todomanagermini"
-        minSdkVersion 21
-        targetSdkVersion 26
-        versionCode 1
-        versionName "Dev"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    def versionPropsFile = file('version.properties')
+    if (versionPropsFile.canRead()) {
+        def Properties versionProps = new Properties()
+
+        versionProps.load(new FileInputStream(versionPropsFile))
+
+        def code = versionProps['VERSION_CODE'].toInteger() + 1
+
+        versionProps['VERSION_CODE'] = code.toString()
+        versionProps.store(versionPropsFile.newWriter(), null)
+
+        defaultConfig {
+            applicationId "com.afordev.todomanagermini"
+            minSdkVersion 21
+            targetSdkVersion 26
+            versionCode code
+            versionName "0.5"
+            testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+            setProperty("archivesBaseName", "app-v${versionName}c${versionCode}")
+        }
+    } else {
+        throw new GradleException("Could not read version.properties!")
+    }
+    applicationVariants.all { variant ->
+        variant.resValue "string", "version", "${versionName} build${versionCode}"
     }
     buildTypes {
         release {
