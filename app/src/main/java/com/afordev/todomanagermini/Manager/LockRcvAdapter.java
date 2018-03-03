@@ -28,14 +28,13 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
     public LockRcvAdapter(Context mContext, DBManager dbManager) {
         this.mContext = mContext;
         this.dbManager = dbManager;
-        this.dataList = dbManager.getTodoList(date);
         this.date = new DateForm(Calendar.getInstance());
+        this.dataList = dbManager.getTodoList(date);
     }
 
     @Override
     public int getItemCount() {
         return dataList.size();
-
     }
 
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

@@ -20,7 +20,7 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="앱 설정">
         <Preference
-            android:summary="0.4"
+            android:summary="dev 180302.2"
             android:title="앱 버전" />
         <Preference android:title="데이터 동기화 설정" />
     </PreferenceCategory>

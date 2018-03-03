@@ -19,7 +19,7 @@
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:minHeight="72dp"
+            android:minHeight="48dp"
             android:visibility="visible"
             tools:layout_editor_absoluteX="384dp"
             tools:layout_editor_absoluteY="259dp">

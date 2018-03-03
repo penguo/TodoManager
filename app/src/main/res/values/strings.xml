@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">TDM_Mini</string>
+    <string name="app_name">TodoM</string>
     <string name="auto_complete_textview">현재 등록된 태그</string>
 </resources>

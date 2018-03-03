@@ -10,9 +10,11 @@ import android.graphics.Paint;
 import android.preference.PreferenceManager;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -103,6 +105,16 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
             btnPDelay = itemView.findViewById(R.id.item_todo_btn_pdelay);
             btnPCheck = itemView.findViewById(R.id.item_todo_btn_pcheck);
 
+            etTitle.setImeOptions(EditorInfo.IME_ACTION_DONE);
+            etTitle.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        ivEditSave.performClick();
+                    }
+                    return false;
+                }
+            });
             if (isToday) {
                 layout.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
@@ -181,11 +193,15 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                     break;
 
                 case (R.id.item_todo_layout_new):
-                    isMenuExpand = false;
-                    tempTodo = new DataTodo(-1, "", date.toDBString(), "", 0, 0);
-                    editModePosition = getAdapterPosition();
-                    notifyItemChanged(getAdapterPosition());
-                    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                    if (editModePosition == -1) {
+                        isMenuExpand = false;
+                        tempTodo = new DataTodo(-1, "", date.toDBString(), "", 0, 0);
+                        editModePosition = getAdapterPosition();
+                        notifyItemChanged(getAdapterPosition());
+                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                    } else {
+                        Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
+                    }
                     break;
 
                 case (R.id.item_todo_iv_left):

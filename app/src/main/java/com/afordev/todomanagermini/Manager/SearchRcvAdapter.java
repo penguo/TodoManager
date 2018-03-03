@@ -10,9 +10,11 @@ import android.graphics.Paint;
 import android.preference.PreferenceManager;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -91,6 +93,16 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<SearchRcvAdapter.View
             btnPDelay = itemView.findViewById(R.id.item_todo_btn_pdelay);
             btnPCheck = itemView.findViewById(R.id.item_todo_btn_pcheck);
 
+            etTitle.setImeOptions(EditorInfo.IME_ACTION_DONE);
+            etTitle.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        ivEditSave.performClick();
+                    }
+                    return false;
+                }
+            });
             layout.setOnClickListener(this);
             ivLeft.setOnClickListener(this);
             ivEditLeft.setOnClickListener(this);

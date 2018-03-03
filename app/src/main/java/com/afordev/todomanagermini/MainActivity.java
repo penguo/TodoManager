@@ -36,8 +36,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private DBManager dbManager = DBManager.getInstance(this);
     private boolean isToday;
 
-    private TextView tvVersion;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,8 +47,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setSupportActionBar(mToolbar);
         rcvTodo = findViewById(R.id.today_rcv);
         mSwipe = findViewById(R.id.today_swipe);
-        tvVersion = findViewById(R.id.main_tv_version);
-        tvVersion.setText(Manager.VERSIONNAME + Manager.VERSIONCODE);
 
         LinearLayoutManager llm = new LinearLayoutManager(this);
         DividerItemDecoration did = new DividerItemDecoration(this, llm.getOrientation());
@@ -119,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
+        Manager.checkService(this);
         todoRcvAdapter.onRefresh();
         mSwipe.setRefreshing(false);
     }
