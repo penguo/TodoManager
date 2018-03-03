@@ -41,7 +41,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
     private DateForm date;
     private InputMethodManager imm;
     public int editModePosition = -1;
-    private boolean isMenuExpand, isToday, isAutoSort;
+    private boolean isToday, isAutoSort;
     public int itemExpandPosition = -1;
     public DataTodo tempTodo;
 
@@ -120,7 +120,6 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                     @Override
                     public boolean onLongClick(View view) {
                         if (editModePosition == -1) {
-                            isMenuExpand = false;
                             editModePosition = getAdapterPosition();
                             tempTodo = dataList.get(getAdapterPosition());
                             notifyItemChanged(getAdapterPosition());
@@ -194,7 +193,6 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
 
                 case (R.id.item_todo_layout_new):
                     if (editModePosition == -1) {
-                        isMenuExpand = false;
                         tempTodo = new DataTodo(-1, "", date.toDBString(), "", 0, 0);
                         editModePosition = getAdapterPosition();
                         notifyItemChanged(getAdapterPosition());
@@ -233,16 +231,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                     break;
 
                 case (R.id.item_todo_iv_edit_left):
-                    tempTodo.setTitle(etTitle.getText().toString());
-                    if (!isMenuExpand) {
-                        isMenuExpand = true;
-                        notifyItemChanged(editModePosition);
-                        imm.hideSoftInputFromWindow(etTitle.getWindowToken(), 0);
-                    } else {
-                        isMenuExpand = false;
-                        notifyItemChanged(editModePosition);
-                        imm.hideSoftInputFromWindow(etTitle.getWindowToken(), 0);
-                    }
+                    Toast.makeText(mContext, "Next Version...", Toast.LENGTH_SHORT).show();
                     break;
 
                 case (R.id.item_todo_iv_edit_save):
@@ -321,7 +310,6 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
 
                 case (R.id.item_todo_btn_pedit):
                     if (editModePosition == -1) {
-                        isMenuExpand = false;
                         editModePosition = getAdapterPosition();
                         tempTodo = dataList.get(getAdapterPosition());
                         notifyItemChanged(getAdapterPosition());
@@ -382,11 +370,6 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                 holder.btnDelete.setVisibility(View.GONE);
             } else {
                 holder.btnDelete.setVisibility(View.VISIBLE);
-            }
-            if (!isMenuExpand) {
-                holder.layoutExpand.setVisibility(View.GONE);
-            } else {
-                holder.layoutExpand.setVisibility(View.VISIBLE);
             }
             if (data.getDate().getTime() == null && data.getTags().equals("")) {
                 holder.tvEditTag.setVisibility(View.GONE);

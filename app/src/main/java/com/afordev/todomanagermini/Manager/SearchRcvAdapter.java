@@ -40,7 +40,7 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<SearchRcvAdapter.View
     private ArrayList<DataTodo> dataList;
     private InputMethodManager imm;
     public int editModePosition = -1;
-    private boolean isMenuExpand;
+    private boolean isMenuExpand, isEmpty;
     public int itemExpandPosition = -1;
     public DataTodo tempTodo;
 

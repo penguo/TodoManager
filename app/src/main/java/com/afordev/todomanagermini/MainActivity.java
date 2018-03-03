@@ -16,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.DatePicker;
 import android.widget.TextView;
 
@@ -23,6 +24,7 @@ import com.afordev.todomanagermini.Manager.DBManager;
 import com.afordev.todomanagermini.Manager.Manager;
 import com.afordev.todomanagermini.SubItem.DateForm;
 import com.afordev.todomanagermini.Manager.TodoRcvAdapter;
+import com.afordev.todomanagermini.SubItem.ItemNotice;
 
 import java.util.Calendar;
 
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private DateForm date;
     private DBManager dbManager = DBManager.getInstance(this);
     private boolean isToday;
+    private ItemNotice notice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setSupportActionBar(mToolbar);
         rcvTodo = findViewById(R.id.today_rcv);
         mSwipe = findViewById(R.id.today_swipe);
+        notice = new ItemNotice(this, findViewById(R.id.today_notice));
 
         LinearLayoutManager llm = new LinearLayoutManager(this);
         DividerItemDecoration did = new DividerItemDecoration(this, llm.getOrientation());
@@ -56,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setData();
     }
 
-    public void initSet(){
+    public void initSet() {
         PackageInfo pInfo = null;
         try {
             pInfo = getPackageManager().getPackageInfo(
@@ -82,6 +86,23 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         rcvTodo.setAdapter(todoRcvAdapter);
     }
 
+    public void setTodayInfo() {
+        notice.setTitle("개의 중요 일정이 완료되지 않았습니다.");
+        notice.setLeftImage(R.drawable.ic_error);
+        notice.btnCheck.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+        notice.btnIgnore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
@@ -105,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 intent = new Intent(MainActivity.this, SettingsActivity.class);
                 startActivityForResult(intent, Manager.RC_MAIN_TO_SETTING);
                 return true;
-            case(R.id.menu_search):
+            case (R.id.menu_search):
                 intent = new Intent(MainActivity.this, SearchActivity.class);
                 startActivityForResult(intent, Manager.RC_MAIN_TO_SEARCH);
                 return true;

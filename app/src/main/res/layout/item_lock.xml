@@ -30,6 +30,8 @@
                 android:layout_marginBottom="4dp"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
+                android:background="@null"
+                android:clickable="false"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"

@@ -123,7 +123,7 @@ public class DateForm {
         sb.append(month);
         sb.append(",");
         sb.append(day);
-        if(time != null){
+        if (time != null) {
             sb.append(",");
             sb.append(time.getHour());
             sb.append(",");
@@ -132,4 +132,13 @@ public class DateForm {
         return sb.toString();
     }
 
+    public Calendar getCalendar() {
+        Calendar cal = Calendar.getInstance();
+        if (time == null) {
+            cal.set(year, month - 1, day);
+        } else {
+            cal.set(year, month - 1, day, time.getHour(), time.getMinute());
+        }
+        return cal;
+    }
 }

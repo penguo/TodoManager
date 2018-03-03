@@ -195,4 +195,39 @@ public class DBManager extends SQLiteOpenHelper {
         cursor.close();
         return list;
     }
+
+    public ArrayList<DataTodo> getMissedHalfStarList(DateForm targetDate) {
+        db = getReadableDatabase();
+        ArrayList<DataTodo> list = new ArrayList<>();
+        targetDate.getCalendar().add(Calendar.DATE, -1);
+        Cursor cursor = db.rawQuery("SELECT * FROM Todo Where Date Like '" + targetDate.toDBString() + "%' AND Type = 1 AND Checked = 0;", null);
+        while (cursor.moveToNext()) {
+            DataTodo data = new DataTodo(cursor.getInt(0),
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getString(3),
+                    cursor.getInt(4),
+                    cursor.getInt(5));
+            list.add(data);
+        }
+        cursor.close();
+        return list;
+    }
+
+    public ArrayList<DataTodo> getMissedStarList(DateForm targetDate) {
+        db = getReadableDatabase();
+        ArrayList<DataTodo> list = new ArrayList<>();
+        Cursor cursor = db.rawQuery("SELECT * FROM Todo Where Date Like '" + targetDate.toDBString() + "%' AND Type = 1 AND Checked = 0;", null);
+        while (cursor.moveToNext()) {
+            DataTodo data = new DataTodo(cursor.getInt(0),
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getString(3),
+                    cursor.getInt(4),
+                    cursor.getInt(5));
+            list.add(data);
+        }
+        cursor.close();
+        return list;
+    }
 }
