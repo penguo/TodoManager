@@ -70,5 +70,77 @@
 
         </android.support.constraint.ConstraintLayout>
 
+        <LinearLayout
+            android:id="@+id/item_todo_layout_plus"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/item_todo_btn_pdelete"
+                style="@style/Icon"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/ripple_box"
+                android:drawableLeft="@drawable/ic_delete"
+                android:drawablePadding="4dp"
+                android:text="삭제"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/item_todo_btn_pedit"
+                style="@style/Icon"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/ripple_box"
+                android:drawableLeft="@drawable/ic_edit"
+                android:drawablePadding="4dp"
+                android:text="수정"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/item_todo_btn_pdelay"
+                style="@style/Icon"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/ripple_box"
+                android:drawableLeft="@drawable/ic_calendar"
+                android:drawablePadding="4dp"
+                android:text="연기"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/item_todo_btn_pcheck"
+                style="@style/Icon"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_margin="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/ripple_box"
+                android:drawableLeft="@drawable/ic_check"
+                android:drawablePadding="4dp"
+                android:text="완료"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </LinearLayout>
+
     </LinearLayout>
 </LinearLayout>

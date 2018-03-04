@@ -181,18 +181,18 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
     }
 
-    public void setViewBottom(final boolean view){
+    public void setViewBottom(final boolean view) {
         final Handler mHandler = new Handler();
         final Animation animBtC = AnimationUtils.loadAnimation(
-                this,R.anim.bottom_to_center);
-        if(view){
-            mHandler.postDelayed(new Runnable()  {
+                this, R.anim.bottom_to_center);
+        if (view) {
+            mHandler.postDelayed(new Runnable() {
                 public void run() {
                     viewBottom.setVisibility(View.VISIBLE);
                     viewBottom.setAnimation(animBtC);
                 }
             }, 200);
-        }else{
+        } else {
             viewBottom.setVisibility(View.GONE);
         }
     }
@@ -213,8 +213,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             case (R.id.item_todo_iv_edit_save):
                 temp.setTitle(etTitle.getText().toString());
                 dbManager.insertTodo(temp);
-                onRefresh();
                 imm.hideSoftInputFromWindow(etTitle.getWindowToken(), 0);
+                temp = null;
+                onRefresh();
+                rcvTodo.scrollToPosition(todoRcvAdapter.getItemCount() - 1);
                 break;
 
             case (R.id.item_todo_btn_cancel):
@@ -336,6 +338,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void onRefresh() {
         todoRcvAdapter.onRefresh();
         mSwipe.setRefreshing(false);
+        onRefreshBottom();
     }
 
     @Override
@@ -424,5 +427,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         if (requestCode == Manager.RC_MAIN_TO_MAIN) {
             setData();
         }
+    }
+
+    public DataTodo getTemp() {
+        return temp;
     }
 }

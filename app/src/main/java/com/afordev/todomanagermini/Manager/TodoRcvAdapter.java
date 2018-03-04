@@ -85,8 +85,9 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     class VHItem extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView tvTitle, tvTags;
-        private LinearLayout layout;
+        private LinearLayout layout, layoutPlus;
         private ImageView ivCheck;
+        private Button btnPDelete, btnPEdit, btnPDelay, btnPCheck;
 
         public VHItem(final View itemView) {
             super(itemView);
@@ -94,28 +95,41 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             tvTitle = itemView.findViewById(R.id.item_todo_tv_title);
             tvTags = itemView.findViewById(R.id.item_todo_tv_tag);
             ivCheck = itemView.findViewById(R.id.item_todo_iv_check);
+            layoutPlus = itemView.findViewById(R.id.item_todo_layout_plus);
+            btnPDelete = itemView.findViewById(R.id.item_todo_btn_pdelete);
+            btnPEdit = itemView.findViewById(R.id.item_todo_btn_pedit);
+            btnPDelay = itemView.findViewById(R.id.item_todo_btn_pdelay);
+            btnPCheck = itemView.findViewById(R.id.item_todo_btn_pcheck);
+
             layout.setOnClickListener(this);
-            layout.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    if (editPosition == -1) {
-                        temp = dataList.get(getAdapterPosition());
-                        editPosition = getAdapterPosition();
-                        notifyItemChanged(getAdapterPosition());
-                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-                    } else {
-                        Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
+            if (isToday) {
+                layout.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        if (editPosition == -1 && ((MainActivity) mContext).getTemp() == null) {
+                            temp = dataList.get(getAdapterPosition());
+                            editPosition = getAdapterPosition();
+                            notifyItemChanged(getAdapterPosition());
+                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                        } else {
+                            Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
+                        }
+                        return false;
                     }
-                    return false;
-                }
-            });
+                });
+            }
+            btnPDelete.setOnClickListener(this);
+            btnPEdit.setOnClickListener(this);
+            btnPDelay.setOnClickListener(this);
+            btnPCheck.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
             switch (view.getId()) {
                 case (R.id.item_todo_layout):
-                    if (editPosition == -1) {
+                    if (editPosition == -1 && ((MainActivity) mContext).getTemp() == null) {
                         if (isToday) {
                             temp = dataList.get(getAdapterPosition());
                             editPosition = getAdapterPosition();
@@ -154,6 +168,64 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
                     }
                     break;
+
+                case (R.id.item_todo_btn_pdelete):
+                    dialog.setMessage("정말로 삭제하시겠습니까? 모든 내용이 삭제되며 복구되지 않습니다.");
+                    dialog.setCancelable(true);
+                    dialog.setPositiveButton("삭제", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dbManager.deleteTodo(dataList.get(getAdapterPosition()).getId());
+                            itemExpandPosition = -1;
+                            removeItemView(getAdapterPosition());
+                        }
+                    });
+                    dialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    dialog.show();
+                    break;
+
+                case (R.id.item_todo_btn_pedit):
+                    if (editPosition == -1 && ((MainActivity) mContext).getTemp() == null) {
+                        temp = dataList.get(getAdapterPosition());
+                        editPosition = getAdapterPosition();
+                        notifyItemChanged(getAdapterPosition());
+                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                    } else {
+                        Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+
+                case (R.id.item_todo_btn_pdelay):
+                    dateSelectOption();
+                    break;
+
+                case (R.id.item_todo_btn_pcheck):
+                    if (editPosition != -1) {
+                        Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        switch (dataList.get(getAdapterPosition()).getChecked()) {
+                            case (0):
+                                dataList.get(getAdapterPosition()).setChecked(1);
+                                break;
+                            case (1):
+                                dataList.get(getAdapterPosition()).setChecked(0);
+                                break;
+                            default:
+                                Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
+                                break;
+                        }
+                        dbManager.updateTodo(dataList.get(getAdapterPosition()));
+                        itemExpandPosition = -1;
+                        notifyItemChanged(getAdapterPosition());
+                        if (isAutoSort) {
+                            notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
+                        }
+                    }
             }
         }
     }
@@ -265,6 +337,11 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         DataTodo data;
         if (holder instanceof VHItem) {
             data = dataList.get(position);
+            if (itemExpandPosition == position) {
+                ((VHItem) holder).layoutPlus.setVisibility(View.VISIBLE);
+            } else {
+                ((VHItem) holder).layoutPlus.setVisibility(View.GONE);
+            }
             ((VHItem) holder).tvTitle.setText(data.getTitle());
             if (data.getIsTimeActivated() == 0 && data.getTags().equals("")) {
                 ((VHItem) holder).tvTags.setVisibility(View.GONE);
@@ -389,6 +466,21 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
         return 0;
     }
+
+    public void dateSelectOption() {
+        DatePickerDialog dpDialog = new DatePickerDialog(mContext, listenerDate,
+                temp.getDate().getYear(),
+                temp.getDate().getMonth(),
+                temp.getDate().getDay());
+        dpDialog.show();
+    }
+
+    private DatePickerDialog.OnDateSetListener listenerDate = new DatePickerDialog.OnDateSetListener() {
+        @Override
+        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+            temp.getDate().set(year, monthOfYear, dayOfMonth);
+        }
+    };
 
     public void timeSelectOption() {
         TimePickerDialog dialog = new TimePickerDialog(mContext, listenerTime,
