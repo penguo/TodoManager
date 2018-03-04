@@ -28,5 +28,8 @@
         <Preference
             android:summary="@string/version"
             android:title="앱 버전" />
+        <Preference
+            android:title="데이터 초기화"
+            android:key="pref_db_reset" />
     </PreferenceCategory>
 </PreferenceScreen>

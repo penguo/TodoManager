@@ -1,11 +1,15 @@
 package com.afordev.todomanagermini;
 
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.afordev.todomanagermini.Manager.DBManager;
 
 
 /**
@@ -20,12 +24,15 @@ public class SettingsFragment extends PreferenceFragment {
 
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.fragment_preferences);
+
+        Preference resetDB = (Preference) findPreference("pref_db_reset");
+        resetDB.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                DBManager dbManager = DBManager.getInstance(getActivity());
+                dbManager.resetDB();
+                return false;
+            }
+        });
     }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        return super.onCreateView(inflater, container, savedInstanceState);
-    }
-
 }

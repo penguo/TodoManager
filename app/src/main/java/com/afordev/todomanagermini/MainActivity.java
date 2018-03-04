@@ -343,7 +343,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onBackPressed() {
-        if (todoRcvAdapter.temp == null || this.temp == null) {
+        if (todoRcvAdapter.temp == null && this.temp == null) {
             super.onBackPressed();
         } else {
             AlertDialog.Builder dialog = new AlertDialog.Builder(this);
@@ -352,8 +352,14 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             dialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    todoRcvAdapter.temp = null;
-                    todoRcvAdapter.notifyItemChanged(todoRcvAdapter.editPosition);
+                    if (todoRcvAdapter.temp != null) {
+                        todoRcvAdapter.temp = null;
+                        todoRcvAdapter.notifyItemChanged(todoRcvAdapter.editPosition);
+                    } else{
+                        MainActivity.this.temp = null;
+                        onRefreshBottom();
+                    }
+
                     dialog.dismiss();
                 }
             });

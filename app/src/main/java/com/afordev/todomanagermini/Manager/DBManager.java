@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.Toast;
 
 import com.afordev.todomanagermini.SubItem.DataTodo;
 import com.afordev.todomanagermini.SubItem.DateForm;
@@ -33,6 +34,14 @@ public class DBManager extends SQLiteOpenHelper {
     private DBManager(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
         this.context = context;
+    }
+
+    public void resetDB() {
+        db = getWritableDatabase();
+        db.execSQL("DROP TABLE Todo;");
+        onCreate(db);
+        db.close();
+        Toast.makeText(context, "DB가 초기화되었습니다.", Toast.LENGTH_SHORT).show();
     }
 
     public void setContext(Context context) {
