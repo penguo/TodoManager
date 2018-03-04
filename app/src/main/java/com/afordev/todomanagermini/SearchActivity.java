@@ -92,6 +92,7 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
             });
         } else {
             layoutTop.setVisibility(View.GONE);
+            mToolbar.setTitle("목록 확인");
             searchRcvAdapter = new SearchRcvAdapter(this, dbManager, dataList);
             rcvSearch.setAdapter(searchRcvAdapter);
         }

@@ -6,17 +6,27 @@
             android:defaultValue="false"
             android:key="pref_lock_screen"
             android:title="잠금 화면 표시" />
+        <Preference android:title="데이터 동기화 설정(준비 중)" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="리스트 설정">
+    <PreferenceCategory android:title="목록 설정">
         <SwitchPreference
             android:defaultValue="true"
             android:key="pref_auto_sort"
             android:title="자동 정렬" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="pref_star_notice"
+            android:summary="과거에 놓치고 지나버린 '매우 중요' 항목이 있을 경우 알립니다."
+            android:title="놓친 '매우 중요' 항목 알림" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="pref_half_star_notice"
+            android:summary="전 날 놓치고 지나버린 '중요' 항목이 있을 경우 알립니다."
+            android:title="놓친 '중요' 항목 알림" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="앱 설정">
+    <PreferenceCategory android:title="앱 정보">
         <Preference
             android:summary="@string/version"
             android:title="앱 버전" />
-        <Preference android:title="데이터 동기화 설정" />
     </PreferenceCategory>
 </PreferenceScreen>

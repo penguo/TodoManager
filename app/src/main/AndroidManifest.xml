@@ -29,7 +29,8 @@
             android:screenOrientation="sensorPortrait"
             android:showOnLockScreen="true" />
         <activity android:name=".SettingsActivity" />
-        <activity android:name=".SearchActivity"></activity>
+        <activity android:name=".SearchActivity" />
+        <activity android:name=".MultiActivity" />
     </application>
 
 </manifest>

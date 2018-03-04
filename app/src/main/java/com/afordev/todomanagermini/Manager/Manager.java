@@ -21,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.afordev.todomanagermini.MainActivity;
 import com.afordev.todomanagermini.R;
 import com.afordev.todomanagermini.SubItem.DataTodo;
 import com.afordev.todomanagermini.SubItem.DateForm;
@@ -37,9 +38,14 @@ public class Manager {
     public static final int RC_MAIN_TO_MAIN = 1000;
     public static final int RC_MAIN_TO_SETTING = 1001;
     public static final int RC_MAIN_TO_SEARCH = 1002;
+    public static final int RC_MAIN_TO_MULTI = 1003;
+    public static final int RC_SEARCH_TO_MULTI = 1004;
+
 
     public static final String PREF_LOCK_SCREEN = "pref_lock_screen";
     public static final String PREF_AUTO_SORT = "pref_auto_sort";
+    public static final String PREF_STAR_NOTICE = "pref_star_notice";
+    public static final String PREF_HALF_STAR_NOTICE = "pref_half_star_notice";
     public static int VERSIONCODE = -1;
     public static String VERSIONNAME = "";
 
@@ -117,7 +123,11 @@ public class Manager {
                     }
                 }
                 data.setTagList(tags);
-                todoRcvAdapter.notifyItemChanged(position);
+                if (position == -1) {
+                    todoRcvAdapter.notifyItemChanged(position);
+                } else {
+                    ((MainActivity) activity).onRefreshBottom();
+                }
                 dialog.dismiss();
             }
         });

@@ -239,7 +239,6 @@ public class DBManager extends SQLiteOpenHelper {
         DateForm temp = new DateForm(date.getSecond());
         temp.setHour(0);
         temp.setMinute(0);
-        temp.addDate(1);
         long second = temp.getSecond();
         ArrayList<DataTodo> list = new ArrayList<>();
         Cursor cursor = db.rawQuery("SELECT * FROM Todo " +

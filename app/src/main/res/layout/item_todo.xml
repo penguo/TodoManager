@@ -68,6 +68,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="내용을 입력해주세요."
+                        android:inputType="text"
                         android:textSize="16sp" />
 
                     <TextView
@@ -185,6 +186,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
             android:layout_marginEnd="8dp"
+            android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
             android:text="새로운 항목"
             android:textColor="@android:color/black"
@@ -275,7 +277,7 @@
                         android:id="@+id/item_todo_tv_tag"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="오후 11시 #알고리즘"
+                        android:text="오후 11시 #알고리즘 #데이터베이스시스템 #하 #이히히히"
                         android:textSize="12sp" />
 
                 </LinearLayout>

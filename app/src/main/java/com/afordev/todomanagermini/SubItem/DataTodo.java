@@ -25,6 +25,18 @@ public class DataTodo implements Parcelable{
         this.isTimeActivated = 0;
     }
 
+    public DataTodo(DateForm date) {
+        this.id = -1;
+        this.title = "";
+        this.date = new DateForm(date.getSecond());
+        this.date.setHour(0);
+        this.date.setMinute(0);
+        this.tags = "";
+        this.checked = 0;
+        this.type = 0;
+        this.isTimeActivated = 0;
+    }
+
     public DataTodo(int id, String title, long second, String tags, int checked, int type, int isTimeActivited) {
         this.id = id;
         this.title = title;
@@ -151,4 +163,5 @@ public class DataTodo implements Parcelable{
         parcel.writeInt(type);
         parcel.writeInt(isTimeActivated);
     }
+
 }

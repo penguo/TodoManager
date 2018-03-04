@@ -7,14 +7,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Paint;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -33,16 +32,15 @@ import com.afordev.todomanagermini.SubItem.DateForm;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHolder> {
+public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
     private DBManager dbManager;
     private ArrayList<DataTodo> dataList;
     private DateForm date;
-    private InputMethodManager imm;
-    public int editModePosition = -1;
     private boolean isToday, isAutoSort;
-    public int itemExpandPosition = -1;
-    public DataTodo tempTodo;
+    public DataTodo temp;
+    public int itemExpandPosition = -1, editPosition = -1;
+    private InputMethodManager imm;
 
     public TodoRcvAdapter(Context mContext, DBManager dbManager, DateForm date) {
         this.mContext = mContext;
@@ -55,125 +53,91 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
             isToday = false;
         }
         imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         isAutoSort = prefs.getBoolean(Manager.PREF_AUTO_SORT, true);
     }
 
     @Override
     public int getItemCount() {
-        return dataList.size() + 1;
+        return dataList.size();
     }
 
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_todo, parent, false);
-        ViewHolder viewHolder = new ViewHolder(view);
-        return viewHolder;
+    @Override
+    public int getItemViewType(int position) {
+        if (editPosition == position) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private TextView tvTitle, tvTag, tvEditTag;
-        private EditText etTitle;
-        private ImageView ivLeft, ivCheck, ivEditLeft, ivEditSave;
-        private ConstraintLayout layoutNew;
-        private LinearLayout layout, layoutEdit, layoutExpand, layoutItemEx;
-        private Button btnDelete, btnTag, btnTime, btnCancel;
-        private Button btnPDelete, btnPEdit, btnPDelay, btnPCheck;
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        switch (viewType) {
+            case (1):
+                VHEdit mVHEdit = new VHEdit(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_edit, parent, false));
+                return mVHEdit;
+            case (0):
+            default:
+                VHItem mVHItem = new VHItem(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_todo2, parent, false));
+                return mVHItem;
+        }
+    }
 
-        public ViewHolder(final View itemView) {
+    class VHItem extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private TextView tvTitle, tvTags;
+        private LinearLayout layout;
+        private ImageView ivCheck;
+
+        public VHItem(final View itemView) {
             super(itemView);
-            tvTitle = itemView.findViewById(R.id.item_todo_tv_title);
-            etTitle = itemView.findViewById(R.id.item_todo_et_edit_title);
-            ivLeft = itemView.findViewById(R.id.item_todo_iv_left);
-            ivCheck = itemView.findViewById(R.id.item_todo_iv_check);
-            ivEditLeft = itemView.findViewById(R.id.item_todo_iv_edit_left);
-            ivEditSave = itemView.findViewById(R.id.item_todo_iv_edit_save);
             layout = itemView.findViewById(R.id.item_todo_layout);
-            layoutNew = itemView.findViewById(R.id.item_todo_layout_new);
-            layoutEdit = itemView.findViewById(R.id.item_todo_layout_edit);
-            layoutExpand = itemView.findViewById(R.id.item_todo_layout_expand);
-            btnDelete = itemView.findViewById(R.id.item_todo_btn_delete);
-            btnTag = itemView.findViewById(R.id.item_todo_btn_tag);
-            btnTime = itemView.findViewById(R.id.item_todo_btn_time);
-            btnCancel = itemView.findViewById(R.id.item_todo_btn_cancel);
-            tvTag = itemView.findViewById(R.id.item_todo_tv_tag);
-            tvEditTag = itemView.findViewById(R.id.item_todo_tv_edit_tag);
-            layoutItemEx = itemView.findViewById(R.id.item_todo_layout_itemex);
-            btnPDelete = itemView.findViewById(R.id.item_todo_btn_pdelete);
-            btnPEdit = itemView.findViewById(R.id.item_todo_btn_pedit);
-            btnPDelay = itemView.findViewById(R.id.item_todo_btn_pdelay);
-            btnPCheck = itemView.findViewById(R.id.item_todo_btn_pcheck);
-
-            etTitle.setImeOptions(EditorInfo.IME_ACTION_DONE);
-            etTitle.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            tvTitle = itemView.findViewById(R.id.item_todo_tv_title);
+            tvTags = itemView.findViewById(R.id.item_todo_tv_tag);
+            ivCheck = itemView.findViewById(R.id.item_todo_iv_check);
+            layout.setOnClickListener(this);
+            layout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
-                public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-                    if (actionId == EditorInfo.IME_ACTION_DONE) {
-                        ivEditSave.performClick();
+                public boolean onLongClick(View view) {
+                    if (editPosition == -1) {
+                        temp = dataList.get(getAdapterPosition());
+                        editPosition = getAdapterPosition();
+                        notifyItemChanged(getAdapterPosition());
+                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+                    } else {
+                        Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
                     }
                     return false;
                 }
             });
-            if (isToday) {
-                layout.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
-                        if (editModePosition == -1) {
-                            editModePosition = getAdapterPosition();
-                            tempTodo = dataList.get(getAdapterPosition());
-                            notifyItemChanged(getAdapterPosition());
-                            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-                            return false;
-                        } else {
-                            Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
-                            return false;
-                        }
-                    }
-                });
-            }
-            layout.setOnClickListener(this);
-            layoutNew.setOnClickListener(this);
-            ivLeft.setOnClickListener(this);
-            ivEditLeft.setOnClickListener(this);
-            ivEditSave.setOnClickListener(this);
-            btnDelete.setOnClickListener(this);
-            btnCancel.setOnClickListener(this);
-            btnTime.setOnClickListener(this);
-            btnTag.setOnClickListener(this);
-            btnPDelete.setOnClickListener(this);
-            btnPEdit.setOnClickListener(this);
-            btnPDelay.setOnClickListener(this);
-            btnPCheck.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
             switch (view.getId()) {
                 case (R.id.item_todo_layout):
-                    if (isToday) {
-                        if (editModePosition != -1) {
-                            Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
-                        } else {
-                            tempTodo = dataList.get(getAdapterPosition());
-                            switch (dataList.get(getAdapterPosition()).getChecked()) {
+                    if (editPosition == -1) {
+                        if (isToday) {
+                            temp = dataList.get(getAdapterPosition());
+                            editPosition = getAdapterPosition();
+                            switch (temp.getChecked()) {
                                 case (0):
-                                    dataList.get(getAdapterPosition()).setChecked(1);
+                                    temp.setChecked(1);
                                     break;
                                 case (1):
-                                    dataList.get(getAdapterPosition()).setChecked(0);
+                                    temp.setChecked(0);
                                     break;
                                 default:
                                     Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
                                     break;
                             }
-                            dbManager.updateTodo(dataList.get(getAdapterPosition()));
+                            dbManager.updateTodo(temp);
                             notifyItemChanged(getAdapterPosition());
                             if (isAutoSort) {
                                 notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
                             }
-                        }
-                    } else {
-                        if (editModePosition == -1) {
+                            temp = null;
+                            editPosition = -1;
+                        } else {
                             int i = itemExpandPosition;
                             if (itemExpandPosition == getAdapterPosition()) {
                                 itemExpandPosition = -1;
@@ -185,119 +149,104 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                                 }
                                 notifyItemChanged(itemExpandPosition);
                             }
-                        } else {
-                            Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
                         }
-                    }
-                    break;
-
-                case (R.id.item_todo_layout_new):
-                    if (editModePosition == -1) {
-                        tempTodo = new DataTodo(-1, "", date.getSecond(), "", 0, 0, 0);
-                        editModePosition = getAdapterPosition();
-                        notifyItemChanged(getAdapterPosition());
-                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
                     } else {
                         Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
                     }
                     break;
+            }
+        }
+    }
 
-                case (R.id.item_todo_iv_left):
-                    if (getAdapterPosition() == dataList.size()) {
-                        Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
-                    } else if (editModePosition != -1) {
-                        Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        switch (dataList.get(getAdapterPosition()).getType()) {
-                            case (0):
-                                dataList.get(getAdapterPosition()).setType(1);
-                                break;
-                            case (1):
-                                dataList.get(getAdapterPosition()).setType(2);
-                                break;
-                            case (2):
-                                dataList.get(getAdapterPosition()).setType(0);
-                                break;
-                            default:
-                                Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
-                                break;
-                        }
-                        dbManager.updateTodo(dataList.get(getAdapterPosition()));
-                        notifyItemChanged(getAdapterPosition());
-                        if (isAutoSort) {
-                            notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
-                        }
-                    }
-                    break;
+    class VHEdit extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private EditText etTitle;
+        private TextView tvTags;
+        private ImageView ivEditLeft, ivEditSave;
+        private Button btnDelete, btnTag, btnTime, btnCancel;
+        private ConstraintLayout layoutNew;
 
+        public VHEdit(final View itemView) {
+            super(itemView);
+            layoutNew = itemView.findViewById(R.id.item_todo_layout_new);
+            layoutNew.setVisibility(View.GONE);
+            etTitle = itemView.findViewById(R.id.item_todo_et_edit_title);
+            tvTags = itemView.findViewById(R.id.item_todo_tv_edit_tag);
+            ivEditLeft = itemView.findViewById(R.id.item_todo_iv_edit_left);
+            ivEditSave = itemView.findViewById(R.id.item_todo_iv_edit_save);
+            btnDelete = itemView.findViewById(R.id.item_todo_btn_delete);
+            btnTag = itemView.findViewById(R.id.item_todo_btn_tag);
+            btnTime = itemView.findViewById(R.id.item_todo_btn_time);
+            btnCancel = itemView.findViewById(R.id.item_todo_btn_cancel);
+            ivEditLeft.setOnClickListener(this);
+            ivEditSave.setOnClickListener(this);
+            btnDelete.setOnClickListener(this);
+            btnCancel.setOnClickListener(this);
+            btnTime.setOnClickListener(this);
+            btnTag.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
+            switch (view.getId()) {
                 case (R.id.item_todo_iv_edit_left):
                     Toast.makeText(mContext, "Next Version...", Toast.LENGTH_SHORT).show();
                     break;
 
                 case (R.id.item_todo_iv_edit_save):
-                    tempTodo.setTitle(etTitle.getText().toString());
-                    if (editModePosition == dataList.size()) {
-                        dbManager.insertTodo(tempTodo);
-                        onRefresh();
-                    } else {
-                        dbManager.updateTodo(tempTodo);
-                        notifyItemChanged(editModePosition);
-                    }
-                    editModePosition = -1;
+                    temp.setTitle(etTitle.getText().toString());
+                    dbManager.updateTodo(temp);
+                    temp = null;
+                    editPosition = -1;
+                    notifyItemChanged(getAdapterPosition());
                     imm.hideSoftInputFromWindow(etTitle.getWindowToken(), 0);
+                    ((MainActivity) mContext).setViewBottom(true);
                     break;
 
-                case (R.id.item_todo_btn_pdelete):
                 case (R.id.item_todo_btn_delete):
-                    if (getAdapterPosition() != dataList.size()) {
-                        AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
-                        dialog.setMessage("정말로 삭제하시겠습니까? 모든 내용이 삭제되며 복구되지 않습니다.");
-                        dialog.setCancelable(true);
-                        dialog.setPositiveButton("삭제", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                imm.hideSoftInputFromWindow(etTitle.getWindowToken(), 0);
-                                editModePosition = -1;
-                                removeItemView(getAdapterPosition());
-                            }
-                        });
-                        dialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
-                        dialog.show();
-                    } else {
-                        editModePosition = -1;
-                        notifyItemChanged(getAdapterPosition());
-                    }
+                    dialog.setMessage("정말로 삭제하시겠습니까? 모든 내용이 삭제되며 복구되지 않습니다.");
+                    dialog.setCancelable(true);
+                    dialog.setPositiveButton("삭제", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            imm.hideSoftInputFromWindow(etTitle.getWindowToken(), 0);
+                            dbManager.deleteTodo(temp.getId());
+                            temp = null;
+                            editPosition = -1;
+                            ((MainActivity) mContext).setViewBottom(true);
+                            removeItemView(getAdapterPosition());
+                        }
+                    });
+                    dialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    dialog.show();
                     break;
 
                 case (R.id.item_todo_btn_cancel):
-                    if (getAdapterPosition() != dataList.size()) {
-                        AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
-                        dialog.setMessage("작업 중인 정보가 사라집니다.");
-                        dialog.setCancelable(true);
-                        dialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                editModePosition = -1;
-                                notifyItemChanged(getAdapterPosition());
-                                dialog.dismiss();
-                            }
-                        });
-                        dialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
-                        dialog.show();
-                    } else {
-                        editModePosition = -1;
-                        notifyItemChanged(getAdapterPosition());
-                    }
+                    dialog.setMessage("작업 중인 정보가 사라집니다.");
+                    dialog.setCancelable(true);
+                    dialog.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            temp = null;
+                            editPosition = -1;
+                            notifyItemChanged(getAdapterPosition());
+                            imm.hideSoftInputFromWindow(etTitle.getWindowToken(), 0);
+                            ((MainActivity) mContext).setViewBottom(true);
+                            dialog.dismiss();
+                        }
+                    });
+                    dialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    dialog.show();
                     break;
 
                 case (R.id.item_todo_btn_time):
@@ -305,76 +254,22 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                     break;
 
                 case (R.id.item_todo_btn_tag):
-                    Manager.showAddTag((MainActivity) mContext, tempTodo, TodoRcvAdapter.this, getAdapterPosition());
+                    Manager.showAddTag((MainActivity) mContext, temp, TodoRcvAdapter.this, getAdapterPosition());
                     break;
-
-                case (R.id.item_todo_btn_pedit):
-                    if (editModePosition == -1) {
-                        editModePosition = getAdapterPosition();
-                        tempTodo = dataList.get(getAdapterPosition());
-                        notifyItemChanged(getAdapterPosition());
-                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-                    } else {
-                        Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
-                    }
-                    break;
-
-                case (R.id.item_todo_btn_pdelay):
-                    dateSelectOption();
-                    break;
-
-                case (R.id.item_todo_btn_pcheck):
-                    if (editModePosition != -1) {
-                        Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        switch (dataList.get(getAdapterPosition()).getChecked()) {
-                            case (0):
-                                dataList.get(getAdapterPosition()).setChecked(1);
-                                break;
-                            case (1):
-                                dataList.get(getAdapterPosition()).setChecked(0);
-                                break;
-                            default:
-                                Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
-                                break;
-                        }
-                        dbManager.updateTodo(dataList.get(getAdapterPosition()));
-                        itemExpandPosition = -1;
-                        notifyItemChanged(getAdapterPosition());
-                        if (isAutoSort) {
-                            notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
-                        }
-                    }
-                    break;
-
             }
         }
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, final int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         DataTodo data;
-        if (position < dataList.size()) {
+        if (holder instanceof VHItem) {
             data = dataList.get(position);
-        } else {
-            data = new DataTodo();
-        }
-        if (editModePosition == position) { // Edit Mode
-            data = tempTodo;
-            holder.layout.setVisibility(View.GONE);
-            holder.layoutNew.setVisibility(View.GONE);
-            holder.layoutEdit.setVisibility(View.VISIBLE);
-            holder.etTitle.setText(data.getTitle());
-            holder.etTitle.requestFocus();
-            if (position == dataList.size()) { // new
-                holder.btnDelete.setVisibility(View.GONE);
-            } else {
-                holder.btnDelete.setVisibility(View.VISIBLE);
-            }
+            ((VHItem) holder).tvTitle.setText(data.getTitle());
             if (data.getIsTimeActivated() == 0 && data.getTags().equals("")) {
-                holder.tvEditTag.setVisibility(View.GONE);
+                ((VHItem) holder).tvTags.setVisibility(View.GONE);
             } else {
-                holder.tvEditTag.setVisibility(View.VISIBLE);
+                ((VHItem) holder).tvTags.setVisibility(View.VISIBLE);
                 StringBuffer sb = new StringBuffer();
                 if (data.getIsTimeActivated() == 1) {
                     sb.append(Manager.getTimeForm(data.getDate()));
@@ -388,83 +283,47 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
                         sb.append("#" + st.get(i) + " ");
                     }
                 }
-                holder.tvEditTag.setText(sb.toString());
+                ((VHItem) holder).tvTags.setText(sb.toString());
+            }
+            switch (data.getChecked()) {
+                case (0):
+                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_false);
+                    ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+                    ((VHItem) holder).layout.setAlpha(1);
+                    break;
+                case (1):
+                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_true);
+                    ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
+                    ((VHItem) holder).layout.setAlpha((float) 0.5);
+                    break;
+                default:
+                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_error);
+                    break;
             }
         } else {
-            holder.layoutEdit.setVisibility(View.GONE);
-            if (position == dataList.size()) { // New Mode
-                holder.layout.setVisibility(View.GONE);
-                holder.layoutNew.setVisibility(View.VISIBLE);
-                holder.layoutItemEx.setVisibility(View.GONE);
-            } else { // Item Mode
-                holder.layout.setVisibility(View.VISIBLE);
-                holder.layoutNew.setVisibility(View.GONE);
-                if (itemExpandPosition == position) {
-                    holder.layoutItemEx.setVisibility(View.VISIBLE);
-                } else {
-                    holder.layoutItemEx.setVisibility(View.GONE);
+            ((MainActivity) mContext).setViewBottom(false);
+            data = temp;
+            ((VHEdit) holder).etTitle.setText(data.getTitle());
+            ((VHEdit) holder).etTitle.requestFocus();
+            if (data.getIsTimeActivated() == 0 && data.getTags().equals("")) {
+                ((VHEdit) holder).tvTags.setVisibility(View.GONE);
+            } else {
+                ((VHEdit) holder).tvTags.setVisibility(View.VISIBLE);
+                StringBuffer sb = new StringBuffer();
+                if (data.getIsTimeActivated() == 1) {
+                    sb.append(Manager.getTimeForm(data.getDate()));
                 }
-                holder.etTitle.setText("");
-                holder.tvTitle.setText(data.getTitle());
-                if (data.getIsTimeActivated() == 0 && data.getTags().equals("")) {
-                    holder.tvTag.setVisibility(View.GONE);
-                } else {
-                    holder.tvTag.setVisibility(View.VISIBLE);
-                    StringBuffer sb = new StringBuffer();
-                    if (data.getIsTimeActivated() == 1) {
-                        sb.append(Manager.getTimeForm(data.getDate()));
-                    }
-                    if (data.getIsTimeActivated() == 1 && !data.getTags().equals("")) {
-                        sb.append(", ");
-                    }
-                    if (!data.getTags().equals("")) {
-                        ArrayList<String> st = data.getTagList();
-                        for (int i = 0; i < st.size(); i++) {
-                            sb.append("#" + st.get(i) + " ");
-                        }
-                    }
-                    holder.tvTag.setText(sb.toString());
+                if (data.getIsTimeActivated() == 1 && !data.getTags().equals("")) {
+                    sb.append(", ");
                 }
-                switch (data.getType()) {
-                    case (0):
-                        holder.ivLeft.setImageResource(R.drawable.ic_star_false);
-                        holder.layout.setBackgroundResource(R.drawable.btn_basic);
-                        break;
-                    case (1):
-                        holder.ivLeft.setImageResource(R.drawable.ic_star_half);
-                        holder.layout.setBackgroundResource(R.drawable.btn_star_half);
-                        break;
-                    case (2):
-                        holder.ivLeft.setImageResource(R.drawable.ic_star_true);
-                        holder.layout.setBackgroundResource(R.drawable.btn_star);
-                        break;
-                    default:
-                        holder.ivLeft.setImageResource(R.drawable.ic_error);
-                        break;
-                }
-                switch (data.getChecked()) {
-                    case (0):
-                        holder.ivCheck.setImageResource(R.drawable.ic_check_false);
-                        holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-                        holder.layout.setAlpha(1);
-                        break;
-                    case (1):
-                        holder.ivCheck.setImageResource(R.drawable.ic_check_true);
-                        holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                        holder.layout.setBackgroundResource(R.drawable.btn_basic);
-                        holder.layout.setAlpha((float) 0.5);
-                        break;
-                    default:
-                        holder.ivCheck.setImageResource(R.drawable.ic_error);
-                        break;
-                }
-                if (!isToday) {
-                    if (position != itemExpandPosition) {
-                    } else {
-                        holder.layout.setBackgroundResource(R.drawable.btn_accentlight);
-                        holder.layout.setAlpha(1);
+                if (!data.getTags().equals("")) {
+                    ArrayList<String> st = data.getTagList();
+                    for (int i = 0; i < st.size(); i++) {
+                        sb.append("#" + st.get(i) + " ");
                     }
                 }
+                ((VHEdit) holder).tvTags.setText(sb.toString());
             }
         }
     }
@@ -531,25 +390,10 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
         return 0;
     }
 
-    public void dateSelectOption() {
-        DatePickerDialog dpDialog = new DatePickerDialog(mContext, listenerDate,
-                tempTodo.getDate().getYear(),
-                tempTodo.getDate().getMonth(),
-                tempTodo.getDate().getDay());
-        dpDialog.show();
-    }
-
-    private DatePickerDialog.OnDateSetListener listenerDate = new DatePickerDialog.OnDateSetListener() {
-        @Override
-        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-            tempTodo.getDate().set(year, monthOfYear, dayOfMonth);
-        }
-    };
-
     public void timeSelectOption() {
         TimePickerDialog dialog = new TimePickerDialog(mContext, listenerTime,
-                tempTodo.getDate().getHour(),
-                tempTodo.getDate().getMinute(), false);
+                temp.getDate().getHour(),
+                temp.getDate().getMinute(), false);
 
         dialog.show();
     }
@@ -557,8 +401,8 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<TodoRcvAdapter.ViewHold
     private TimePickerDialog.OnTimeSetListener listenerTime = new TimePickerDialog.OnTimeSetListener() {
         @Override
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            tempTodo.getDate().setHour(hourOfDay);
-            tempTodo.getDate().setMinute(minute);
+            temp.getDate().setHour(hourOfDay);
+            temp.getDate().setMinute(minute);
         }
     };
 
