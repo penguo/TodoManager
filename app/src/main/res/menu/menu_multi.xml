@@ -15,4 +15,7 @@
     <item
         android:id="@+id/menu_multi_time"
         android:title="시간 설정" />
+    <item
+        android:id="@+id/menu_multi_delete"
+        android:title="삭제" />
 </menu>

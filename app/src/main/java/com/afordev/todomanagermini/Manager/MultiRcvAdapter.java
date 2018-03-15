@@ -181,4 +181,13 @@ public class MultiRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public ArrayList<DataTodo> getSelectList() {
         return selectList;
     }
+
+    public void deleteMultiple() {
+        for (int i = 0; i < selectList.size(); i++) {
+            dataList.remove(selectList.get(i));
+            dbManager.deleteTodo(selectList.get(i).getId());
+        }
+        selectList.clear();
+        notifyDataSetChanged();
+    }
 }

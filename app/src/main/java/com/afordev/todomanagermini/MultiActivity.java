@@ -70,6 +70,9 @@ public class MultiActivity extends AppCompatActivity {
                 return true;
             case (R.id.menu_multi_time):
                 return true;
+            case (R.id.menu_multi_delete):
+                showDelete();
+                return true;
         }
         return false;
     }
@@ -141,6 +144,27 @@ public class MultiActivity extends AppCompatActivity {
 
         dialog = builder.create(); //builder.show()를 create하여 dialog에 저장하는 방식.
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
+    }
+
+    private void showDelete() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setMessage("정말로 삭제하시겠습니까? 모든 내용이 삭제되며 복구되지 않습니다.");
+        dialog.setCancelable(true);
+        dialog.setPositiveButton("삭제", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                multiRcvAdapter.deleteMultiple();
+                Toast.makeText(MultiActivity.this, "삭제되었습니다.", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            }
+        });
+        dialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
         dialog.show();
     }
 
