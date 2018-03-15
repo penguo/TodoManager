@@ -278,7 +278,18 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
             switch (view.getId()) {
                 case (R.id.item_todo_iv_edit_left):
-                    Toast.makeText(mContext, "Next Version...", Toast.LENGTH_SHORT).show();
+                    switch(temp.getImportance()){
+                        case(0):
+                            temp.setImportance(1);
+                            break;
+                        case(1):
+                            temp.setImportance(2);
+                            break;
+                        case(2):
+                            temp.setImportance(0);
+                            break;
+                    }
+                    notifyItemChanged(getAdapterPosition());
                     break;
 
                 case (R.id.item_todo_iv_edit_save):
