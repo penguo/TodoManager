@@ -65,7 +65,7 @@
 
                     <ImageView
                         android:id="@+id/item_todo_iv_importance"
-                        android:layout_width="16dp"
+                        android:layout_width="20dp"
                         android:layout_height="match_parent"
                         android:layout_marginRight="2dp"
                         app:srcCompat="@drawable/ic_star_true" />

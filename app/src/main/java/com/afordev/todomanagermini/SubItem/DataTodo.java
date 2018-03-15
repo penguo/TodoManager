@@ -10,7 +10,7 @@ import java.util.Calendar;
  * Created by penguo on 2018-02-11.
  */
 
-public class DataTodo implements Parcelable{
+public class DataTodo implements Parcelable {
     private String title, tags;
     private DateForm date;
     private int id, checked, importance, type, isTimeActivated;
@@ -34,20 +34,20 @@ public class DataTodo implements Parcelable{
         this.date.setMinute(0);
         this.tags = "";
         this.checked = 0;
-        this.importance = 0;
         this.type = 0;
         this.isTimeActivated = 0;
+        this.importance = 0;
     }
 
-    public DataTodo(int id, String title, long second, String tags, int checked,int importance, int type, int isTimeActivited) {
+    public DataTodo(int id, String title, long second, String tags, int checked, int type, int isTimeActivited, int importance) {
         this.id = id;
         this.title = title;
         this.date = new DateForm(second);
         this.tags = tags;
         this.checked = checked;
-        this.importance = importance;
         this.type = type;
         this.isTimeActivated = isTimeActivited;
+        this.importance = importance;
     }
 
     protected DataTodo(Parcel in) {
@@ -56,9 +56,9 @@ public class DataTodo implements Parcelable{
         date = in.readParcelable(DateForm.class.getClassLoader());
         id = in.readInt();
         checked = in.readInt();
-        importance = in.readInt();
         type = in.readInt();
         isTimeActivated = in.readInt();
+        importance = in.readInt();
     }
 
     public static final Creator<DataTodo> CREATOR = new Creator<DataTodo>() {
@@ -172,9 +172,9 @@ public class DataTodo implements Parcelable{
         parcel.writeParcelable(date, i);
         parcel.writeInt(id);
         parcel.writeInt(checked);
-        parcel.writeInt(importance);
         parcel.writeInt(type);
         parcel.writeInt(isTimeActivated);
+        parcel.writeInt(importance);
     }
 
 }

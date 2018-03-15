@@ -407,19 +407,23 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
             switch (data.getImportance()) {
                 case (1):
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star_half);
                     ((VHItem) holder).ivImportance.setVisibility(View.VISIBLE);
                     ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_half);
                     break;
                 case (2):
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star);
                     ((VHItem) holder).ivImportance.setVisibility(View.VISIBLE);
                     ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_true);
                     break;
                 case (3):
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
                     ((VHItem) holder).ivImportance.setVisibility(View.VISIBLE);
                     ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_error);
                     break;
                 case (0):
                 default:
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
                     ((VHItem) holder).ivImportance.setVisibility(View.GONE);
                     break;
             }
@@ -446,6 +450,21 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     }
                 }
                 ((VHEdit) holder).tvTags.setText(sb.toString());
+            }
+            switch (data.getImportance()) {
+                case (1):
+                    ((VHEdit) holder).ivEditLeft.setImageResource(R.drawable.ic_star_half);
+                    break;
+                case (2):
+                    ((VHEdit) holder).ivEditLeft.setImageResource(R.drawable.ic_star_true);
+                    break;
+                case (3):
+                    ((VHEdit) holder).ivEditLeft.setImageResource(R.drawable.ic_error);
+                    break;
+                case (0):
+                default:
+                    ((VHEdit) holder).ivEditLeft.setImageResource(R.drawable.ic_star_false);
+                    break;
             }
         }
     }

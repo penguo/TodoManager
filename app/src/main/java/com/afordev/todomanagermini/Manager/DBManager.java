@@ -56,9 +56,9 @@ public class DBManager extends SQLiteOpenHelper {
                 "Date Integer," +
                 "Tags TEXT," +
                 "Checked Integer, " +
-                "Importance Integer, " +
                 "Type Integer, " +
-                "IsTimeActivated Integer); ");
+                "IsTimeActivated Integer, "+
+                "Importance Integer); ");
     }
 
     @Override
