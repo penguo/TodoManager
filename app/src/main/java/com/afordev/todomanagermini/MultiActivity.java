@@ -33,8 +33,8 @@ public class MultiActivity extends AppCompatActivity {
         dbManager = DBManager.getInstance(this);
         rcvTodo = findViewById(R.id.multi_rcv);
         LinearLayoutManager llm = new LinearLayoutManager(this);
-        DividerItemDecoration did = new DividerItemDecoration(this, llm.getOrientation());
-        rcvTodo.addItemDecoration(did);
+//        DividerItemDecoration did = new DividerItemDecoration(this, llm.getOrientation());
+//        rcvTodo.addItemDecoration(did);
         rcvTodo.setLayoutManager(llm);
 
         ArrayList<DataTodo> list = getIntent().getParcelableArrayListExtra("list");

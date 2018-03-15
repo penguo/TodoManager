@@ -71,8 +71,8 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
         ArrayList<DataTodo> dataList = getIntent().getParcelableArrayListExtra("list");
         searchRcvAdapter = new SearchRcvAdapter(this, dbManager, -1, "");
         LinearLayoutManager llm = new LinearLayoutManager(this);
-        DividerItemDecoration did = new DividerItemDecoration(this, llm.getOrientation());
-        rcvSearch.addItemDecoration(did);
+//        DividerItemDecoration did = new DividerItemDecoration(this, llm.getOrientation());
+//        rcvSearch.addItemDecoration(did);
         rcvSearch.setLayoutManager(llm);
         rcvSearch.setAdapter(searchRcvAdapter);
         if (dataList == null) {

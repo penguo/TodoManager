@@ -43,23 +43,12 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         initSet(mContext, dbManager);
         this.date = date;
         this.dataList = dbManager.getTodoList(date);
+        this.dataList.add(0, new DataTodo());
         if (date.compareTo(new DateForm(Calendar.getInstance())) == 0) {
             isToday = true;
         } else {
             isToday = false;
         }
-    }
-
-    public TodoRcvAdapter(Context mContext, DBManager dbManager, ArrayList<DataTodo> list) {
-        initSet(mContext, dbManager);
-        this.dataList = list;
-        isToday = false;
-    }
-
-    public TodoRcvAdapter(Context mContext, DBManager dbManager, int select, String word) {
-        initSet(mContext, dbManager);
-        this.dataList = dbManager.searchTodo(select, word);
-        isToday = false;
     }
 
     public void initSet(Context mContext, DBManager dbManager) {
@@ -77,6 +66,9 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemViewType(int position) {
+        if (position == 0) {
+            return -1;
+        }
         if (editPosition == position) {
             return 1;
         } else {
@@ -86,6 +78,9 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         switch (viewType) {
+            case (-1):
+                VHHeader mVHHeader = new VHHeader(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_header, parent, false));
+                return mVHHeader;
             case (1):
                 VHEdit mVHEdit = new VHEdit(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_edit, parent, false));
                 return mVHEdit;
@@ -278,14 +273,14 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
             switch (view.getId()) {
                 case (R.id.item_todo_iv_edit_left):
-                    switch(temp.getImportance()){
-                        case(0):
+                    switch (temp.getImportance()) {
+                        case (0):
                             temp.setImportance(1);
                             break;
-                        case(1):
+                        case (1):
                             temp.setImportance(2);
                             break;
-                        case(2):
+                        case (2):
                             temp.setImportance(0);
                             break;
                     }
@@ -359,6 +354,17 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
+    class VHHeader extends RecyclerView.ViewHolder {
+        private TextView tvTitle;
+
+        public VHHeader(final View itemView) {
+            super(itemView);
+            tvTitle = itemView.findViewById(R.id.item_header_tv_title);
+
+            tvTitle.setText("할 일");
+        }
+    }
+
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         DataTodo data;
@@ -389,22 +395,6 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 }
                 ((VHItem) holder).tvTags.setText(sb.toString());
             }
-            switch (data.getChecked()) {
-                case (0):
-                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_false);
-                    ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-                    ((VHItem) holder).tvTitle.setAlpha(1);
-                    break;
-                case (1):
-                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_true);
-                    ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
-                    ((VHItem) holder).tvTitle.setAlpha((float) 0.5);
-                    break;
-                default:
-                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_error);
-                    break;
-            }
             switch (data.getImportance()) {
                 case (1):
                     ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star_half);
@@ -427,7 +417,38 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     ((VHItem) holder).ivImportance.setVisibility(View.GONE);
                     break;
             }
-        } else {
+            switch (data.getChecked()) {
+                case (0):
+                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_false);
+                    ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+                    ((VHItem) holder).tvTitle.setAlpha(1);
+                    break;
+                case (1):
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
+                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_true);
+                    ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    ((VHItem) holder).tvTitle.setAlpha((float) 0.5);
+                    break;
+                default:
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
+                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_error);
+                    break;
+            }
+            switch (data.getType()) {
+                case (1):
+                    ((VHItem) holder).ivIcon.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_puzzle);
+                    break;
+                case (2):
+                    ((VHItem) holder).ivIcon.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_delay);
+                    break;
+                case (0):
+                default:
+                    ((VHItem) holder).ivIcon.setVisibility(View.GONE);
+                    break;
+            }
+        } else if (holder instanceof VHEdit) {
             ((MainActivity) mContext).setViewBottom(false);
             data = temp; // TODO: 2018-03-07 대기가 길어져서 메모리에서 사라져서 temp가 null일때 널포인트에러 발생
             ((VHEdit) holder).etTitle.setText(data.getTitle());
@@ -480,12 +501,13 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         isAutoSort = prefs.getBoolean(Manager.PREF_AUTO_SORT, true);
         this.dataList = dbManager.getTodoList(date);
+        this.dataList.add(0, new DataTodo());
         notifyDataSetChanged();
     }
 
     public int getSortedPosition(int position) {
         ArrayList<DataTodo> list = dataList;
-
+        list.remove(0);
         ArrayList<DataTodo> list0 = new ArrayList<>();
         ArrayList<DataTodo> list1 = new ArrayList<>();
         ArrayList<DataTodo> list2 = new ArrayList<>();
@@ -525,6 +547,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         for (int i = 0; i < list.size(); i++) {
             if (dataList.get(position).getId() == list.get(i).getId()) {
                 dataList = list;
+                this.dataList.add(0, new DataTodo());
                 return i;
             }
         }

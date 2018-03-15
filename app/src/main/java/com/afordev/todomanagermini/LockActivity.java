@@ -43,21 +43,19 @@ public class LockActivity extends AppCompatActivity implements SwipeRefreshLayou
         layoutBtnEnter.setOnClickListener(this);
         layoutBtnBack.setOnClickListener(this);
         LinearLayoutManager llm = new LinearLayoutManager(this);
-        DividerItemDecoration did = new DividerItemDecoration(this, llm.getOrientation());
-        rcvTodo.addItemDecoration(did);
+//        DividerItemDecoration did = new DividerItemDecoration(this, llm.getOrientation());
+//        rcvTodo.addItemDecoration(did);
         rcvTodo.setLayoutManager(llm);
         mSwipe.setOnRefreshListener(this);
         setData();
     }
 
     public void initSet() {
-
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-
     }
 
     public void setData() {

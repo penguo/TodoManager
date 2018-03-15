@@ -86,8 +86,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         LinearLayoutManager llm = new LinearLayoutManager(this);
-        DividerItemDecoration did = new DividerItemDecoration(this, llm.getOrientation());
-        rcvTodo.addItemDecoration(did);
+//        DividerItemDecoration did = new DividerItemDecoration(this, llm.getOrientation());
+//        rcvTodo.addItemDecoration(did);
         rcvTodo.setLayoutManager(llm);
         mSwipe.setOnRefreshListener(this);
         setData();
