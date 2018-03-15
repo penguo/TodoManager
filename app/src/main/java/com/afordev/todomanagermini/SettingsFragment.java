@@ -25,7 +25,7 @@ public class SettingsFragment extends PreferenceFragment {
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.fragment_preferences);
 
-        Preference resetDB = (Preference) findPreference("pref_db_reset");
+        Preference resetDB = findPreference("pref_db_reset");
         resetDB.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {

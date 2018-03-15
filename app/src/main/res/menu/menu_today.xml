@@ -10,7 +10,11 @@
     <item
         android:id="@+id/menu_cal"
         android:icon="@drawable/ic_calendar_white"
-        android:title="날짜 선택"
+        android:title="날짜 선택" />
+    <item
+        android:id="@+id/menu_notice"
+        android:icon="@drawable/ic_notification_white"
+        android:title="알림"
         app:showAsAction="always" />
     <item
         android:id="@+id/menu_today"
@@ -18,6 +22,9 @@
     <item
         android:id="@+id/menu_multi"
         android:title="일괄 선택" />
+    <item
+        android:id="@+id/menu_pattern"
+        android:title="패턴 설정" />
     <item
         android:id="@+id/menu_setting"
         android:title="설정" />

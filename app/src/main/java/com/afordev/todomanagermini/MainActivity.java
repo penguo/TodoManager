@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     private Toolbar mToolbar;
     private RecyclerView rcvTodo;
-    public TodoRcvAdapter todoRcvAdapter;
+    private TodoRcvAdapter todoRcvAdapter;
     private SwipeRefreshLayout mSwipe;
     private DateForm date;
     private DBManager dbManager = DBManager.getInstance(this);
@@ -328,7 +328,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 return true;
             case (R.id.menu_multi):
                 intent = new Intent(MainActivity.this, MultiActivity.class);
+                intent.putExtra("list", todoRcvAdapter.getDataList());
                 startActivityForResult(intent, Manager.RC_MAIN_TO_SETTING);
+                return true;
+            case (R.id.menu_pattern):
+                intent = new Intent(MainActivity.this, PatternActivity.class);
+                startActivityForResult(intent, Manager.RC_MAIN_TO_PATTERN);
                 return true;
         }
         return false;

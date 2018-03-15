@@ -19,7 +19,7 @@
         app:tagPaddingRight="@dimen/padding_horizontal"
         app:tagPaddingTop="@dimen/padding_vertical"
         app:tagDrawablePadding="4dp"
-        app:tagDrawableRight="@drawable/ic_close"
+        app:tagDrawableRight="@drawable/ic_close_custom"
         app:tagTextColor="@color/hashtagText" />
 
     <LinearLayout

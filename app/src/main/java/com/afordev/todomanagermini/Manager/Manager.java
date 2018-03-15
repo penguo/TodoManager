@@ -1,6 +1,7 @@
 package com.afordev.todomanagermini.Manager;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,6 +9,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
@@ -40,7 +42,7 @@ public class Manager {
     public static final int RC_MAIN_TO_SEARCH = 1002;
     public static final int RC_MAIN_TO_MULTI = 1003;
     public static final int RC_SEARCH_TO_MULTI = 1004;
-
+    public static final int RC_MAIN_TO_PATTERN = 1005;
 
     public static final String PREF_LOCK_SCREEN = "pref_lock_screen";
     public static final String PREF_AUTO_SORT = "pref_auto_sort";
@@ -51,13 +53,26 @@ public class Manager {
 
     public static void checkService(Context mContext) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        boolean isServiceOn = prefs.getBoolean(PREF_LOCK_SCREEN, false);
-        if (isServiceOn) {
-            Intent intent = new Intent(mContext, ScreenService.class);
-            mContext.startService(intent);
+        ActivityManager manager = (ActivityManager) mContext.getSystemService(Activity.ACTIVITY_SERVICE);
+        boolean isServiceOn = false;
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if ("ServiceName".equals(service.service.getClassName())) {
+                isServiceOn = true;
+            } else {
+                isServiceOn = false;
+            }
+        }
+        boolean isPrefLockScreenOn = prefs.getBoolean(PREF_LOCK_SCREEN, false);
+        if (isPrefLockScreenOn) {
+            if (!isServiceOn) {
+                Intent intent = new Intent(mContext, ScreenService.class);
+                mContext.startService(intent);
+            }
         } else {
-            Intent intent = new Intent(mContext, ScreenService.class);
-            mContext.stopService(intent);
+            if (isServiceOn) {
+                Intent intent = new Intent(mContext, ScreenService.class);
+                mContext.stopService(intent);
+            }
         }
     }
 
@@ -71,7 +86,7 @@ public class Manager {
         }
     };
 
-    public static void showAddTag(final Activity activity, final DataTodo data, final TodoRcvAdapter todoRcvAdapter, final int position) {
+    public static void showAddTag(final Activity activity, final DataTodo data, final RecyclerView.Adapter<RecyclerView.ViewHolder> rcvAdapter, final int position) {
         LayoutInflater li = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout updateLayout = (LinearLayout) li.inflate(R.layout.dialog_tag, null);
         final HashtagView hashtagView = (HashtagView) updateLayout.findViewById(R.id.dialog_tag_hashtag);
@@ -80,6 +95,7 @@ public class Manager {
         final ArrayList<String> tags = data.getTagList();
         et.setAdapter(new ArrayAdapter<String>(activity,
                 android.R.layout.simple_dropdown_item_1line, tags));
+        // TODO: 2018-03-05 adapter의 list를 tags가 아닌, 현재 존재하고 있는 태그들로 바꾸자.
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         AlertDialog dialog;
@@ -124,7 +140,7 @@ public class Manager {
                 }
                 data.setTagList(tags);
                 if (position == -1) {
-                    todoRcvAdapter.notifyItemChanged(position);
+                    rcvAdapter.notifyItemChanged(position);
                 } else {
                     ((MainActivity) activity).onRefreshBottom();
                 }
@@ -143,6 +159,7 @@ public class Manager {
         dialog.show();
     }
 
+
     public static String getDateForm(Context mContext, DateForm date) {
         StringBuffer sb = new StringBuffer();
         sb.append((date.getMonth() + 1) + "월 ");
@@ -154,7 +171,7 @@ public class Manager {
     public static String getTimeForm(DateForm date) {
         StringBuffer sb = new StringBuffer();
         int hour = date.getHour();
-        if (hour < 12) {
+        if (hour > 12) {
             sb.append("오후 ");
             if (hour != 12) {
                 hour -= 12;

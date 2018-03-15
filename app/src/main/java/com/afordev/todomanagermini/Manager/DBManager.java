@@ -24,7 +24,7 @@ public class DBManager extends SQLiteOpenHelper {
 
     public static DBManager getInstance(Context mContext) {
         if (instance == null) {
-            instance = new DBManager(mContext, "todo.db", null, 4);
+            instance = new DBManager(mContext, "todo.db", null, 5);
         } else {
             instance.setContext(mContext);
         }
@@ -56,6 +56,7 @@ public class DBManager extends SQLiteOpenHelper {
                 "Date Integer," +
                 "Tags TEXT," +
                 "Checked Integer, " +
+                "Importance Integer, " +
                 "Type Integer, " +
                 "IsTimeActivated Integer); ");
     }
@@ -63,8 +64,9 @@ public class DBManager extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         switch (newVersion) {
-            case (4):
-                onCreate(db);
+            case (5):
+                db.execSQL("ALTER TABLE Todo ADD COLUMN Importance Integer DEFAULT 0;");
+                db.execSQL("UPDATE Todo SET Type = 0;");
                 break;
         }
     }
@@ -78,6 +80,7 @@ public class DBManager extends SQLiteOpenHelper {
                 second + ", " +
                 "'" + data.getTags() + "', " +
                 data.getChecked() + ", " +
+                data.getImportance() + ", " +
                 data.getType() + ", " +
                 data.getIsTimeActivated() + ");");
         db.close();
@@ -91,6 +94,7 @@ public class DBManager extends SQLiteOpenHelper {
                 "Date = " + second + ", " +
                 "Checked = " + data.getChecked() + ", " +
                 "Tags = '" + data.getTags() + "', " +
+                "Importance = " + data.getImportance() +", " +
                 "Type = " + data.getType() + ", " +
                 "IsTimeActivated = " + data.getIsTimeActivated() + " " +
                 "WHERE _id = " + data.getId() + " ; ");
@@ -114,7 +118,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getString(3),
                     cursor.getInt(4),
                     cursor.getInt(5),
-                    cursor.getInt(6));
+                    cursor.getInt(6),
+                    cursor.getInt(7));
         }
         cursor.close();
         return data;
@@ -139,7 +144,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getString(3),
                     cursor.getInt(4),
                     cursor.getInt(5),
-                    cursor.getInt(6));
+                    cursor.getInt(6),
+                    cursor.getInt(7));
             list.add(data);
         }
         cursor.close();
@@ -148,7 +154,7 @@ public class DBManager extends SQLiteOpenHelper {
         ArrayList<DataTodo> list1 = new ArrayList<>();
         ArrayList<DataTodo> list2 = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
-            switch (list.get(i).getType()) {
+            switch (list.get(i).getImportance()) {
                 case (0):
                     list0.add(list.get(i));
                     break;
@@ -208,7 +214,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getString(3),
                     cursor.getInt(4),
                     cursor.getInt(5),
-                    cursor.getInt(6));
+                    cursor.getInt(6),
+                    cursor.getInt(7));
             list.add(data);
         }
         cursor.close();
@@ -236,7 +243,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getString(3),
                     cursor.getInt(4),
                     cursor.getInt(5),
-                    cursor.getInt(6));
+                    cursor.getInt(6),
+                    cursor.getInt(7));
             list.add(data);
         }
         cursor.close();
@@ -261,7 +269,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getString(3),
                     cursor.getInt(4),
                     cursor.getInt(5),
-                    cursor.getInt(6));
+                    cursor.getInt(6),
+                    cursor.getInt(7));
             list.add(data);
         }
         cursor.close();

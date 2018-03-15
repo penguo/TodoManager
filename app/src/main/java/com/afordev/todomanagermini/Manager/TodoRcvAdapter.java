@@ -2,12 +2,10 @@ package com.afordev.todomanagermini.Manager;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Paint;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
@@ -21,7 +19,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.afordev.todomanagermini.MainActivity;
@@ -43,8 +40,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private InputMethodManager imm;
 
     public TodoRcvAdapter(Context mContext, DBManager dbManager, DateForm date) {
-        this.mContext = mContext;
-        this.dbManager = dbManager;
+        initSet(mContext, dbManager);
         this.date = date;
         this.dataList = dbManager.getTodoList(date);
         if (date.compareTo(new DateForm(Calendar.getInstance())) == 0) {
@@ -52,6 +48,23 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         } else {
             isToday = false;
         }
+    }
+
+    public TodoRcvAdapter(Context mContext, DBManager dbManager, ArrayList<DataTodo> list) {
+        initSet(mContext, dbManager);
+        this.dataList = list;
+        isToday = false;
+    }
+
+    public TodoRcvAdapter(Context mContext, DBManager dbManager, int select, String word) {
+        initSet(mContext, dbManager);
+        this.dataList = dbManager.searchTodo(select, word);
+        isToday = false;
+    }
+
+    public void initSet(Context mContext, DBManager dbManager) {
+        this.mContext = mContext;
+        this.dbManager = dbManager;
         imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         isAutoSort = prefs.getBoolean(Manager.PREF_AUTO_SORT, true);
@@ -78,7 +91,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 return mVHEdit;
             case (0):
             default:
-                VHItem mVHItem = new VHItem(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_todo2, parent, false));
+                VHItem mVHItem = new VHItem(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_todo, parent, false));
                 return mVHItem;
         }
     }
@@ -86,7 +99,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     class VHItem extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView tvTitle, tvTags;
         private LinearLayout layout, layoutPlus;
-        private ImageView ivCheck;
+        private ImageView ivCheck, ivIcon, ivImportance;
         private Button btnPDelete, btnPEdit, btnPDelay, btnPCheck;
 
         public VHItem(final View itemView) {
@@ -95,6 +108,8 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             tvTitle = itemView.findViewById(R.id.item_todo_tv_title);
             tvTags = itemView.findViewById(R.id.item_todo_tv_tag);
             ivCheck = itemView.findViewById(R.id.item_todo_iv_check);
+            ivIcon = itemView.findViewById(R.id.item_todo_iv_icon);
+            ivImportance = itemView.findViewById(R.id.item_todo_iv_importance);
             layoutPlus = itemView.findViewById(R.id.item_todo_layout_plus);
             btnPDelete = itemView.findViewById(R.id.item_todo_btn_pdelete);
             btnPEdit = itemView.findViewById(R.id.item_todo_btn_pedit);
@@ -114,7 +129,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         } else {
                             Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
                         }
-                        return false;
+                        return true;
                     }
                 });
             }
@@ -152,6 +167,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                             temp = null;
                             editPosition = -1;
                         } else {
+                            temp = dataList.get(getAdapterPosition());
                             int i = itemExpandPosition;
                             if (itemExpandPosition == getAdapterPosition()) {
                                 itemExpandPosition = -1;
@@ -201,7 +217,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     break;
 
                 case (R.id.item_todo_btn_pdelay):
-                    dateSelectOption();
+                    dateDelayOption();
                     break;
 
                 case (R.id.item_todo_btn_pcheck):
@@ -322,7 +338,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     break;
 
                 case (R.id.item_todo_btn_time):
-                    timeSelectOption();
+                    CustomTimePicker.show(mContext, temp, TodoRcvAdapter.this, getAdapterPosition());
                     break;
 
                 case (R.id.item_todo_btn_tag):
@@ -366,21 +382,39 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 case (0):
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_false);
                     ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-                    ((VHItem) holder).layout.setAlpha(1);
+                    ((VHItem) holder).tvTitle.setAlpha(1);
                     break;
                 case (1):
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_true);
                     ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                     ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
-                    ((VHItem) holder).layout.setAlpha((float) 0.5);
+                    ((VHItem) holder).tvTitle.setAlpha((float) 0.5);
                     break;
                 default:
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_error);
                     break;
             }
+            switch (data.getImportance()) {
+                case (1):
+                    ((VHItem) holder).ivImportance.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_half);
+                    break;
+                case (2):
+                    ((VHItem) holder).ivImportance.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_true);
+                    break;
+                case (3):
+                    ((VHItem) holder).ivImportance.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_error);
+                    break;
+                case (0):
+                default:
+                    ((VHItem) holder).ivImportance.setVisibility(View.GONE);
+                    break;
+            }
         } else {
             ((MainActivity) mContext).setViewBottom(false);
-            data = temp;
+            data = temp; // TODO: 2018-03-07 대기가 길어져서 메모리에서 사라져서 temp가 null일때 널포인트에러 발생
             ((VHEdit) holder).etTitle.setText(data.getTitle());
             ((VHEdit) holder).etTitle.requestFocus();
             if (data.getIsTimeActivated() == 0 && data.getTags().equals("")) {
@@ -426,7 +460,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         ArrayList<DataTodo> list1 = new ArrayList<>();
         ArrayList<DataTodo> list2 = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
-            switch (list.get(i).getType()) {
+            switch (list.get(i).getImportance()) {
                 case (0):
                     list0.add(list.get(i));
                     break;
@@ -467,7 +501,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return 0;
     }
 
-    public void dateSelectOption() {
+    public void dateDelayOption() {
         DatePickerDialog dpDialog = new DatePickerDialog(mContext, listenerDate,
                 temp.getDate().getYear(),
                 temp.getDate().getMonth(),
@@ -479,23 +513,12 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
             temp.getDate().set(year, monthOfYear, dayOfMonth);
+            dbManager.updateTodo(temp);
+            onRefresh();
         }
     };
 
-    public void timeSelectOption() {
-        TimePickerDialog dialog = new TimePickerDialog(mContext, listenerTime,
-                temp.getDate().getHour(),
-                temp.getDate().getMinute(), false);
-
-        dialog.show();
+    public ArrayList<DataTodo> getDataList() {
+        return dataList;
     }
-
-    private TimePickerDialog.OnTimeSetListener listenerTime = new TimePickerDialog.OnTimeSetListener() {
-        @Override
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            temp.getDate().setHour(hourOfDay);
-            temp.getDate().setMinute(minute);
-        }
-    };
-
 }

@@ -8,6 +8,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -46,10 +47,20 @@ public class LockActivity extends AppCompatActivity implements SwipeRefreshLayou
         rcvTodo.addItemDecoration(did);
         rcvTodo.setLayoutManager(llm);
         mSwipe.setOnRefreshListener(this);
-        initSet();
+        setData();
     }
 
     public void initSet() {
+
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
+                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+
+    }
+
+    public void setData() {
         date = new DateForm(Calendar.getInstance());
         tvDate.setText(Manager.getDateForm(this, date));
         lockRcvAdapter = new LockRcvAdapter(this, dbManager);

@@ -1,11 +1,13 @@
 package com.afordev.todomanagermini.Manager;
 
 import android.app.KeyguardManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import com.afordev.todomanagermini.LockActivity;
 

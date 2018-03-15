@@ -1,95 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <LinearLayout
-        android:id="@+id/item_todo_layout_edit"
-        android:layout_width="0dp"
+        android:id="@+id/item_todo_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/btn_accentlight"
-        android:orientation="vertical"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:background="@drawable/btn_basic"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:minHeight="48dp"
+            android:visibility="visible"
+            tools:layout_editor_absoluteX="384dp"
+            tools:layout_editor_absoluteY="259dp">
 
-            <android.support.constraint.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:minHeight="48dp">
+            <ImageView
+                android:id="@+id/item_todo_iv_check"
+                style="@style/Icon"
+                android:layout_marginBottom="4dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:background="@null"
+                android:clickable="false"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.5"
+                app:srcCompat="@drawable/ic_check_false" />
 
-                <ImageView
-                    android:id="@+id/item_todo_iv_edit_left"
-                    style="@style/Icon"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginTop="4dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_drop_down" />
+            <ImageView
+                android:id="@+id/item_todo_iv_icon"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/item_todo_iv_check"
+                app:layout_constraintEnd_toEndOf="@+id/item_todo_iv_check"
+                app:srcCompat="@drawable/ic_puzzle" />
 
-                <ImageView
-                    android:id="@+id/item_todo_iv_edit_save"
-                    style="@style/Icon"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginTop="4dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_save" />
+            <LinearLayout
+                android:id="@+id/linearLayout2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/item_todo_iv_check"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical"
-                    android:orientation="vertical"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/item_todo_iv_edit_save"
-                    app:layout_constraintStart_toEndOf="@+id/item_todo_iv_edit_left"
-                    app:layout_constraintTop_toTopOf="parent">
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
 
-                    <EditText
-                        android:id="@+id/item_todo_et_edit_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="내용을 입력해주세요."
-                        android:inputType="text"
-                        android:textSize="16sp" />
+                    <ImageView
+                        android:id="@+id/item_todo_iv_importance"
+                        android:layout_width="16dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginRight="2dp"
+                        app:srcCompat="@drawable/ic_star_true" />
 
                     <TextView
-                        android:id="@+id/item_todo_tv_edit_tag"
+                        android:id="@+id/item_todo_tv_title"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="오후 11시 #알고리즘"
-                        android:textSize="12sp" />
+                        android:layout_weight="1"
+                        android:hint="입력된 내용이 없습니다."
+                        android:textColor="@android:color/black"
+                        android:textSize="15sp"
+                        tools:layout_editor_absoluteX="268dp"
+                        tools:layout_editor_absoluteY="4dp" />
                 </LinearLayout>
 
-            </android.support.constraint.ConstraintLayout>
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/item_todo_tv_tag"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="오후 11시 #태그"
+                    android:textSize="11sp" />
+
+            </LinearLayout>
+
+        </android.support.constraint.ConstraintLayout>
 
         <LinearLayout
-            android:id="@+id/item_todo_layout_expand"
+            android:id="@+id/item_todo_layout_plus"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="gone">
 
             <Button
-                android:id="@+id/item_todo_btn_delete"
+                android:id="@+id/item_todo_btn_pdelete"
                 style="@style/Icon"
                 android:layout_width="match_parent"
                 android:layout_height="36dp"
@@ -105,260 +117,54 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Button
-                android:id="@+id/item_todo_btn_time"
+                android:id="@+id/item_todo_btn_pedit"
                 style="@style/Icon"
                 android:layout_width="match_parent"
                 android:layout_height="36dp"
                 android:layout_margin="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/ripple_box"
-                android:drawableLeft="@drawable/ic_time"
+                android:drawableLeft="@drawable/ic_edit"
                 android:drawablePadding="4dp"
-                android:text="시간"
+                android:text="수정"
                 android:textSize="13sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Button
-                android:id="@+id/item_todo_btn_tag"
+                android:id="@+id/item_todo_btn_pdelay"
                 style="@style/Icon"
                 android:layout_width="match_parent"
                 android:layout_height="36dp"
                 android:layout_margin="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/ripple_box"
-                android:drawableLeft="@drawable/ic_archive"
+                android:drawableLeft="@drawable/ic_calendar"
                 android:drawablePadding="4dp"
-                android:text="태그"
+                android:text="연기"
                 android:textSize="13sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <Button
-                android:id="@+id/item_todo_btn_cancel"
+                android:id="@+id/item_todo_btn_pcheck"
                 style="@style/Icon"
                 android:layout_width="match_parent"
                 android:layout_height="36dp"
                 android:layout_margin="4dp"
                 android:layout_weight="1"
                 android:background="@drawable/ripple_box"
-                android:drawableLeft="@drawable/ic_close"
+                android:drawableLeft="@drawable/ic_check"
                 android:drawablePadding="4dp"
-                android:text="취소"
+                android:text="완료"
                 android:textSize="13sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/item_todo_layout_new"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/btn_basic"
-        android:minHeight="48dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/item_todo_iv_new"
-            style="@style/Icon"
-            android:layout_marginBottom="4dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="4dp"
-            android:background="@null"
-            android:clickable="false"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_add" />
-
-        <TextView
-            android:id="@+id/item_todo_tv_new"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="4dp"
-            android:text="새로운 항목"
-            android:textColor="@android:color/black"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/item_todo_iv_new"
-            app:layout_constraintTop_toTopOf="parent" />
-    </android.support.constraint.ConstraintLayout>
-
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0">
-
-        <LinearLayout
-            android:id="@+id/item_todo_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/btn_basic"
-            android:orientation="vertical">
-
-            <android.support.constraint.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:minHeight="48dp"
-                android:visibility="visible"
-                tools:layout_editor_absoluteX="384dp"
-                tools:layout_editor_absoluteY="259dp">
-
-                <ImageView
-                    android:id="@+id/item_todo_iv_left"
-                    style="@style/Icon"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginTop="4dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_star_true" />
-
-                <ImageView
-                    android:id="@+id/item_todo_iv_check"
-                    style="@style/Icon"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginTop="4dp"
-                    android:background="@null"
-                    android:clickable="false"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_check_true" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginTop="8dp"
-                    android:gravity="center_vertical"
-                    android:orientation="vertical"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/item_todo_iv_check"
-                    app:layout_constraintStart_toEndOf="@+id/item_todo_iv_left"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <TextView
-                        android:id="@+id/item_todo_tv_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="입력된 내용이 없습니다."
-                        android:textColor="@android:color/black"
-                        android:textSize="16sp"
-                        tools:layout_editor_absoluteX="268dp"
-                        tools:layout_editor_absoluteY="4dp"
-                        tools:text="item title" />
-
-                    <TextView
-                        android:id="@+id/item_todo_tv_tag"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="오후 11시 #알고리즘 #데이터베이스시스템 #하 #이히히히"
-                        android:textSize="12sp" />
-
-                </LinearLayout>
-
-            </android.support.constraint.ConstraintLayout>
-
-            <LinearLayout
-                android:id="@+id/item_todo_layout_itemex"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/item_todo_btn_pdelete"
-                    style="@style/Icon"
-                    android:layout_width="match_parent"
-                    android:layout_height="36dp"
-                    android:layout_margin="4dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/ripple_box"
-                    android:drawableLeft="@drawable/ic_delete"
-                    android:drawablePadding="4dp"
-                    android:text="삭제"
-                    android:textSize="13sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <Button
-                    android:id="@+id/item_todo_btn_pedit"
-                    style="@style/Icon"
-                    android:layout_width="match_parent"
-                    android:layout_height="36dp"
-                    android:layout_margin="4dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/ripple_box"
-                    android:drawableLeft="@drawable/ic_edit"
-                    android:drawablePadding="4dp"
-                    android:text="수정"
-                    android:textSize="13sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <Button
-                    android:id="@+id/item_todo_btn_pdelay"
-                    style="@style/Icon"
-                    android:layout_width="match_parent"
-                    android:layout_height="36dp"
-                    android:layout_margin="4dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/ripple_box"
-                    android:drawableLeft="@drawable/ic_calendar"
-                    android:drawablePadding="4dp"
-                    android:text="연기"
-                    android:textSize="13sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <Button
-                    android:id="@+id/item_todo_btn_pcheck"
-                    style="@style/Icon"
-                    android:layout_width="match_parent"
-                    android:layout_height="36dp"
-                    android:layout_margin="4dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/ripple_box"
-                    android:drawableLeft="@drawable/ic_check"
-                    android:drawablePadding="4dp"
-                    android:text="완료"
-                    android:textSize="13sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            </LinearLayout>
 
         </LinearLayout>
 
     </LinearLayout>
-
-
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

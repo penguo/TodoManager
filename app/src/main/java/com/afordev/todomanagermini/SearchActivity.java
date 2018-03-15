@@ -1,5 +1,6 @@
 package com.afordev.todomanagermini;
 
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -37,6 +38,7 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
     private ImageView ivSearch;
     private int selectedItemPos;
     private LinearLayout layoutTop;
+    private InputMethodManager imm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +47,7 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
 
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-        layoutTop = findViewById(R.id.search_layout_top);
+        layoutTop = findViewById(R.id.search_layout_bar);
         etSearch = findViewById(R.id.search_et_word);
         etSearch.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
         etSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -60,6 +62,7 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
         spinner = findViewById(R.id.search_spinner);
         rcvSearch = findViewById(R.id.search_rcv);
         ivSearch = findViewById(R.id.search_iv_search);
+        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
         setData();
     }
@@ -90,6 +93,8 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
                     search();
                 }
             });
+            etSearch.requestFocus();
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
         } else {
             layoutTop.setVisibility(View.GONE);
             mToolbar.setTitle("목록 확인");
@@ -133,7 +138,6 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
             sb.append("'" + etSearch.getText().toString() + "' 검색 결과");
             mToolbar.setTitle(sb.toString());
             etSearch.setText("");
-            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
         }
     }

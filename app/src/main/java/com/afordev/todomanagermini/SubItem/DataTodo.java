@@ -13,7 +13,7 @@ import java.util.Calendar;
 public class DataTodo implements Parcelable{
     private String title, tags;
     private DateForm date;
-    private int id, checked, type, isTimeActivated;
+    private int id, checked, importance, type, isTimeActivated;
 
     public DataTodo() {
         this.id = -1;
@@ -21,6 +21,7 @@ public class DataTodo implements Parcelable{
         this.date = new DateForm(Calendar.getInstance());
         this.tags = "";
         this.checked = 0;
+        this.importance = 0;
         this.type = 0;
         this.isTimeActivated = 0;
     }
@@ -33,16 +34,18 @@ public class DataTodo implements Parcelable{
         this.date.setMinute(0);
         this.tags = "";
         this.checked = 0;
+        this.importance = 0;
         this.type = 0;
         this.isTimeActivated = 0;
     }
 
-    public DataTodo(int id, String title, long second, String tags, int checked, int type, int isTimeActivited) {
+    public DataTodo(int id, String title, long second, String tags, int checked,int importance, int type, int isTimeActivited) {
         this.id = id;
         this.title = title;
         this.date = new DateForm(second);
         this.tags = tags;
         this.checked = checked;
+        this.importance = importance;
         this.type = type;
         this.isTimeActivated = isTimeActivited;
     }
@@ -53,6 +56,7 @@ public class DataTodo implements Parcelable{
         date = in.readParcelable(DateForm.class.getClassLoader());
         id = in.readInt();
         checked = in.readInt();
+        importance = in.readInt();
         type = in.readInt();
         isTimeActivated = in.readInt();
     }
@@ -79,6 +83,10 @@ public class DataTodo implements Parcelable{
 
     public int getId() {
         return id;
+    }
+
+    public int getImportance() {
+        return importance;
     }
 
     public int getType() {
@@ -121,6 +129,10 @@ public class DataTodo implements Parcelable{
         this.id = id;
     }
 
+    public void setImportance(int importance) {
+        this.importance = importance;
+    }
+
     public void setType(int type) {
         this.type = type;
     }
@@ -160,6 +172,7 @@ public class DataTodo implements Parcelable{
         parcel.writeParcelable(date, i);
         parcel.writeInt(id);
         parcel.writeInt(checked);
+        parcel.writeInt(importance);
         parcel.writeInt(type);
         parcel.writeInt(isTimeActivated);
     }

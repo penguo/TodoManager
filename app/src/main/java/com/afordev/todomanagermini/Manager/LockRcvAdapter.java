@@ -37,21 +37,22 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
     }
 
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_lock, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_todo, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
         return viewHolder;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView tvTitle, tvTag;
-        private ImageView ivLeft, ivCheck;
+        private ImageView ivCheck, ivIcon, ivImportance;
         private LinearLayout layout;
 
         public ViewHolder(final View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.item_todo_tv_title);
-            ivLeft = itemView.findViewById(R.id.item_todo_iv_left);
             ivCheck = itemView.findViewById(R.id.item_todo_iv_check);
+            ivIcon = itemView.findViewById(R.id.item_todo_iv_icon);
+            ivImportance = itemView.findViewById(R.id.item_todo_iv_importance);
             layout = itemView.findViewById(R.id.item_todo_layout);
             tvTag = itemView.findViewById(R.id.item_todo_tv_tag);
 
@@ -105,37 +106,51 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
             }
             holder.tvTag.setText(sb.toString());
         }
-        switch (data.getType()) {
+        switch (data.getImportance()) {
             case (0):
-                holder.ivLeft.setImageResource(R.drawable.ic_star_false);
                 holder.layout.setBackgroundResource(R.drawable.btn_basic);
                 break;
             case (1):
-                holder.ivLeft.setImageResource(R.drawable.ic_star_half);
                 holder.layout.setBackgroundResource(R.drawable.btn_star_half);
                 break;
             case (2):
-                holder.ivLeft.setImageResource(R.drawable.ic_star_true);
                 holder.layout.setBackgroundResource(R.drawable.btn_star);
                 break;
             default:
-                holder.ivLeft.setImageResource(R.drawable.ic_error);
                 break;
         }
         switch (data.getChecked()) {
             case (0):
                 holder.ivCheck.setImageResource(R.drawable.ic_check_false);
                 holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-                holder.layout.setAlpha(1);
+                holder.tvTitle.setAlpha(1);
                 break;
             case (1):
                 holder.ivCheck.setImageResource(R.drawable.ic_check_true);
                 holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                 holder.layout.setBackgroundResource(R.drawable.btn_basic);
-                holder.layout.setAlpha((float) 0.5);
+                holder.tvTitle.setAlpha((float) 0.5);
                 break;
             default:
                 holder.ivCheck.setImageResource(R.drawable.ic_error);
+                break;
+        }
+        switch (data.getImportance()) {
+            case (1):
+                holder.ivImportance.setVisibility(View.VISIBLE);
+                holder.ivImportance.setImageResource(R.drawable.ic_star_half);
+                break;
+            case (2):
+                holder.ivImportance.setVisibility(View.VISIBLE);
+                holder.ivImportance.setImageResource(R.drawable.ic_star_true);
+                break;
+            case (3):
+                holder.ivImportance.setVisibility(View.VISIBLE);
+                holder.ivImportance.setImageResource(R.drawable.ic_error);
+                break;
+            case (0):
+            default:
+                holder.ivImportance.setVisibility(View.GONE);
                 break;
         }
     }
@@ -152,7 +167,7 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
         ArrayList<DataTodo> list1 = new ArrayList<>();
         ArrayList<DataTodo> list2 = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
-            switch (list.get(i).getType()) {
+            switch (list.get(i).getImportance()) {
                 case (0):
                     list0.add(list.get(i));
                     break;

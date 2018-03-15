@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.afordev.todomanagermini.MultiActivity">
+    tools:context="com.afordev.todomanagermini.PatternActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
@@ -15,11 +15,5 @@
         android:elevation="4dp"
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:title="일괄 선택" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/multi_rcv"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:listitem="@layout/item_todo" />
+        app:title="패턴 설정" />
 </LinearLayout>
