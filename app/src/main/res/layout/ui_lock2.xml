@@ -1,16 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:alpha="0.8"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/lock_background" />
+
     <android.support.constraint.ConstraintLayout
         android:id="@+id/lock_headbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -21,8 +31,13 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginTop="16dp"
+            android:background="@color/colorGrey"
+            android:paddingBottom="4dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="4dp"
             android:text="2월 13일 화요일"
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/black"
             android:textSize="21sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -34,6 +49,10 @@
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="60dp"
+            android:background="@color/colorGrey"
+            android:paddingBottom="4dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -46,7 +65,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:format12Hour="aa"
-                android:textColor="@android:color/white"
                 android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -59,7 +77,6 @@
                 android:layout_gravity="center"
                 android:layout_marginStart="4dp"
                 android:format12Hour="hh:mm"
-                android:textColor="@android:color/white"
                 android:textSize="54sp"
                 app:layout_constraintStart_toEndOf="@+id/textClock"
                 app:layout_constraintTop_toTopOf="parent"
@@ -71,7 +88,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:format12Hour=":ss"
-                android:textColor="@android:color/white"
                 android:textSize="21sp"
                 app:layout_constraintStart_toEndOf="@+id/textClock1"
                 app:layout_constraintTop_toTopOf="parent"
@@ -85,6 +101,8 @@
         android:id="@+id/today_layout"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginStart="40dp"
         android:elevation="0dp"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
@@ -100,7 +118,7 @@
                 android:id="@+id/today_rcv"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:listitem="@layout/item_todo" />
+                tools:listitem="@layout/item_lock" />
         </android.support.v4.widget.SwipeRefreshLayout>
     </android.support.constraint.ConstraintLayout>
 

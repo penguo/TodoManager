@@ -329,11 +329,15 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             case (R.id.menu_multi):
                 intent = new Intent(MainActivity.this, MultiActivity.class);
                 intent.putExtra("list", todoRcvAdapter.getDataList());
-                startActivityForResult(intent, Manager.RC_MAIN_TO_SETTING);
+                startActivityForResult(intent, Manager.RC_MAIN_TO_MULTI);
                 return true;
             case (R.id.menu_pattern):
                 intent = new Intent(MainActivity.this, PatternActivity.class);
                 startActivityForResult(intent, Manager.RC_MAIN_TO_PATTERN);
+                return true;
+            case (R.id.menu_lock):
+                intent = new Intent(MainActivity.this, LockActivity.class);
+                startActivity(intent);
                 return true;
         }
         return false;
@@ -360,7 +364,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     if (todoRcvAdapter.temp != null) {
                         todoRcvAdapter.temp = null;
                         todoRcvAdapter.notifyItemChanged(todoRcvAdapter.editPosition);
-                    } else{
+                    } else {
                         MainActivity.this.temp = null;
                         onRefreshBottom();
                     }
@@ -437,6 +441,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
         if (requestCode == Manager.RC_MAIN_TO_MAIN) {
             setData();
+        }
+        if (requestCode == Manager.RC_MAIN_TO_MULTI) {
+            if (resultCode == RESULT_OK) {
+                setData();
+            }
         }
     }
 

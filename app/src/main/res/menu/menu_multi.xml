@@ -3,11 +3,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/menu_edit"
-        android:title="수정"
-        app:showAsAction="always" />
-    <item
         android:id="@+id/menu_finish"
         android:title="완료"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_multi_tag"
+        android:title="태그 추가, 제거" />
+    <item
+        android:id="@+id/menu_multi_importance"
+        android:title="중요도 설정" />
+    <item
+        android:id="@+id/menu_multi_time"
+        android:title="시간 설정" />
 </menu>

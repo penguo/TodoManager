@@ -32,22 +32,54 @@ import java.util.Calendar;
 public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
     private DBManager dbManager;
+    private ArrayList<ArrayList<DataTodo>> arrayLists;
     private ArrayList<DataTodo> dataList;
     private DateForm date;
     private boolean isToday, isAutoSort;
     public DataTodo temp;
     public int itemExpandPosition = -1, editPosition = -1;
     private InputMethodManager imm;
+    private int header0_pos = -1, header1_pos = -1, header2_pos = -1, headerSize;
 
     public TodoRcvAdapter(Context mContext, DBManager dbManager, DateForm date) {
         initSet(mContext, dbManager);
         this.date = date;
-        this.dataList = dbManager.getTodoList(date);
-        this.dataList.add(0, new DataTodo());
+        setData();
         if (date.compareTo(new DateForm(Calendar.getInstance())) == 0) {
             isToday = true;
         } else {
             isToday = false;
+        }
+    }
+
+    public void setData() {
+        int tempPos = 0;
+        headerSize = 0;
+        header0_pos = -1;
+        header1_pos = -1;
+        header2_pos = -1;
+        dataList = new ArrayList<>();
+        this.arrayLists = dbManager.getSortedList(date);
+        if (arrayLists.get(0).size() != 0) {
+            header0_pos = tempPos;
+            dataList.add(tempPos, new DataTodo(-2));
+            tempPos += arrayLists.get(0).size();
+            tempPos++;
+            dataList.addAll(arrayLists.get(0));
+        }
+        if (arrayLists.get(1).size() != 0) {
+            header1_pos = tempPos;
+            dataList.add(tempPos, new DataTodo(-2));
+            tempPos += arrayLists.get(1).size();
+            tempPos++;
+            dataList.addAll(arrayLists.get(1));
+        }
+        if (arrayLists.get(2).size() != 0) {
+            header2_pos = tempPos;
+            dataList.add(tempPos, new DataTodo(-2));
+            tempPos += arrayLists.get(2).size();
+            tempPos++;
+            dataList.addAll(arrayLists.get(2));
         }
     }
 
@@ -66,7 +98,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public int getItemViewType(int position) {
-        if (position == 0) {
+        if (position == header0_pos || position == header1_pos || position == header2_pos) {
             return -1;
         }
         if (editPosition == position) {
@@ -157,7 +189,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                             dbManager.updateTodo(temp);
                             notifyItemChanged(getAdapterPosition());
                             if (isAutoSort) {
-                                notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
+//                                notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
                             }
                             temp = null;
                             editPosition = -1;
@@ -234,7 +266,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         itemExpandPosition = -1;
                         notifyItemChanged(getAdapterPosition());
                         if (isAutoSort) {
-                            notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
+//                            notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
                         }
                     }
             }
@@ -360,8 +392,6 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         public VHHeader(final View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.item_header_tv_title);
-
-            tvTitle.setText("할 일");
         }
     }
 
@@ -385,7 +415,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     sb.append(Manager.getTimeForm(data.getDate()));
                 }
                 if (data.getIsTimeActivated() == 1 && !data.getTags().equals("")) {
-                    sb.append(", ");
+                    sb.append(" ");
                 }
                 if (!data.getTags().equals("")) {
                     ArrayList<String> st = data.getTagList();
@@ -405,11 +435,6 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star);
                     ((VHItem) holder).ivImportance.setVisibility(View.VISIBLE);
                     ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_true);
-                    break;
-                case (3):
-                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
-                    ((VHItem) holder).ivImportance.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_error);
                     break;
                 case (0):
                 default:
@@ -487,6 +512,18 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     ((VHEdit) holder).ivEditLeft.setImageResource(R.drawable.ic_star_false);
                     break;
             }
+        } else if (holder instanceof VHHeader) {
+            String title;
+            if (position == header0_pos) {
+                title = "긴급! / 매우 중요!";
+            } else if (position == header1_pos) {
+                title = "할 일";
+            } else if (position == header2_pos) {
+                title = "완료";
+            } else {
+                title = "에러!";
+            }
+            ((VHHeader) holder).tvTitle.setText(title);
         }
     }
 
@@ -500,59 +537,58 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void onRefresh() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         isAutoSort = prefs.getBoolean(Manager.PREF_AUTO_SORT, true);
-        this.dataList = dbManager.getTodoList(date);
-        this.dataList.add(0, new DataTodo());
+        setData();
         notifyDataSetChanged();
     }
 
-    public int getSortedPosition(int position) {
-        ArrayList<DataTodo> list = dataList;
-        list.remove(0);
-        ArrayList<DataTodo> list0 = new ArrayList<>();
-        ArrayList<DataTodo> list1 = new ArrayList<>();
-        ArrayList<DataTodo> list2 = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
-            switch (list.get(i).getImportance()) {
-                case (0):
-                    list0.add(list.get(i));
-                    break;
-                case (1):
-                    list1.add(list.get(i));
-                    break;
-                case (2):
-                    list2.add(list.get(i));
-                    break;
-            }
-        }
-        list = new ArrayList<>();
-        list.addAll(list2);
-        list.addAll(list1);
-        list.addAll(list0);
-        list0 = new ArrayList<>();
-        list1 = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
-            switch (list.get(i).getChecked()) {
-                case (0):
-                    list0.add(list.get(i));
-                    break;
-                case (1):
-                    list1.add(list.get(i));
-                    break;
-            }
-        }
-        list = new ArrayList<>();
-        list.addAll(list0);
-        list.addAll(list1);
-
-        for (int i = 0; i < list.size(); i++) {
-            if (dataList.get(position).getId() == list.get(i).getId()) {
-                dataList = list;
-                this.dataList.add(0, new DataTodo());
-                return i;
-            }
-        }
-        return 0;
-    }
+//    public int getSortedPosition(int position) {
+//        ArrayList<DataTodo> list = dataList;
+//        list.remove(0);
+//        ArrayList<DataTodo> list0 = new ArrayList<>();
+//        ArrayList<DataTodo> list1 = new ArrayList<>();
+//        ArrayList<DataTodo> list2 = new ArrayList<>();
+//        for (int i = 0; i < list.size(); i++) {
+//            switch (list.get(i).getImportance()) {
+//                case (0):
+//                    list0.add(list.get(i));
+//                    break;
+//                case (1):
+//                    list1.add(list.get(i));
+//                    break;
+//                case (2):
+//                    list2.add(list.get(i));
+//                    break;
+//            }
+//        }
+//        list = new ArrayList<>();
+//        list.addAll(list2);
+//        list.addAll(list1);
+//        list.addAll(list0);
+//        list0 = new ArrayList<>();
+//        list1 = new ArrayList<>();
+//        for (int i = 0; i < list.size(); i++) {
+//            switch (list.get(i).getChecked()) {
+//                case (0):
+//                    list0.add(list.get(i));
+//                    break;
+//                case (1):
+//                    list1.add(list.get(i));
+//                    break;
+//            }
+//        }
+//        list = new ArrayList<>();
+//        list.addAll(list0);
+//        list.addAll(list1);
+//
+//        for (int i = 0; i < list.size(); i++) {
+//            if (dataList.get(position).getId() == list.get(i).getId()) {
+//                dataList = list;
+//                this.dataList.add(0, new DataTodo());
+//                return i;
+//            }
+//        }
+//        return 0;
+//    }
 
     public void dateDelayOption() {
         DatePickerDialog dpDialog = new DatePickerDialog(mContext, listenerDate,
@@ -572,6 +608,21 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     };
 
     public ArrayList<DataTodo> getDataList() {
-        return dataList;
+        ArrayList<DataTodo> list = new ArrayList<>();
+        list.addAll(dataList);
+        int tempMinus = 0;
+        if (header0_pos != -1) {
+            list.remove(header0_pos - tempMinus);
+            tempMinus++;
+        }
+        if (header1_pos != -1) {
+            list.remove(header1_pos - tempMinus);
+            tempMinus++;
+        }
+        if (header2_pos != -1) {
+            list.remove(header2_pos - tempMinus);
+            tempMinus++;
+        }
+        return list;
     }
 }

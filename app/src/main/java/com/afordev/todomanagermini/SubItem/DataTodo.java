@@ -26,6 +26,17 @@ public class DataTodo implements Parcelable {
         this.isTimeActivated = 0;
     }
 
+    public DataTodo(int id) {
+        this.id = id;
+        this.title = "";
+        this.date = new DateForm(Calendar.getInstance());
+        this.tags = "";
+        this.checked = 0;
+        this.importance = 0;
+        this.type = 0;
+        this.isTimeActivated = 0;
+    }
+
     public DataTodo(DateForm date) {
         this.id = -1;
         this.title = "";

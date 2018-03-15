@@ -37,7 +37,7 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
     }
 
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_todo, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_lock, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
         return viewHolder;
     }
@@ -96,7 +96,7 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
                 sb.append(Manager.getTimeForm(data.getDate()));
             }
             if (data.getIsTimeActivated() == 1 && !data.getTags().equals("")) {
-                sb.append(", ");
+                sb.append(" ");
             }
             if (!data.getTags().equals("")) {
                 ArrayList<String> st = data.getTagList();
@@ -107,16 +107,20 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
             holder.tvTag.setText(sb.toString());
         }
         switch (data.getImportance()) {
-            case (0):
-                holder.layout.setBackgroundResource(R.drawable.btn_basic);
-                break;
             case (1):
                 holder.layout.setBackgroundResource(R.drawable.btn_star_half);
+                holder.ivImportance.setVisibility(View.VISIBLE);
+                holder.ivImportance.setImageResource(R.drawable.ic_star_half);
                 break;
             case (2):
                 holder.layout.setBackgroundResource(R.drawable.btn_star);
+                holder.ivImportance.setVisibility(View.VISIBLE);
+                holder.ivImportance.setImageResource(R.drawable.ic_star_true);
                 break;
+            case (0):
             default:
+                holder.layout.setBackgroundResource(R.drawable.btn_basic);
+                holder.ivImportance.setVisibility(View.GONE);
                 break;
         }
         switch (data.getChecked()) {
@@ -135,22 +139,18 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
                 holder.ivCheck.setImageResource(R.drawable.ic_error);
                 break;
         }
-        switch (data.getImportance()) {
+        switch (data.getType()) {
             case (1):
-                holder.ivImportance.setVisibility(View.VISIBLE);
-                holder.ivImportance.setImageResource(R.drawable.ic_star_half);
+                holder.ivIcon.setVisibility(View.VISIBLE);
+                holder.ivIcon.setImageResource(R.drawable.ic_puzzle);
                 break;
             case (2):
-                holder.ivImportance.setVisibility(View.VISIBLE);
-                holder.ivImportance.setImageResource(R.drawable.ic_star_true);
-                break;
-            case (3):
-                holder.ivImportance.setVisibility(View.VISIBLE);
-                holder.ivImportance.setImageResource(R.drawable.ic_error);
+                holder.ivIcon.setVisibility(View.VISIBLE);
+                holder.ivIcon.setImageResource(R.drawable.ic_delay);
                 break;
             case (0):
             default:
-                holder.ivImportance.setVisibility(View.GONE);
+                holder.ivIcon.setVisibility(View.GONE);
                 break;
         }
     }

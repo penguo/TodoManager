@@ -1,14 +1,21 @@
 package com.afordev.todomanagermini;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.WindowManager;
+import android.widget.AutoCompleteTextView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.afordev.todomanagermini.Manager.DBManager;
 import com.afordev.todomanagermini.Manager.MultiRcvAdapter;
@@ -53,9 +60,93 @@ public class MultiActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case (R.id.menu_finish):
+                setResult(RESULT_OK);
+                finish();
+                return true;
+            case (R.id.menu_multi_tag):
+                showTag();
+                return true;
+            case (R.id.menu_multi_importance):
+                return true;
+            case (R.id.menu_multi_time):
                 return true;
         }
         return false;
     }
 
+    private void showTag() {
+        LayoutInflater li = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LinearLayout layout = (LinearLayout) li.inflate(R.layout.dialog_edittext, null);
+        final AutoCompleteTextView et = (AutoCompleteTextView) layout.findViewById(R.id.dialog_tag_et);
+//        final ArrayList<String> tags = data.getTagList();
+//        et.setAdapter(new ArrayAdapter<String>(this,
+//                android.R.layout.simple_dropdown_item_1line, tags));
+        // TODO: 2018-03-05 adapter의 list를 tags가 아닌, 현재 존재하고 있는 태그들로 바꾸자.
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog dialog;
+
+        builder.setTitle("일괄적으로 태그 추가, 제거");
+        et.setText("");
+        builder.setView(layout);
+
+        builder.setNeutralButton("제거", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (!et.getText().toString().equals("")) {
+                    ArrayList<String> tags;
+                    ArrayList<DataTodo> list = multiRcvAdapter.getSelectList();
+                    for (int i = 0; i < list.size(); i++) {
+                        tags = list.get(i).getTagList();
+                        if (tags.contains(et.getText().toString())) {
+                            tags.remove(et.getText().toString());
+                            list.get(i).setTagList(tags);
+                            dbManager.updateTodo(list.get(i));
+                        }
+                    }
+                    multiRcvAdapter.notifyDataSetChanged();
+                    dialog.dismiss();
+                } else {
+                    Toast.makeText(MultiActivity.this, "공백은 입력되지 않습니다.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        builder.setPositiveButton("추가", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (!et.getText().toString().equals("")) {
+                    ArrayList<String> tags;
+                    ArrayList<DataTodo> list = multiRcvAdapter.getSelectList();
+                    for (int i = 0; i < list.size(); i++) {
+                        tags = list.get(i).getTagList();
+                        if (!tags.contains(et.getText().toString())) {
+                            tags.add(et.getText().toString());
+                            list.get(i).setTagList(tags);
+                            dbManager.updateTodo(list.get(i));
+                        }
+                    }
+                    multiRcvAdapter.notifyDataSetChanged();
+                    dialog.dismiss();
+                } else {
+                    Toast.makeText(MultiActivity.this, "공백은 입력되지 않습니다.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog = builder.create(); //builder.show()를 create하여 dialog에 저장하는 방식.
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        dialog.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_OK);
+        super.onBackPressed();
+    }
 }

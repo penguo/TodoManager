@@ -307,12 +307,12 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             } else {
                 ((VHItem) holder).tvTags.setVisibility(View.VISIBLE);
                 StringBuffer sb = new StringBuffer();
-                sb.append(Manager.getDateForm(mContext, data.getDate()));
+                sb.append(Manager.getDateForm(mContext, data.getDate()) + " ");
                 if (data.getIsTimeActivated() == 1) {
-                    sb.append(" " + Manager.getTimeForm(data.getDate()));
+                    sb.append(Manager.getTimeForm(data.getDate()));
                 }
                 if (data.getIsTimeActivated() == 1 && !data.getTags().equals("")) {
-                    sb.append(", ");
+                    sb.append(" ");
                 }
                 if (!data.getTags().equals("")) {
                     ArrayList<String> st = data.getTagList();
@@ -321,6 +321,23 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     }
                 }
                 ((VHItem) holder).tvTags.setText(sb.toString());
+            }
+            switch (data.getImportance()) {
+                case (1):
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star_half);
+                    ((VHItem) holder).ivImportance.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_half);
+                    break;
+                case (2):
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star);
+                    ((VHItem) holder).ivImportance.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_true);
+                    break;
+                case (0):
+                default:
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
+                    ((VHItem) holder).ivImportance.setVisibility(View.GONE);
+                    break;
             }
             switch (data.getChecked()) {
                 case (0):
@@ -338,22 +355,18 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_error);
                     break;
             }
-            switch (data.getImportance()) {
+            switch (data.getType()) {
                 case (1):
-                    ((VHItem) holder).ivImportance.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_half);
+                    ((VHItem) holder).ivIcon.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_puzzle);
                     break;
                 case (2):
-                    ((VHItem) holder).ivImportance.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_true);
-                    break;
-                case (3):
-                    ((VHItem) holder).ivImportance.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_error);
+                    ((VHItem) holder).ivIcon.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_delay);
                     break;
                 case (0):
                 default:
-                    ((VHItem) holder).ivImportance.setVisibility(View.GONE);
+                    ((VHItem) holder).ivIcon.setVisibility(View.GONE);
                     break;
             }
         } else {

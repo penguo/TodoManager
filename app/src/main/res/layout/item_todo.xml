@@ -39,10 +39,10 @@
                 android:id="@+id/item_todo_iv_icon"
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="@+id/item_todo_iv_check"
                 app:layout_constraintEnd_toEndOf="@+id/item_todo_iv_check"
-                app:srcCompat="@drawable/ic_puzzle" />
+                app:srcCompat="@drawable/ic_delay" />
 
             <LinearLayout
                 android:id="@+id/linearLayout2"
@@ -66,7 +66,7 @@
 
                     <ImageView
                         android:id="@+id/item_todo_iv_importance"
-                        android:layout_width="20dp"
+                        android:layout_width="16dp"
                         android:layout_height="match_parent"
                         android:layout_marginRight="2dp"
                         app:srcCompat="@drawable/ic_star_true" />

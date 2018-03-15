@@ -139,7 +139,7 @@ public class Manager {
                     }
                 }
                 data.setTagList(tags);
-                if (position == -1) {
+                if (position != -1) {
                     rcvAdapter.notifyItemChanged(position);
                 } else {
                     ((MainActivity) activity).onRefreshBottom();
@@ -158,7 +158,6 @@ public class Manager {
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         dialog.show();
     }
-
 
     public static String getDateForm(Context mContext, DateForm date) {
         StringBuffer sb = new StringBuffer();

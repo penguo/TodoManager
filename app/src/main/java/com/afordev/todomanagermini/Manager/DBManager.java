@@ -57,7 +57,7 @@ public class DBManager extends SQLiteOpenHelper {
                 "Tags TEXT," +
                 "Checked Integer, " +
                 "Type Integer, " +
-                "IsTimeActivated Integer, "+
+                "IsTimeActivated Integer, " +
                 "Importance Integer); ");
     }
 
@@ -94,7 +94,7 @@ public class DBManager extends SQLiteOpenHelper {
                 "Date = " + second + ", " +
                 "Checked = " + data.getChecked() + ", " +
                 "Tags = '" + data.getTags() + "', " +
-                "Importance = " + data.getImportance() +", " +
+                "Importance = " + data.getImportance() + ", " +
                 "Type = " + data.getType() + ", " +
                 "IsTimeActivated = " + data.getIsTimeActivated() + " " +
                 "WHERE _id = " + data.getId() + " ; ");
@@ -186,6 +186,79 @@ public class DBManager extends SQLiteOpenHelper {
         list.addAll(list0);
         list.addAll(list1);
         return list;
+    }
+
+    public ArrayList<ArrayList<DataTodo>> getSortedList(final DateForm date) {
+        db = getReadableDatabase();
+        ArrayList<DataTodo> list = new ArrayList<>();
+        DateForm temp = new DateForm(date.getSecond());
+        temp.setHour(0);
+        temp.setMinute(0);
+        long secondL = temp.getSecond();
+        temp.addDate(1);
+        long secondR = temp.getSecond();
+        Cursor cursor = db.rawQuery("SELECT * FROM Todo " +
+                "WHERE Date >= " + secondL + " " +
+                "AND Date < " + secondR + ";", null);
+        while (cursor.moveToNext()) {
+            DataTodo data = new DataTodo(cursor.getInt(0),
+                    cursor.getString(1),
+                    cursor.getLong(2),
+                    cursor.getString(3),
+                    cursor.getInt(4),
+                    cursor.getInt(5),
+                    cursor.getInt(6),
+                    cursor.getInt(7));
+            list.add(data);
+        }
+        cursor.close();
+
+        int i;
+        ArrayList<ArrayList<DataTodo>> arrayLists = new ArrayList<>();
+        arrayLists.add(new ArrayList<DataTodo>());
+        arrayLists.add(new ArrayList<DataTodo>());
+        arrayLists.add(new ArrayList<DataTodo>());
+        for (i = 0; i < list.size(); i++) {
+            if (list.get(i).getImportance() >= 2) {
+                arrayLists.get(0).add(list.get(i));
+            }else if(list.get(i).getChecked() == 0){
+                arrayLists.get(1).add(list.get(i));
+            }else if(list.get(i).getChecked()>=1){
+                arrayLists.get(2).add(list.get(i));
+            }else{
+                arrayLists.get(2).add(list.get(i));
+            }
+        }
+        for(i=0;i<arrayLists.size();i++){
+            sort_importance(arrayLists.get(i));
+        }
+        return arrayLists;
+    }
+
+    private void sort_importance(ArrayList<DataTodo> list) {
+        ArrayList<ArrayList<DataTodo>> arrayLists = new ArrayList<>();
+        arrayLists.add(new ArrayList<DataTodo>());
+        arrayLists.add(new ArrayList<DataTodo>());
+        arrayLists.add(new ArrayList<DataTodo>());
+        int i;
+        for (i = 0; i < list.size(); i++) {
+            switch (list.get(i).getImportance()) {
+                case (2):
+                    arrayLists.get(2).add(list.get(i));
+                    break;
+                case (1):
+                    arrayLists.get(1).add(list.get(i));
+                    break;
+                case (0):
+                default:
+                    arrayLists.get(0).add(list.get(i));
+                    break;
+            }
+        }
+        list.clear();
+        list.addAll(arrayLists.get(2));
+        list.addAll(arrayLists.get(1));
+        list.addAll(arrayLists.get(0));
     }
 
     public ArrayList<DataTodo> searchTodo(int select, String word) {
