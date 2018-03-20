@@ -28,7 +28,7 @@
                 tools:layout_editor_absoluteY="259dp">
 
                 <ImageView
-                    android:id="@+id/item_todo_iv_check"
+                    android:id="@+id/item_pattern_iv_left"
                     style="@style/Icon"
                     android:layout_marginBottom="4dp"
                     android:layout_marginStart="4dp"
@@ -46,12 +46,12 @@
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:visibility="visible"
-                    app:layout_constraintBottom_toBottomOf="@+id/item_todo_iv_check"
-                    app:layout_constraintEnd_toEndOf="@+id/item_todo_iv_check"
+                    app:layout_constraintBottom_toBottomOf="@+id/item_pattern_iv_left"
+                    app:layout_constraintEnd_toEndOf="@+id/item_pattern_iv_left"
                     app:srcCompat="@drawable/ic_delay" />
 
                 <LinearLayout
-                    android:id="@+id/linearLayout2"
+                    android:id="@+id/item_todo_layout_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
@@ -62,7 +62,7 @@
                     android:orientation="vertical"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/item_todo_iv_check"
+                    app:layout_constraintStart_toEndOf="@+id/item_pattern_iv_left"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <LinearLayout

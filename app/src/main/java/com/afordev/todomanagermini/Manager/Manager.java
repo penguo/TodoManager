@@ -43,6 +43,7 @@ public class Manager {
     public static final int RC_MAIN_TO_MULTI = 1003;
     public static final int RC_SEARCH_TO_MULTI = 1004;
     public static final int RC_MAIN_TO_PATTERN = 1005;
+    public static final int RC_PATTERN_TO_ADDPATTERN = 1006;
 
     public static final String PREF_LOCK_SCREEN = "pref_lock_screen";
     public static final String PREF_AUTO_SORT = "pref_auto_sort";

@@ -1,33 +1,19 @@
 package com.afordev.todomanagermini.Manager;
 
-import android.app.AlertDialog;
-import android.app.DatePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.graphics.Paint;
-import android.preference.PreferenceManager;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.afordev.todomanagermini.MainActivity;
 import com.afordev.todomanagermini.R;
 import com.afordev.todomanagermini.SubItem.DataTodo;
-import com.afordev.todomanagermini.SubItem.DateForm;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class MultiRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
@@ -74,7 +60,7 @@ public class MultiRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             layout = itemView.findViewById(R.id.item_todo_layout);
             tvTitle = itemView.findViewById(R.id.item_todo_tv_title);
             tvTags = itemView.findViewById(R.id.item_todo_tv_tag);
-            ivSelect = itemView.findViewById(R.id.item_todo_iv_check);
+            ivSelect = itemView.findViewById(R.id.item_todo_iv_left);
             ivIcon = itemView.findViewById(R.id.item_todo_iv_icon);
             ivImportance = itemView.findViewById(R.id.item_todo_iv_importance);
 
@@ -188,6 +174,14 @@ public class MultiRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             dbManager.deleteTodo(selectList.get(i).getId());
         }
         selectList.clear();
+        notifyDataSetChanged();
+    }
+
+    public void setImportanceMultiple(int input) {
+        for (int i = 0; i < selectList.size(); i++) {
+            selectList.get(i).setImportance(input);
+            dbManager.updateTodo(selectList.get(i));
+        }
         notifyDataSetChanged();
     }
 }

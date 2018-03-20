@@ -125,7 +125,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     class VHItem extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView tvTitle, tvTags;
-        private LinearLayout layout, layoutPlus;
+        private LinearLayout layout, layoutPlus, layoutText;
         private ImageView ivCheck, ivIcon, ivImportance;
         private Button btnPDelete, btnPEdit, btnPDelay, btnPCheck;
 
@@ -134,7 +134,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             layout = itemView.findViewById(R.id.item_todo_layout);
             tvTitle = itemView.findViewById(R.id.item_todo_tv_title);
             tvTags = itemView.findViewById(R.id.item_todo_tv_tag);
-            ivCheck = itemView.findViewById(R.id.item_todo_iv_check);
+            ivCheck = itemView.findViewById(R.id.item_todo_iv_left);
             ivIcon = itemView.findViewById(R.id.item_todo_iv_icon);
             ivImportance = itemView.findViewById(R.id.item_todo_iv_importance);
             layoutPlus = itemView.findViewById(R.id.item_todo_layout_plus);
@@ -142,12 +142,13 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             btnPEdit = itemView.findViewById(R.id.item_todo_btn_pedit);
             btnPDelay = itemView.findViewById(R.id.item_todo_btn_pdelay);
             btnPCheck = itemView.findViewById(R.id.item_todo_btn_pcheck);
+            layoutText = itemView.findViewById(R.id.item_todo_layout_text);
 
-            layout.setOnClickListener(this);
-            if (isToday) {
-                layout.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
+
+            layout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    if (isToday) {
                         if (editPosition == -1 && ((MainActivity) mContext).getTemp() == null) {
                             temp = dataList.get(getAdapterPosition());
                             editPosition = getAdapterPosition();
@@ -156,10 +157,13 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         } else {
                             Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
                         }
-                        return true;
+                    } else {
+                        Toast.makeText(mContext, "팝업 메뉴", Toast.LENGTH_SHORT).show();
                     }
-                });
-            }
+                    return true;
+                }
+            });
+            layout.setOnClickListener(this);
             btnPDelete.setOnClickListener(this);
             btnPEdit.setOnClickListener(this);
             btnPDelay.setOnClickListener(this);
@@ -263,7 +267,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                                 break;
                         }
                         dbManager.updateTodo(dataList.get(getAdapterPosition()));
-                        itemExpandPosition = -1;
+//                        itemExpandPosition = -1;
                         notifyItemChanged(getAdapterPosition());
                         if (isAutoSort) {
 //                            notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
@@ -324,6 +328,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     dbManager.updateTodo(temp);
                     temp = null;
                     editPosition = -1;
+                    itemExpandPosition = -1;
                     notifyItemChanged(getAdapterPosition());
                     imm.hideSoftInputFromWindow(etTitle.getWindowToken(), 0);
                     ((MainActivity) mContext).setViewBottom(true);
@@ -446,13 +451,13 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 case (0):
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_false);
                     ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-                    ((VHItem) holder).tvTitle.setAlpha(1);
+                    ((VHItem) holder).layoutText.setAlpha(1);
                     break;
                 case (1):
                     ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_true);
                     ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                    ((VHItem) holder).tvTitle.setAlpha((float) 0.5);
+                    ((VHItem) holder).layoutText.setAlpha((float) 0.5);
                     break;
                 default:
                     ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
@@ -531,12 +536,22 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         dbManager.deleteTodo(dataList.get(position).getId());
         dataList.remove(position);
         notifyItemRemoved(position);
+        if (position < header0_pos) {
+            header0_pos--;
+        }
+        if (position < header1_pos) {
+            header1_pos--;
+        }
+        if (position < header2_pos) {
+            header2_pos--;
+        }
         notifyItemRangeChanged(position, dataList.size()); // 지워진 만큼 다시 채워넣기.
     }
 
     public void onRefresh() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         isAutoSort = prefs.getBoolean(Manager.PREF_AUTO_SORT, true);
+        itemExpandPosition = -1;
         setData();
         notifyDataSetChanged();
     }

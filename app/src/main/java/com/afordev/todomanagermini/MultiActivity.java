@@ -12,8 +12,10 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.AutoCompleteTextView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -52,7 +54,7 @@ public class MultiActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.menu_multi, menu);
+        menuInflater.inflate(R.menu.menuxml_multi, menu);
         return true;
     }
 
@@ -67,6 +69,7 @@ public class MultiActivity extends AppCompatActivity {
                 showTag();
                 return true;
             case (R.id.menu_multi_importance):
+                showImportance();
                 return true;
             case (R.id.menu_multi_time):
                 return true;
@@ -89,7 +92,7 @@ public class MultiActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         AlertDialog dialog;
 
-        builder.setTitle("일괄적으로 태그 추가, 제거");
+        builder.setTitle("태그 추가, 제거");
         et.setText("");
         builder.setView(layout);
 
@@ -162,6 +165,43 @@ public class MultiActivity extends AppCompatActivity {
         dialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
+    private void showImportance() {
+        LayoutInflater li = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LinearLayout layout = (LinearLayout) li.inflate(R.layout.dialog_importance, null);
+        ImageButton btn0 = layout.findViewById(R.id.dialog_imp_btn_0);
+        ImageButton btn1 = layout.findViewById(R.id.dialog_imp_btn_1);
+        ImageButton btn2 = layout.findViewById(R.id.dialog_imp_btn_2);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("중요도 설정");
+        builder.setView(layout);
+        final AlertDialog dialog = builder.create();
+
+        btn0.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                multiRcvAdapter.setImportanceMultiple(0);
+                dialog.dismiss();
+            }
+        });
+        btn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                multiRcvAdapter.setImportanceMultiple(1);
+                dialog.dismiss();
+            }
+        });
+        btn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                multiRcvAdapter.setImportanceMultiple(2);
                 dialog.dismiss();
             }
         });

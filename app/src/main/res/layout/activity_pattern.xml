@@ -15,5 +15,11 @@
         android:elevation="4dp"
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:title="패턴 설정" />
+        app:title="패턴 목록" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/pattern_rcv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:listitem="@layout/item_pattern" />
 </LinearLayout>

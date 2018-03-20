@@ -93,7 +93,7 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             layout = itemView.findViewById(R.id.item_todo_layout);
             tvTitle = itemView.findViewById(R.id.item_todo_tv_title);
             tvTags = itemView.findViewById(R.id.item_todo_tv_tag);
-            ivCheck = itemView.findViewById(R.id.item_todo_iv_check);
+            ivCheck = itemView.findViewById(R.id.item_todo_iv_left);
             ivIcon = itemView.findViewById(R.id.item_todo_iv_icon);
             ivImportance = itemView.findViewById(R.id.item_todo_iv_importance);
             layoutPlus = itemView.findViewById(R.id.item_todo_layout_plus);
@@ -483,4 +483,7 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     };
 
+    public ArrayList<DataTodo> getDataList() {
+        return dataList;
+    }
 }

@@ -15,7 +15,6 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -140,7 +139,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 date.getDay() == cal.get(Calendar.DATE)) {
             isToday = true;
             mToolbar.setTitle("오늘의 할 일");
-            noticeStar();
         } else {
             isToday = false;
             mToolbar.setTitle(Manager.getDateForm(this, date));
@@ -251,58 +249,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
     }
 
-    public boolean noticeStar() {
-        notice = new ItemNotice(this, findViewById(R.id.today_notice));
-        boolean isStarNotice = prefs.getBoolean(Manager.PREF_STAR_NOTICE, false);
-        String ignoreDate = prefs.getString("ignore_star", ",,");
-        if (isStarNotice) {
-            try {
-                String[] strings = ignoreDate.split(",");
-                DateForm date = new DateForm(Integer.parseInt(strings[0]), Integer.parseInt(strings[1]), Integer.parseInt(strings[2]));
-                if (date.compareTo(this.date) == 0) {
-                    notice.view.setVisibility(View.GONE);
-                    return false;
-                }
-            } catch (Exception e) {
-                Log.e("eror", "ddd");
-            }
-            final ArrayList<DataTodo> missedStar = dbManager.getMissedStarList(date);
-            if (missedStar.size() == 0) {
-                notice.view.setVisibility(View.GONE);
-            } else {
-                notice.view.setVisibility(View.VISIBLE);
-                notice.setTitle(missedStar.size() + "개의 '매우 중요' 일정이 완료되지 않았습니다.");
-                notice.setLeftImage(R.drawable.ic_error);
-                notice.btnCheck.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(MainActivity.this, SearchActivity.class);
-                        intent.putExtra("list", missedStar);
-                        startActivityForResult(intent, Manager.RC_MAIN_TO_SEARCH);
-                    }
-                });
-                notice.btnIgnore.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        SharedPreferences.Editor editor = prefs.edit();
-                        editor.putString("ignore_star", date.getYear() + "," + date.getMonth() + "," + date.getDay());
-                        editor.apply();
-                        notice.view.setVisibility(View.GONE);
-                        Toast.makeText(MainActivity.this, date.getYear() + "," + date.getMonth() + "," + date.getDay() + " 하루 동안 보이지 않습니다.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        } else {
-            notice.view.setVisibility(View.GONE);
-            return false;
-        }
-        return true;
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.menu_today, menu);
+        menuInflater.inflate(R.menu.menuxml_today, menu);
         return true;
     }
 

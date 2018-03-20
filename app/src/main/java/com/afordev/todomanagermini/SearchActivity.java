@@ -1,6 +1,7 @@
 package com.afordev.todomanagermini;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -8,6 +9,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -21,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afordev.todomanagermini.Manager.DBManager;
+import com.afordev.todomanagermini.Manager.Manager;
 import com.afordev.todomanagermini.Manager.SearchRcvAdapter;
 import com.afordev.todomanagermini.SubItem.DataTodo;
 
@@ -103,21 +108,6 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        setResult(RESULT_OK);
-        super.onBackPressed();
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        selectedItemPos = i;
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
-    }
-
     public void search() {
         if (etSearch.getText().toString().length() < 2) {
             Toast.makeText(this, "최소 2자 이상이어야 합니다.", Toast.LENGTH_SHORT).show();
@@ -139,6 +129,50 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
             mToolbar.setTitle(sb.toString());
             etSearch.setText("");
             imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
+        }
+    }
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_OK);
+        super.onBackPressed();
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        selectedItemPos = i;
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.menuxml_multi, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
+        switch (item.getItemId()) {
+            case (R.id.menu_multi):
+                intent = new Intent(SearchActivity.this, MultiActivity.class);
+                intent.putExtra("list", searchRcvAdapter.getDataList());
+                startActivityForResult(intent, Manager.RC_SEARCH_TO_MULTI);
+                return true;
+        }
+        return false;
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Manager.RC_SEARCH_TO_MULTI) {
+            if (resultCode == RESULT_OK) {
+                setData();
+            }
         }
     }
 }

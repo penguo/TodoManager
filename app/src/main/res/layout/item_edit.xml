@@ -11,7 +11,8 @@
         android:layout_height="wrap_content"
         android:background="@drawable/btn_accentlight"
         android:minHeight="72dp"
-        android:padding="4dp">
+        android:padding="4dp"
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/item_todo_iv_new"

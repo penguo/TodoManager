@@ -31,7 +31,9 @@
         <activity android:name=".SettingsActivity" />
         <activity android:name=".SearchActivity" />
         <activity android:name=".MultiActivity" />
-        <activity android:name=".PatternActivity"></activity>
+        <activity android:name=".PatternActivity" />
+        <activity android:name=".CalendarActivity" />
+        <activity android:name=".AddPatternActivity"></activity>
     </application>
 
 </manifest>

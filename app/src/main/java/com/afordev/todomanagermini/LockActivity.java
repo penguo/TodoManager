@@ -1,6 +1,7 @@
 package com.afordev.todomanagermini;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -16,8 +18,13 @@ import com.afordev.todomanagermini.Manager.DBManager;
 import com.afordev.todomanagermini.Manager.LockRcvAdapter;
 import com.afordev.todomanagermini.Manager.Manager;
 import com.afordev.todomanagermini.SubItem.DateForm;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.MultiTransformation;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.util.Calendar;
+
+import jp.wasabeef.glide.transformations.BlurTransformation;
 
 public class LockActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, View.OnClickListener {
 
@@ -28,6 +35,7 @@ public class LockActivity extends AppCompatActivity implements SwipeRefreshLayou
     private LinearLayout layoutBtnEnter, layoutBtnBack;
     private TextView tvDate;
     private DateForm date;
+    private ImageView ivBackground;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +47,11 @@ public class LockActivity extends AppCompatActivity implements SwipeRefreshLayou
         layoutBtnEnter = findViewById(R.id.lock_layout_btn_enter);
         layoutBtnBack = findViewById(R.id.lock_layout_btn_back);
         tvDate = findViewById(R.id.lock_tv_date);
+        ivBackground = findViewById(R.id.lock_iv_background);
+        Glide.with(this)
+                .load(R.drawable.lock_background)
+                .apply(RequestOptions.bitmapTransform(new MultiTransformation<Bitmap>(new BlurTransformation(25))))
+                .into(ivBackground);
 
         layoutBtnEnter.setOnClickListener(this);
         layoutBtnBack.setOnClickListener(this);

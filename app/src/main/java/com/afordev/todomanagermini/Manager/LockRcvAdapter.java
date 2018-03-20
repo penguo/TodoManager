@@ -42,7 +42,7 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
         return viewHolder;
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class ViewHolder extends RecyclerView.ViewHolder {
         private TextView tvTitle, tvTag;
         private ImageView ivCheck, ivIcon, ivImportance;
         private LinearLayout layout;
@@ -50,19 +50,17 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
         public ViewHolder(final View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.item_todo_tv_title);
-            ivCheck = itemView.findViewById(R.id.item_todo_iv_check);
+            ivCheck = itemView.findViewById(R.id.item_todo_iv_left);
             ivIcon = itemView.findViewById(R.id.item_todo_iv_icon);
             ivImportance = itemView.findViewById(R.id.item_todo_iv_importance);
             layout = itemView.findViewById(R.id.item_todo_layout);
             tvTag = itemView.findViewById(R.id.item_todo_tv_tag);
 
-            layout.setOnClickListener(this);
-        }
+            ivImportance.setVisibility(View.GONE);
 
-        @Override
-        public void onClick(View view) {
-            switch (view.getId()) {
-                case (R.id.item_todo_layout):
+            layout.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
                     switch (dataList.get(getAdapterPosition()).getChecked()) {
                         case (0):
                             dataList.get(getAdapterPosition()).setChecked(1);
@@ -77,8 +75,9 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
                     dbManager.updateTodo(dataList.get(getAdapterPosition()));
                     notifyItemChanged(getAdapterPosition());
                     notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
-                    break;
-            }
+                    return true;
+                }
+            });
         }
     }
 
@@ -109,18 +108,18 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
         switch (data.getImportance()) {
             case (1):
                 holder.layout.setBackgroundResource(R.drawable.btn_star_half);
-                holder.ivImportance.setVisibility(View.VISIBLE);
-                holder.ivImportance.setImageResource(R.drawable.ic_star_half);
+//                holder.ivImportance.setVisibility(View.VISIBLE);
+//                holder.ivImportance.setImageResource(R.drawable.ic_star_half);
                 break;
             case (2):
                 holder.layout.setBackgroundResource(R.drawable.btn_star);
-                holder.ivImportance.setVisibility(View.VISIBLE);
-                holder.ivImportance.setImageResource(R.drawable.ic_star_true);
+//                holder.ivImportance.setVisibility(View.VISIBLE);
+//                holder.ivImportance.setImageResource(R.drawable.ic_star_true);
                 break;
             case (0):
             default:
                 holder.layout.setBackgroundResource(R.drawable.btn_basic);
-                holder.ivImportance.setVisibility(View.GONE);
+//                holder.ivImportance.setVisibility(View.GONE);
                 break;
         }
         switch (data.getChecked()) {
