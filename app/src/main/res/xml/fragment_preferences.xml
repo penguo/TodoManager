@@ -24,6 +24,12 @@
             android:summary="전 날 놓치고 지나버린 '중요' 항목이 있을 경우 알립니다."
             android:title="놓친 '중요' 항목 알림" />
     </PreferenceCategory>
+    <PreferenceCategory android:title="할 일 기본값 설정">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="pref_auto_delay"
+            android:title="자동 딜레이(준비 중)" />
+    </PreferenceCategory>
     <PreferenceCategory android:title="앱 정보">
         <Preference
             android:summary="@string/version"

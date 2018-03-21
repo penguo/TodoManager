@@ -76,7 +76,7 @@ public class CustomTimePicker {
                 dialog.dismiss();
             }
         });
-        builder.setNeutralButton("사용하지 않음", new DialogInterface.OnClickListener() {
+        builder.setNeutralButton("하루 종일", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
                 data.setIsTimeActivated(0);

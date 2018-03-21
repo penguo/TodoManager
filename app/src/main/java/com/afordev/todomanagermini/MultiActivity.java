@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -84,10 +85,9 @@ public class MultiActivity extends AppCompatActivity {
         LayoutInflater li = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout layout = (LinearLayout) li.inflate(R.layout.dialog_edittext, null);
         final AutoCompleteTextView et = (AutoCompleteTextView) layout.findViewById(R.id.dialog_tag_et);
-//        final ArrayList<String> tags = data.getTagList();
-//        et.setAdapter(new ArrayAdapter<String>(this,
-//                android.R.layout.simple_dropdown_item_1line, tags));
-        // TODO: 2018-03-05 adapter의 list를 tags가 아닌, 현재 존재하고 있는 태그들로 바꾸자.
+        final ArrayList<String> dbTags = dbManager.getTagList();
+        et.setAdapter(new ArrayAdapter<String>(this,
+                android.R.layout.simple_dropdown_item_1line, dbTags));
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         AlertDialog dialog;

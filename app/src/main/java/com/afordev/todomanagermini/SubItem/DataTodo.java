@@ -10,10 +10,10 @@ import java.util.Calendar;
  * Created by penguo on 2018-02-11.
  */
 
-public class DataTodo implements Parcelable {
+public class DataTodo implements Parcelable, Cloneable {
     private String title, tags;
     private DateForm date;
-    private int id, checked, importance, type, isTimeActivated, patternId;
+    private int id, checked, importance, type, isTimeActivated, patternId, autoDelay;
 
     public DataTodo() {
         this.id = -1;
@@ -25,6 +25,7 @@ public class DataTodo implements Parcelable {
         this.type = 0;
         this.isTimeActivated = 0;
         this.patternId = -1;
+        this.autoDelay = -1;
     }
 
     public DataTodo(int id) {
@@ -37,6 +38,7 @@ public class DataTodo implements Parcelable {
         this.type = 0;
         this.isTimeActivated = 0;
         this.patternId = -1;
+        this.autoDelay = -1;
     }
 
     public DataTodo(DateForm date) {
@@ -51,9 +53,10 @@ public class DataTodo implements Parcelable {
         this.isTimeActivated = 0;
         this.importance = 0;
         this.patternId = -1;
+        this.autoDelay = -1;
     }
 
-    public DataTodo(int id, String title, long second, String tags, int checked, int type, int isTimeActivited, int importance, int patternId) {
+    public DataTodo(int id, String title, long second, String tags, int checked, int type, int isTimeActivited, int importance, int patternId, int autoDelay) {
         this.id = id;
         this.title = title;
         this.date = new DateForm(second);
@@ -63,6 +66,7 @@ public class DataTodo implements Parcelable {
         this.isTimeActivated = isTimeActivited;
         this.importance = importance;
         this.patternId = patternId;
+        this.autoDelay = autoDelay;
     }
 
     protected DataTodo(Parcel in) {
@@ -75,6 +79,7 @@ public class DataTodo implements Parcelable {
         isTimeActivated = in.readInt();
         importance = in.readInt();
         patternId = in.readInt();
+        autoDelay = in.readInt();
     }
 
     public static final Creator<DataTodo> CREATOR = new Creator<DataTodo>() {
@@ -125,6 +130,10 @@ public class DataTodo implements Parcelable {
         return patternId;
     }
 
+    public int getAutoDelay() {
+        return autoDelay;
+    }
+
     public ArrayList<String> getTagList() {
         ArrayList<String> list = new ArrayList<>();
         String[] st = tags.split(",");
@@ -173,6 +182,10 @@ public class DataTodo implements Parcelable {
         this.patternId = patternId;
     }
 
+    public void setAutoDelay(int autoDelay) {
+        this.autoDelay = autoDelay;
+    }
+
     public void setTagList(ArrayList<String> list) {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < list.size(); i++) {
@@ -200,6 +213,16 @@ public class DataTodo implements Parcelable {
         parcel.writeInt(isTimeActivated);
         parcel.writeInt(importance);
         parcel.writeInt(patternId);
+        parcel.writeInt(autoDelay);
+    }
+
+    public DataTodo clone() {
+        DataTodo obj = null;
+        try {
+            obj = (DataTodo) super.clone();
+        } catch (Exception e) {
+        }
+        return obj;
     }
 
 }

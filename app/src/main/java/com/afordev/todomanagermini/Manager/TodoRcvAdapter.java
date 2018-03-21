@@ -9,15 +9,20 @@ import android.graphics.Paint;
 import android.preference.PreferenceManager;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -124,7 +129,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     class VHItem extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private TextView tvTitle, tvTags;
+        private TextView tvTitle, tvTags, tvDelay;
         private LinearLayout layout, layoutPlus, layoutText;
         private ImageView ivCheck, ivIcon, ivImportance;
         private Button btnPDelete, btnPEdit, btnPDelay, btnPCheck;
@@ -143,14 +148,14 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             btnPDelay = itemView.findViewById(R.id.item_todo_btn_pdelay);
             btnPCheck = itemView.findViewById(R.id.item_todo_btn_pcheck);
             layoutText = itemView.findViewById(R.id.item_todo_layout_text);
-
+            tvDelay = itemView.findViewById(R.id.item_todo_tv_delay);
 
             layout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     if (isToday) {
                         if (editPosition == -1 && ((MainActivity) mContext).getTemp() == null) {
-                            temp = dataList.get(getAdapterPosition());
+                            temp = dataList.get(getAdapterPosition()).clone();
                             editPosition = getAdapterPosition();
                             notifyItemChanged(getAdapterPosition());
                             imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
@@ -177,28 +182,25 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 case (R.id.item_todo_layout):
                     if (editPosition == -1 && ((MainActivity) mContext).getTemp() == null) {
                         if (isToday) {
-                            temp = dataList.get(getAdapterPosition());
-                            editPosition = getAdapterPosition();
-                            switch (temp.getChecked()) {
+                            switch (dataList.get(getAdapterPosition()).getChecked()) {
                                 case (0):
-                                    temp.setChecked(1);
+                                    dataList.get(getAdapterPosition()).setChecked(1);
                                     break;
                                 case (1):
-                                    temp.setChecked(0);
+                                    dataList.get(getAdapterPosition()).setChecked(0);
                                     break;
                                 default:
                                     Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
                                     break;
                             }
-                            dbManager.updateTodo(temp);
+                            dbManager.updateTodo(dataList.get(getAdapterPosition()));
                             notifyItemChanged(getAdapterPosition());
                             if (isAutoSort) {
 //                                notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
                             }
-                            temp = null;
                             editPosition = -1;
                         } else {
-                            temp = dataList.get(getAdapterPosition());
+                            temp = dataList.get(getAdapterPosition()).clone();
                             int i = itemExpandPosition;
                             if (itemExpandPosition == getAdapterPosition()) {
                                 itemExpandPosition = -1;
@@ -238,7 +240,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                 case (R.id.item_todo_btn_pedit):
                     if (editPosition == -1 && ((MainActivity) mContext).getTemp() == null) {
-                        temp = dataList.get(getAdapterPosition());
+                        temp = dataList.get(getAdapterPosition()).clone();
                         editPosition = getAdapterPosition();
                         notifyItemChanged(getAdapterPosition());
                         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
@@ -267,7 +269,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                                 break;
                         }
                         dbManager.updateTodo(dataList.get(getAdapterPosition()));
-//                        itemExpandPosition = -1;
+                        itemExpandPosition = -1;
                         notifyItemChanged(getAdapterPosition());
                         if (isAutoSort) {
 //                            notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
@@ -281,7 +283,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         private EditText etTitle;
         private TextView tvTags;
         private ImageView ivEditLeft, ivEditSave;
-        private Button btnDelete, btnTag, btnTime, btnCancel;
+        private Button btnDelete, btnCancel, btnExpandMenu;
         private ConstraintLayout layoutNew;
 
         public VHEdit(final View itemView) {
@@ -293,15 +295,14 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             ivEditLeft = itemView.findViewById(R.id.item_todo_iv_edit_left);
             ivEditSave = itemView.findViewById(R.id.item_todo_iv_edit_save);
             btnDelete = itemView.findViewById(R.id.item_todo_btn_delete);
-            btnTag = itemView.findViewById(R.id.item_todo_btn_tag);
-            btnTime = itemView.findViewById(R.id.item_todo_btn_time);
             btnCancel = itemView.findViewById(R.id.item_todo_btn_cancel);
+            btnExpandMenu = itemView.findViewById(R.id.item_todo_btn_expandmenu);
+
             ivEditLeft.setOnClickListener(this);
             ivEditSave.setOnClickListener(this);
             btnDelete.setOnClickListener(this);
             btnCancel.setOnClickListener(this);
-            btnTime.setOnClickListener(this);
-            btnTag.setOnClickListener(this);
+            btnExpandMenu.setOnClickListener(this);
         }
 
         @Override
@@ -326,6 +327,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 case (R.id.item_todo_iv_edit_save):
                     temp.setTitle(etTitle.getText().toString());
                     dbManager.updateTodo(temp);
+                    dataList.set(getAdapterPosition(), temp);
                     temp = null;
                     editPosition = -1;
                     itemExpandPosition = -1;
@@ -380,13 +382,114 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     dialog.show();
                     break;
 
-                case (R.id.item_todo_btn_time):
-                    CustomTimePicker.show(mContext, temp, TodoRcvAdapter.this, getAdapterPosition());
+                case (R.id.item_todo_btn_expandmenu):
+                    showExpandMenu();
                     break;
 
-                case (R.id.item_todo_btn_tag):
-                    Manager.showAddTag((MainActivity) mContext, temp, TodoRcvAdapter.this, getAdapterPosition());
+                case (R.id.dialog_em_layout_time):
+                    CustomTimePicker.show(mContext, temp, TodoRcvAdapter.this, getAdapterPosition());
+                    dialogExpandMenu.dismiss();
                     break;
+
+                case (R.id.dialog_em_layout_tag):
+                    Manager.showAddTag((MainActivity) mContext, dbManager, temp, TodoRcvAdapter.this, getAdapterPosition());
+                    dialogExpandMenu.dismiss();
+                    break;
+
+                case (R.id.dialog_em_layout_autodelay):
+                    if (temp.getAutoDelay() == -1) {
+                        temp.setAutoDelay(0);
+                        setDataExpandMenu();
+                    } else {
+                        temp.setAutoDelay(-1);
+                        temp.setType(0);
+                        setDataExpandMenu();
+                    }
+                    break;
+
+                case (R.id.dialog_em_layout_importance):
+                    Manager.showImportance(mContext, temp, TodoRcvAdapter.this, getAdapterPosition());
+                    dialogExpandMenu.dismiss();
+                    break;
+            }
+        }
+
+        private AlertDialog dialogExpandMenu;
+        private LinearLayout layoutTime, layoutTag, layoutAutoDelay, layoutImportance;
+        private TextView tvTime, tvTag, tvAutoDelay, tvImportance;
+        private Switch switchAutoDelay;
+        private ImageView ivImportance;
+
+        public void showExpandMenu() {
+            LayoutInflater li = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LinearLayout layout = (LinearLayout) li.inflate(R.layout.dialog_expandmenu, null);
+            layoutTime = layout.findViewById(R.id.dialog_em_layout_time);
+            layoutTag = layout.findViewById(R.id.dialog_em_layout_tag);
+            layoutAutoDelay = layout.findViewById(R.id.dialog_em_layout_autodelay);
+            layoutImportance = layout.findViewById(R.id.dialog_em_layout_importance);
+            tvTime = layout.findViewById(R.id.dialog_em_tv_time);
+            tvTag = layout.findViewById(R.id.dialog_em_tv_tag);
+            tvAutoDelay = layout.findViewById(R.id.dialog_em_tv_autodelay);
+            tvImportance = layout.findViewById(R.id.dialog_em_tv_importance);
+            switchAutoDelay = layout.findViewById(R.id.dialog_em_switch_autodelay);
+            ivImportance = layout.findViewById(R.id.dialog_em_iv_importance);
+            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+
+            setDataExpandMenu();
+
+            layoutTime.setOnClickListener(this);
+            layoutTag.setOnClickListener(this);
+            layoutAutoDelay.setOnClickListener(this);
+            layoutImportance.setOnClickListener(this);
+
+            builder.setView(layout);
+            builder.setPositiveButton("완료", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+
+            dialogExpandMenu = builder.create(); //builder.show()를 create하여 dialog에 저장하는 방식.
+            dialogExpandMenu.show();
+        }
+
+        public void setDataExpandMenu() {
+            switch (temp.getImportance()) {
+                case (0):
+                    tvImportance.setText("보통");
+                    ivImportance.setImageResource(R.drawable.ic_star_false);
+                    break;
+                case (1):
+                    tvImportance.setText("중요");
+                    ivImportance.setImageResource(R.drawable.ic_star_half);
+                    break;
+                case (2):
+                    tvImportance.setText("매우 중요");
+                    ivImportance.setImageResource(R.drawable.ic_star_true);
+                    break;
+                default:
+                    tvImportance.setText("ERROR");
+                    ivImportance.setImageResource(R.drawable.ic_star_false);
+                    break;
+            }
+            if (temp.getIsTimeActivated() == 1) {
+                tvTime.setText(Manager.getTimeForm(temp.getDate()));
+            } else {
+                tvTime.setText("하루 종일");
+            }
+            StringBuilder sb = new StringBuilder();
+            ArrayList<String> st = temp.getTagList();
+            for (int i = 0; i < st.size(); i++) {
+                sb.append("#" + st.get(i) + " ");
+            }
+            tvTag.setText(sb.toString());
+            if (temp.getAutoDelay() == -1) {
+                switchAutoDelay.setChecked(false);
+                tvAutoDelay.setText("");
+            } else {
+                switchAutoDelay.setChecked(true);
+                tvAutoDelay.setText(temp.getAutoDelay() + "일 연기됨");
             }
         }
     }
@@ -444,7 +547,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 case (0):
                 default:
                     ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
-                    ((VHItem) holder).ivImportance.setVisibility(View.GONE);
+                    ((VHItem) holder).ivImportance.setVisibility(View.INVISIBLE);
                     break;
             }
             switch (data.getChecked()) {
@@ -458,6 +561,15 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_true);
                     ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                     ((VHItem) holder).layoutText.setAlpha((float) 0.5);
+                    break;
+                case (2):
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
+                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_delay);
+                    ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    ((VHItem) holder).layoutText.setAlpha((float) 0.5);
+                    ((VHItem) holder).btnPEdit.setVisibility(View.GONE);
+                    ((VHItem) holder).btnPDelay.setVisibility(View.GONE);
+                    ((VHItem) holder).btnPCheck.setVisibility(View.GONE);
                     break;
                 default:
                     ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
@@ -475,16 +587,27 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     break;
                 case (0):
                 default:
-                    ((VHItem) holder).ivIcon.setVisibility(View.GONE);
+                    ((VHItem) holder).ivIcon.setVisibility(View.INVISIBLE);
                     break;
+            }
+            if (data.getAutoDelay() > 0) {
+                ((VHItem) holder).tvDelay.setText(data.getAutoDelay() + "");
+            } else {
+                ((VHItem) holder).tvDelay.setText("");
             }
         } else if (holder instanceof VHEdit) {
             ((MainActivity) mContext).setViewBottom(false);
-            data = temp; // TODO: 2018-03-07 대기가 길어져서 메모리에서 사라져서 temp가 null일때 널포인트에러 발생
+            if (temp != null) {
+                data = temp;
+            } else {
+                data = new DataTodo();
+                data.setTitle("유효기간이 만료되어 초기화되었습니다. 취소 후 시작해주세요.");
+                // TODO: 2018-03-21 초기화될 경우 해결방안 - 초기화 안되게 하면 더 좋음.
+            }
             ((VHEdit) holder).etTitle.setText(data.getTitle());
             ((VHEdit) holder).etTitle.requestFocus();
             if (data.getIsTimeActivated() == 0 && data.getTags().equals("")) {
-                ((VHEdit) holder).tvTags.setVisibility(View.GONE);
+                ((VHEdit) holder).tvTags.setVisibility(View.INVISIBLE);
             } else {
                 ((VHEdit) holder).tvTags.setVisibility(View.VISIBLE);
                 StringBuffer sb = new StringBuffer();

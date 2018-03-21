@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private DateForm date;
     private DBManager dbManager = DBManager.getInstance(this);
     private boolean isToday;
-    private ItemNotice notice;
     private SharedPreferences prefs;
     private InputMethodManager imm;
     private TextView version;
@@ -63,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private DataTodo temp;
     private ConstraintLayout layoutNew;
     private LinearLayout layoutEdit;
-    private Button btnDelete, btnTag, btnTime, btnCancel;
+    private Button btnDelete, btnCancel;
     private EditText etTitle;
     private ImageView ivEditLeft, ivEditSave;
     private TextView tvTags;
@@ -109,16 +108,12 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         layoutNew = findViewById(R.id.item_todo_layout_new);
         layoutEdit = findViewById(R.id.item_todo_layout_edit);
         btnDelete = findViewById(R.id.item_todo_btn_delete);
-        btnTag = findViewById(R.id.item_todo_btn_tag);
-        btnTime = findViewById(R.id.item_todo_btn_time);
         btnCancel = findViewById(R.id.item_todo_btn_cancel);
         etTitle = findViewById(R.id.item_todo_et_edit_title);
         ivEditLeft = findViewById(R.id.item_todo_iv_edit_left);
         ivEditSave = findViewById(R.id.item_todo_iv_edit_save);
         tvTags = findViewById(R.id.item_todo_tv_edit_tag);
         layoutNew.setOnClickListener(this);
-        btnTag.setOnClickListener(this);
-        btnTime.setOnClickListener(this);
         btnCancel.setOnClickListener(this);
         ivEditLeft.setOnClickListener(this);
         ivEditSave.setOnClickListener(this);
@@ -143,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             isToday = false;
             mToolbar.setTitle(Manager.getDateForm(this, date));
         }
+        dbManager.checkToday();
         todoRcvAdapter = new TodoRcvAdapter(this, dbManager, date);
         rcvTodo.setAdapter(todoRcvAdapter);
         onRefreshBottom();
@@ -237,14 +233,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     }
                 });
                 dialog.show();
-                break;
-
-            case (R.id.item_todo_btn_time):
-                timeSelectOption();
-                break;
-
-            case (R.id.item_todo_btn_tag):
-                Manager.showAddTag(this, temp, todoRcvAdapter, -1);
                 break;
         }
     }
@@ -402,4 +390,5 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public DataTodo getTemp() {
         return temp;
     }
+
 }

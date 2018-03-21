@@ -119,7 +119,7 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
             case (0):
             default:
                 holder.layout.setBackgroundResource(R.drawable.btn_basic);
-//                holder.ivImportance.setVisibility(View.GONE);
+//                holder.ivImportance.setVisibility(View.INVISIBLE);
                 break;
         }
         switch (data.getChecked()) {
@@ -149,7 +149,7 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
                 break;
             case (0):
             default:
-                holder.ivIcon.setVisibility(View.GONE);
+                holder.ivIcon.setVisibility(View.INVISIBLE);
                 break;
         }
     }

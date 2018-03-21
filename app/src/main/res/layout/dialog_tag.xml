@@ -35,7 +35,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:completionHint="@string/auto_complete_textview"
             android:completionThreshold="1"
             android:inputType="text"
             android:minHeight="48dp"

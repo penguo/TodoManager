@@ -25,7 +25,7 @@ public class DBManager extends SQLiteOpenHelper {
 
     public static DBManager getInstance(Context mContext) {
         if (instance == null) {
-            instance = new DBManager(mContext, "todo.db", null, 6);
+            instance = new DBManager(mContext, "todo.db", null, 7);
         } else {
             instance.setContext(mContext);
         }
@@ -40,6 +40,7 @@ public class DBManager extends SQLiteOpenHelper {
     public void resetDB() {
         db = getWritableDatabase();
         db.execSQL("DROP TABLE Todo;");
+        db.execSQL("DROP TABLE Pattern;");
         onCreate(db);
         db.close();
         Toast.makeText(context, "DB가 초기화되었습니다.", Toast.LENGTH_SHORT).show();
@@ -60,7 +61,8 @@ public class DBManager extends SQLiteOpenHelper {
                 "Type Integer, " +
                 "IsTimeActivated Integer, " +
                 "Importance Integer DEFAULT 0," +
-                "PatternId Integer DEFAULT -1); ");
+                "PatternId Integer DEFAULT -1," +
+                "AutoDelay Integer DEFAULT -1); ");
         db.execSQL("CREATE TABLE Pattern ( " +
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "Title TEXT, " +
@@ -86,6 +88,8 @@ public class DBManager extends SQLiteOpenHelper {
                         "DayOfWeek Text," +
                         "TodoId Integer); ");
                 break;
+            case (7):
+                db.execSQL("ALTER TABLE Todo ADD COLUMN AutoDelay Integer DEFAULT -1;");
         }
     }
 
@@ -98,10 +102,11 @@ public class DBManager extends SQLiteOpenHelper {
                 second + ", " +
                 "'" + data.getTags() + "', " +
                 data.getChecked() + ", " +
-                data.getImportance() + ", " +
                 data.getType() + ", " +
                 data.getIsTimeActivated() + ", " +
-                data.getPatternId() + ");");
+                data.getImportance() + ", " +
+                data.getPatternId() + ", " +
+                data.getAutoDelay() + ");");
         db.close();
     }
 
@@ -111,12 +116,13 @@ public class DBManager extends SQLiteOpenHelper {
         db.execSQL(" UPDATE Todo SET " +
                 "Title = '" + data.getTitle() + "', " +
                 "Date = " + second + ", " +
-                "Checked = " + data.getChecked() + ", " +
                 "Tags = '" + data.getTags() + "', " +
-                "Importance = " + data.getImportance() + ", " +
+                "Checked = " + data.getChecked() + ", " +
                 "Type = " + data.getType() + ", " +
                 "IsTimeActivated = " + data.getIsTimeActivated() + ", " +
-                "PatternId = " + data.getPatternId() + " " +
+                "Importance = " + data.getImportance() + ", " +
+                "PatternId = " + data.getPatternId() + ", " +
+                "AutoDelay = " + data.getAutoDelay() + " " +
                 "WHERE _id = " + data.getId() + " ; ");
         db.close();
     }
@@ -140,7 +146,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getInt(5),
                     cursor.getInt(6),
                     cursor.getInt(7),
-                    cursor.getInt(8));
+                    cursor.getInt(8),
+                    cursor.getInt(9));
         }
         cursor.close();
         return data;
@@ -167,7 +174,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getInt(5),
                     cursor.getInt(6),
                     cursor.getInt(7),
-                    cursor.getInt(8));
+                    cursor.getInt(8),
+                    cursor.getInt(9));
             list.add(data);
         }
         cursor.close();
@@ -231,7 +239,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getInt(5),
                     cursor.getInt(6),
                     cursor.getInt(7),
-                    cursor.getInt(8));
+                    cursor.getInt(8),
+                    cursor.getInt(9));
             list.add(data);
         }
         cursor.close();
@@ -242,11 +251,11 @@ public class DBManager extends SQLiteOpenHelper {
         arrayLists.add(new ArrayList<DataTodo>());
         arrayLists.add(new ArrayList<DataTodo>());
         for (i = 0; i < list.size(); i++) {
-            if (list.get(i).getImportance() >= 2) {
+            if (list.get(i).getImportance() >= 2 && list.get(i).getChecked() == 0) { // 매우 중요
                 arrayLists.get(0).add(list.get(i));
-            } else if (list.get(i).getChecked() == 0) {
+            } else if (list.get(i).getChecked() == 0) { // 미완료
                 arrayLists.get(1).add(list.get(i));
-            } else if (list.get(i).getChecked() >= 1) {
+            } else if (list.get(i).getChecked() >= 1) { // 완료, 딜레이(2) 등
                 arrayLists.get(2).add(list.get(i));
             } else {
                 arrayLists.get(2).add(list.get(i));
@@ -312,7 +321,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getInt(5),
                     cursor.getInt(6),
                     cursor.getInt(7),
-                    cursor.getInt(8));
+                    cursor.getInt(8),
+                    cursor.getInt(9));
             list.add(data);
         }
         cursor.close();
@@ -342,7 +352,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getInt(5),
                     cursor.getInt(6),
                     cursor.getInt(7),
-                    cursor.getInt(8));
+                    cursor.getInt(8),
+                    cursor.getInt(9));
             list.add(data);
         }
         cursor.close();
@@ -370,7 +381,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getInt(5),
                     cursor.getInt(6),
                     cursor.getInt(7),
-                    cursor.getInt(8));
+                    cursor.getInt(8),
+                    cursor.getInt(9));
             list.add(data);
         }
         cursor.close();
@@ -392,7 +404,8 @@ public class DBManager extends SQLiteOpenHelper {
                 dataTodo.getImportance() + ", " +
                 dataTodo.getType() + ", " +
                 dataTodo.getIsTimeActivated() + ", " +
-                dataTodo.getPatternId() + ");");
+                dataTodo.getPatternId() + ", " +
+                dataTodo.getAutoDelay() + ");");
 
         db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM Todo ;", null);
@@ -422,7 +435,8 @@ public class DBManager extends SQLiteOpenHelper {
                 "Tags = '" + dataTodo.getTags() + "', " +
                 "Importance = " + dataTodo.getImportance() + ", " +
                 "Type = " + dataTodo.getType() + ", " +
-                "IsTimeActivated = " + dataTodo.getIsTimeActivated() + " " +
+                "IsTimeActivated = " + dataTodo.getIsTimeActivated() + ", " +
+                "AutoDelay = " + dataTodo.getAutoDelay() + " " +
                 "WHERE _id = " + dataTodo.getId() + " ; ");
         db.execSQL(" UPDATE Pattern SET " +
                 "Title = '" + dataPattern.getTitle() + "', " +
@@ -462,7 +476,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getInt(5),
                     cursor.getInt(6),
                     cursor.getInt(7),
-                    cursor.getInt(8));
+                    cursor.getInt(8),
+                    cursor.getInt(9));
             data.setDataTodo(dataTodo);
         }
         cursor.close();
@@ -491,7 +506,8 @@ public class DBManager extends SQLiteOpenHelper {
                         cursor2.getInt(5),
                         cursor2.getInt(6),
                         cursor2.getInt(7),
-                        cursor2.getInt(8));
+                        cursor2.getInt(8),
+                        cursor2.getInt(9));
                 data.setDataTodo(dataTodo);
             }
             cursor2.close();
@@ -501,4 +517,91 @@ public class DBManager extends SQLiteOpenHelper {
         return dataList;
     }
 
+
+    public ArrayList<String> getTagList() {
+        db = getReadableDatabase();
+        ArrayList<String> list = new ArrayList<>();
+        String[] strings;
+        int i;
+        Cursor cursor = db.rawQuery("SELECT Tags FROM Todo ;", null);
+        while (cursor.moveToNext()) {
+            strings = cursor.getString(0).split(",");
+            for (i = 0; i < strings.length; i++) {
+                if (!list.contains(strings[i])) {
+                    list.add(strings[i]);
+                }
+            }
+            if (list.contains("")) {
+                list.remove("");
+            }
+        }
+        cursor.close();
+        return list;
+    }
+
+
+    public void checkToday() {
+        db = getReadableDatabase();
+
+        ArrayList<DataTodo> list = new ArrayList<>();
+        DateForm date = new DateForm(Calendar.getInstance());
+        date.setHour(0);
+        date.setMinute(0);
+        date.addDate(-1);
+        long secondL = date.getSecond();
+        date.addDate(1);
+        long secondR = date.getSecond();
+        Cursor cursor = db.rawQuery("SELECT * FROM Todo " +
+                "WHERE Date >= " + secondL + " " +
+                "AND Date < " + secondR + " " +
+                "AND AutoDelay > -1 " +
+                "AND Checked = 0;", null);
+        while (cursor.moveToNext()) {
+            DataTodo data = new DataTodo(cursor.getInt(0),
+                    cursor.getString(1),
+                    cursor.getLong(2),
+                    cursor.getString(3),
+                    cursor.getInt(4),
+                    cursor.getInt(5),
+                    cursor.getInt(6),
+                    cursor.getInt(7),
+                    cursor.getInt(8),
+                    cursor.getInt(9));
+            list.add(data);
+        }
+        cursor.close();
+
+        db = getWritableDatabase();
+        for (int i = 0; i < list.size(); i++) {
+            db.execSQL(" UPDATE Todo SET " +
+                    "Checked = 2 " +
+                    "WHERE _id = " + list.get(i).getId() + " ; ");
+        }
+        db.close();
+        DataTodo temp;
+        for (int i = 0; i < list.size(); i++) {
+            temp = list.get(i);
+            temp.getDate().addDate(1);
+            temp.setAutoDelay(temp.getAutoDelay() + 1);
+            temp.setType(2);
+            temp.setChecked(0);
+        }
+        db = getWritableDatabase();
+        for (int i = 0; i < list.size(); i++) {
+            temp = list.get(i);
+            long second = temp.getDate().getSecond();
+            db.execSQL(" INSERT INTO Todo VALUES ( " +
+                    " null, " +
+                    "'" + temp.getTitle() + "', " +
+                    second + ", " +
+                    "'" + temp.getTags() + "', " +
+                    temp.getChecked() + ", " +
+                    temp.getType() + ", " +
+                    temp.getIsTimeActivated() + ", " +
+                    temp.getImportance() + ", " +
+                    temp.getPatternId() + ", " +
+                    temp.getAutoDelay() + ");");
+        }
+        db.close();
+    }
 }

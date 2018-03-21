@@ -35,6 +35,14 @@
                 app:layout_constraintVertical_bias="0.5"
                 app:srcCompat="@drawable/ic_check_false" />
 
+            <TextView
+                android:id="@+id/item_todo_tv_delay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="8sp"
+                app:layout_constraintBottom_toBottomOf="@+id/item_todo_iv_left"
+                app:layout_constraintEnd_toStartOf="@+id/item_todo_iv_icon" />
+
             <ImageView
                 android:id="@+id/item_todo_iv_icon"
                 android:layout_width="14dp"

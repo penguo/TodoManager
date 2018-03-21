@@ -118,7 +118,7 @@ public class MultiRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     break;
                 case (0):
                 default:
-                    ((VHItem) holder).ivImportance.setVisibility(View.GONE);
+                    ((VHItem) holder).ivImportance.setVisibility(View.INVISIBLE);
                     break;
             }
             switch (data.getChecked()) {
@@ -144,7 +144,7 @@ public class MultiRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     break;
                 case (0):
                 default:
-                    ((VHItem) holder).ivIcon.setVisibility(View.GONE);
+                    ((VHItem) holder).ivIcon.setVisibility(View.INVISIBLE);
                     break;
             }
             if (selectList.contains(data)) {

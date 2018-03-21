@@ -87,16 +87,16 @@ public class Manager {
         }
     };
 
-    public static void showAddTag(final Activity activity, final DataTodo data, final RecyclerView.Adapter<RecyclerView.ViewHolder> rcvAdapter, final int position) {
+    public static void showAddTag(final Activity activity, final DBManager dbManager, final DataTodo data, final RecyclerView.Adapter<RecyclerView.ViewHolder> rcvAdapter, final int position) {
         LayoutInflater li = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout updateLayout = (LinearLayout) li.inflate(R.layout.dialog_tag, null);
         final HashtagView hashtagView = (HashtagView) updateLayout.findViewById(R.id.dialog_tag_hashtag);
         final AutoCompleteTextView et = (AutoCompleteTextView) updateLayout.findViewById(R.id.dialog_tag_et);
         final ImageButton btnAdd = (ImageButton) updateLayout.findViewById(R.id.dialog_tag_btn_add);
-        final ArrayList<String> tags = data.getTagList();
+        final ArrayList<String> dbTags = dbManager.getTagList();
         et.setAdapter(new ArrayAdapter<String>(activity,
-                android.R.layout.simple_dropdown_item_1line, tags));
-        // TODO: 2018-03-05 adapter의 list를 tags가 아닌, 현재 존재하고 있는 태그들로 바꾸자.
+                R.layout.simple_dropdown_item_tag, dbTags));
+        final ArrayList<String> tags = data.getTagList();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         AlertDialog dialog;
@@ -161,7 +161,7 @@ public class Manager {
     }
 
     public static String getDateForm(Context mContext, DateForm date) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append((date.getMonth() + 1) + "월 ");
         sb.append(date.getDay() + "일 ");
         sb.append(mContext.getResources().getStringArray(R.array.dayofweek)[date.getDayofweek() - 1] + "요일");
@@ -169,18 +169,61 @@ public class Manager {
     }
 
     public static String getTimeForm(DateForm date) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         int hour = date.getHour();
         if (hour > 12) {
             sb.append("오후 ");
             if (hour != 12) {
                 hour -= 12;
             }
-        } else {
+        } else if (hour == 12){
+            sb.append("오후 ");
+        }else{
             sb.append("오전 ");
         }
         sb.append(hour + "시 ");
         sb.append(date.getMinute() + "분");
         return sb.toString();
     }
+
+    public static void showImportance(Context mContext, final DataTodo data, final RecyclerView.Adapter<RecyclerView.ViewHolder> rcvAdapter, final int position) {
+        LayoutInflater li = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LinearLayout layout = (LinearLayout) li.inflate(R.layout.dialog_importance, null);
+        ImageButton btn0 = layout.findViewById(R.id.dialog_imp_btn_0);
+        ImageButton btn1 = layout.findViewById(R.id.dialog_imp_btn_1);
+        ImageButton btn2 = layout.findViewById(R.id.dialog_imp_btn_2);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+
+        builder.setTitle("중요도 설정");
+        builder.setView(layout);
+        final AlertDialog dialog = builder.create();
+
+        btn0.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                data.setImportance(0);
+                rcvAdapter.notifyItemChanged(position);
+                dialog.dismiss();
+            }
+        });
+        btn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                data.setImportance(1);
+                rcvAdapter.notifyItemChanged(position);
+                dialog.dismiss();
+            }
+        });
+        btn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                data.setImportance(2);
+                rcvAdapter.notifyItemChanged(position);
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
 }
