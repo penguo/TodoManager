@@ -1,7 +1,9 @@
 package com.afordev.todomanagermini.Manager;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Paint;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,12 +25,17 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
     private DBManager dbManager;
     private ArrayList<DataTodo> dataList;
     private DateForm date;
+    private DataTodo temp;
+    private boolean isDoubleClick;
 
     public LockRcvAdapter(Context mContext, DBManager dbManager) {
         this.mContext = mContext;
         this.dbManager = dbManager;
         this.date = new DateForm(Calendar.getInstance());
         this.dataList = dbManager.getTodoList(date);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        isDoubleClick = prefs.getBoolean(Manager.PREF_DOUBLE_CLICK, false);
     }
 
     @Override
@@ -58,24 +65,28 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
 
             ivImportance.setVisibility(View.GONE);
 
-            layout.setOnLongClickListener(new View.OnLongClickListener() {
+            layout.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public boolean onLongClick(View view) {
-                    switch (dataList.get(getAdapterPosition()).getChecked()) {
-                        case (0):
-                            dataList.get(getAdapterPosition()).setChecked(1);
-                            break;
-                        case (1):
-                            dataList.get(getAdapterPosition()).setChecked(0);
-                            break;
-                        default:
-                            Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
-                            break;
+                public void onClick(View view) {
+                    if(temp != null && (!isDoubleClick || temp.equals(dataList.get(getAdapterPosition())))){
+                        switch (dataList.get(getAdapterPosition()).getChecked()) {
+                            case (0):
+                                dataList.get(getAdapterPosition()).setChecked(1);
+                                break;
+                            case (1):
+                                dataList.get(getAdapterPosition()).setChecked(0);
+                                break;
+                            default:
+                                Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
+                                break;
+                        }
+                        dbManager.updateTodo(dataList.get(getAdapterPosition()));
+                        notifyItemChanged(getAdapterPosition());
+                        notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
+                        temp = null;
+                    }else{
+                        temp = dataList.get(getAdapterPosition());
                     }
-                    dbManager.updateTodo(dataList.get(getAdapterPosition()));
-                    notifyItemChanged(getAdapterPosition());
-                    notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
-                    return true;
                 }
             });
         }

@@ -6,6 +6,10 @@
             android:defaultValue="false"
             android:key="pref_lock_screen"
             android:title="잠금 화면 표시" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="pref_double_click"
+            android:title="두 번 클릭하여 할 일 완료" />
         <Preference android:title="데이터 동기화 설정(준비 중)" />
     </PreferenceCategory>
     <PreferenceCategory android:title="목록 설정">

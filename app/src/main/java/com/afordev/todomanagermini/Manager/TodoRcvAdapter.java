@@ -40,7 +40,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private ArrayList<ArrayList<DataTodo>> arrayLists;
     private ArrayList<DataTodo> dataList;
     private DateForm date;
-    private boolean isToday, isAutoSort;
+    private boolean isToday, isAutoSort, isDoubleClick;
     public DataTodo temp;
     public int itemExpandPosition = -1, editPosition = -1;
     private InputMethodManager imm;
@@ -94,6 +94,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         isAutoSort = prefs.getBoolean(Manager.PREF_AUTO_SORT, true);
+        isDoubleClick = prefs.getBoolean(Manager.PREF_DOUBLE_CLICK, false);
     }
 
     @Override
@@ -182,21 +183,26 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 case (R.id.item_todo_layout):
                     if (editPosition == -1 && ((MainActivity) mContext).getTemp() == null) {
                         if (isToday) {
-                            switch (dataList.get(getAdapterPosition()).getChecked()) {
-                                case (0):
-                                    dataList.get(getAdapterPosition()).setChecked(1);
-                                    break;
-                                case (1):
-                                    dataList.get(getAdapterPosition()).setChecked(0);
-                                    break;
-                                default:
-                                    Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
-                                    break;
-                            }
-                            dbManager.updateTodo(dataList.get(getAdapterPosition()));
-                            notifyItemChanged(getAdapterPosition());
-                            if (isAutoSort) {
+                            if(temp != null && (!isDoubleClick || temp.equals(dataList.get(getAdapterPosition())))){
+                                switch (dataList.get(getAdapterPosition()).getChecked()) {
+                                    case (0):
+                                        dataList.get(getAdapterPosition()).setChecked(1);
+                                        break;
+                                    case (1):
+                                        dataList.get(getAdapterPosition()).setChecked(0);
+                                        break;
+                                    default:
+                                        Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
+                                        break;
+                                }
+                                dbManager.updateTodo(dataList.get(getAdapterPosition()));
+                                notifyItemChanged(getAdapterPosition());
+                                if (isAutoSort) {
 //                                notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
+                                }
+                                temp = null;
+                            }else{
+                                temp = dataList.get(getAdapterPosition());
                             }
                             editPosition = -1;
                         } else {

@@ -49,6 +49,7 @@ public class Manager {
     public static final String PREF_AUTO_SORT = "pref_auto_sort";
     public static final String PREF_STAR_NOTICE = "pref_star_notice";
     public static final String PREF_HALF_STAR_NOTICE = "pref_half_star_notice";
+    public static final String PREF_DOUBLE_CLICK = "pref_double_click";
     public static int VERSIONCODE = -1;
     public static String VERSIONNAME = "";
 
