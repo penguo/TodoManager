@@ -1,6 +1,8 @@
 package com.afordev.todomanagermini.Manager;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -54,16 +56,40 @@ public class PatternRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     class VHPattern extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private TextView tvTitle, tvDetail;
+        private TextView tvTitle, tvDetail, tvTodoTitle;
         private LinearLayout layoutItem;
 
         public VHPattern(final View itemView) {
             super(itemView);
             layoutItem = itemView.findViewById(R.id.item_pattern_layout);
+            tvTodoTitle = itemView.findViewById(R.id.item_pattern_tv_todo_title);
             tvTitle = itemView.findViewById(R.id.item_pattern_tv_title);
             tvDetail = itemView.findViewById(R.id.item_pattern_tv_detail);
 
             layoutItem.setOnClickListener(this);
+            layoutItem.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
+                    dialog.setMessage("정말로 삭제하시겠습니까? 모든 내용이 삭제되며 복구되지 않습니다.");
+                    dialog.setCancelable(true);
+                    dialog.setPositiveButton("삭제", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            removeItemView(getAdapterPosition());
+                            dialog.dismiss();
+                        }
+                    });
+                    dialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    dialog.show();
+                    return true;
+                }
+            });
         }
 
         @Override
@@ -84,26 +110,37 @@ public class PatternRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         DataPattern data;
         if (holder instanceof VHPattern) {
             data = dataList.get(position);
-            ((VHPattern) holder).tvTitle.setText(data.getTitle());
-
+            ((VHPattern) holder).tvTodoTitle.setText(data.getDataTodo().getTitle());
+            if (!data.getTitle().equals("")) {
+                ((VHPattern) holder).tvTitle.setVisibility(View.VISIBLE);
+                ((VHPattern) holder).tvTitle.setText(data.getTitle());
+            } else {
+                ((VHPattern) holder).tvTitle.setVisibility(View.GONE);
+            }
             String[] sts = data.getDow().split(",");
             String[] dayOfWeek = mContext.getResources().getStringArray(R.array.dayofweek);
             StringBuilder sb = new StringBuilder();
-            try {
-                for (int i = 0; i < sts.length; i++) {
-                    if (!sts[i].equals("")) {
-                        sb.append(dayOfWeek[Integer.parseInt(sts[i])]);
-                        if (i < sts.length - 1) {
-                            sb.append(", ");
+            if (sts[0].equals("")) {
+                ((VHPattern) holder).tvDetail.setText("요일 미지정");
+            } else if (sts.length == 7) {
+                ((VHPattern) holder).tvDetail.setText("매일");
+            } else {
+                try {
+                    for (int i = 0; i < sts.length; i++) {
+                        if (!sts[i].equals("")) {
+                            sb.append(dayOfWeek[Integer.parseInt(sts[i])]);
+                            if (i < sts.length - 1) {
+                                sb.append(", ");
+                            }
                         }
                     }
+                } catch (Exception e) {
+                    Log.e("error", e.toString());
+                    sb = new StringBuilder();
+                    sb.append("Error!");
                 }
-            } catch (Exception e) {
-                Log.e("error", e.toString());
-                sb = new StringBuilder();
-                sb.append("Error!");
+                ((VHPattern) holder).tvDetail.setText("매 주 " + sb.toString() + "요일");
             }
-            ((VHPattern) holder).tvDetail.setText("매 주 " + sb.toString() + "요일");
         }
     }
 

@@ -109,7 +109,13 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
     }
 
     public void search() {
-        if (etSearch.getText().toString().length() < 2) {
+        if (etSearch.getText().toString().equals("all_data")) {
+            searchRcvAdapter = new SearchRcvAdapter(this, dbManager, 0, "");
+            rcvSearch.setAdapter(searchRcvAdapter);
+            mToolbar.setTitle("모든 데이터");
+            etSearch.setText("");
+            imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
+        } else if (etSearch.getText().toString().length() < 2) {
             Toast.makeText(this, "최소 2자 이상이어야 합니다.", Toast.LENGTH_SHORT).show();
         } else {
             searchRcvAdapter = new SearchRcvAdapter(this, dbManager, selectedItemPos, etSearch.getText().toString());
@@ -131,6 +137,7 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
             imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
         }
     }
+
     @Override
     public void onBackPressed() {
         setResult(RESULT_OK);
@@ -150,7 +157,7 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.menuxml_multi, menu);
+        menuInflater.inflate(R.menu.menuxml_search, menu);
         return true;
     }
 
@@ -166,6 +173,7 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
         }
         return false;
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

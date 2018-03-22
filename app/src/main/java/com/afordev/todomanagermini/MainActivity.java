@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private TodoRcvAdapter todoRcvAdapter;
     private SwipeRefreshLayout mSwipe;
     private DateForm date;
-    private DBManager dbManager = DBManager.getInstance(this);
+    private DBManager            dbManager = DBManager.getInstance(this);
     private boolean isToday;
     private SharedPreferences prefs;
     private InputMethodManager imm;
@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         initSet();
         Manager.checkService(this);
 

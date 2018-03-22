@@ -11,7 +11,8 @@ import java.util.Calendar;
 
 public class DateForm implements Parcelable{
     private int year, month, day;
-    private int hour, minute, dayofweek;
+    private int hour, minute;
+    private int dayofweek = -1;
 
     public DateForm(long second) {
         Calendar cal = Calendar.getInstance();
@@ -21,7 +22,6 @@ public class DateForm implements Parcelable{
         day = cal.get(Calendar.DATE);
         hour = cal.get(Calendar.HOUR_OF_DAY);
         minute = cal.get(Calendar.MINUTE);
-        dayofweek = cal.get(Calendar.DAY_OF_WEEK);
     }
 
     public DateForm(Calendar cal) {
@@ -30,18 +30,14 @@ public class DateForm implements Parcelable{
         day = cal.get(Calendar.DATE);
         hour = 0;
         minute = 0;
-        dayofweek = cal.get(Calendar.DAY_OF_WEEK);
     }
 
     public DateForm(int year, int month, int day) {
-        Calendar cal = Calendar.getInstance();
-        cal.set(year, month, this.day);
         this.year = year;
         this.month = month;
         this.day = day;
         hour = 0;
         minute = 0;
-        this.dayofweek = cal.get(Calendar.DAY_OF_WEEK);
     }
 
     protected DateForm(Parcel in) {
@@ -50,7 +46,6 @@ public class DateForm implements Parcelable{
         day = in.readInt();
         hour = in.readInt();
         minute = in.readInt();
-        dayofweek = in.readInt();
     }
 
     public static final Creator<DateForm> CREATOR = new Creator<DateForm>() {
@@ -74,7 +69,6 @@ public class DateForm implements Parcelable{
         day = cal.get(Calendar.DATE);
         hour = cal.get(Calendar.HOUR_OF_DAY);
         minute = cal.get(Calendar.MINUTE);
-        dayofweek = cal.get(Calendar.DAY_OF_WEEK);
     }
 
     public long getSecond() {
@@ -91,7 +85,6 @@ public class DateForm implements Parcelable{
         this.day = day;
         hour = 0;
         minute = 0;
-        this.dayofweek = cal.get(Calendar.DAY_OF_WEEK);
     }
 
     public int compareTo(DateForm anotherDate) {
@@ -111,7 +104,9 @@ public class DateForm implements Parcelable{
     }
 
     public int getDayofweek() {
-        return dayofweek;
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, month, day);
+        return cal.get(Calendar.DAY_OF_WEEK);
     }
 
     public int getMinute() {
@@ -166,6 +161,5 @@ public class DateForm implements Parcelable{
         parcel.writeInt(day);
         parcel.writeInt(hour);
         parcel.writeInt(minute);
-        parcel.writeInt(dayofweek);
     }
 }

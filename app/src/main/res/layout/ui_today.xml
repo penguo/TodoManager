@@ -13,7 +13,7 @@
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         android:minHeight="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:theme="@style/MyToolbarTheme"
         app:title="2018년 2월 11일" />
 
     <android.support.constraint.ConstraintLayout

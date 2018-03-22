@@ -22,12 +22,13 @@ import com.afordev.todomanagermini.SubItem.DataTodo;
 import com.afordev.todomanagermini.SubItem.DateForm;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class AddPatternActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Toolbar mToolbar;
     private Button btnDOW0, btnDOW1, btnDOW2, btnDOW3, btnDOW4, btnDOW5, btnDOW6, btnDateStart, btnDateEnd;
-    private TextView tvDOW;
+    private TextView tvDOW, tvRecently;
     private DBManager dbManager = DBManager.getInstance(this);
     private DataPattern dataPattern;
     private DataTodo dataTodo;
@@ -55,6 +56,7 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
         btnDOW5 = findViewById(R.id.add_pattern_btn_dow5);
         btnDOW6 = findViewById(R.id.add_pattern_btn_dow6);
         tvDOW = findViewById(R.id.add_pattern_tv_dow);
+        tvRecently = findViewById(R.id.add_pattern_tv_recently);
         btnDateStart = findViewById(R.id.add_pattern_btn_date_start);
         btnDateEnd = findViewById(R.id.add_pattern_btn_date_end);
         etTitle = findViewById(R.id.add_pattern_et_title);
@@ -124,11 +126,12 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
         btnDateStart.setText(Manager.getDateForm(this, dataPattern.getDateStart()));
         btnDateEnd.setText(Manager.getDateForm(this, dataPattern.getDateEnd()));
         etTodoTitle.setText(dataTodo.getTitle());
+        tvRecently.setText("최근 추가 날짜: " + Manager.getDateForm(this, dataPattern.getDateRecently()));
         if (dataTodo.getIsTimeActivated() == 0 && dataTodo.getTags().equals("")) {
             tvTags.setVisibility(View.GONE);
         } else {
             tvTags.setVisibility(View.VISIBLE);
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             if (dataTodo.getIsTimeActivated() == 1) {
                 sb.append(Manager.getTimeForm(dataTodo.getDate()));
             }
@@ -229,6 +232,8 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onClick(View view) {
+        dataTodo.setTitle(etTodoTitle.getText().toString());
+        dataPattern.setTitle(etTitle.getText().toString());
         switch (view.getId()) {
             case (R.id.add_pattern_btn_dow0):
             case (R.id.add_pattern_btn_dow1):
@@ -246,21 +251,32 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
                 setData();
                 break;
             case (R.id.add_pattern_btn_date_start):
-                datePicker(dataPattern.getDateStart());
+                datePicker(true);
                 break;
             case (R.id.add_pattern_btn_date_end):
-                datePicker(dataPattern.getDateEnd());
+                datePicker(false);
                 break;
         }
     }
 
-    public void datePicker(final DateForm date) {
+    public void datePicker(final boolean isStart) {
+        final DateForm date;
+        if (isStart) {
+            date = dataPattern.getDateStart();
+        } else {
+            date = dataPattern.getDateEnd();
+        }
         DatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                 date.setYear(year);
                 date.setMonth(monthOfYear);
                 date.setDay(dayOfMonth);
+                date.setHour(0);
+                date.setMinute(0);
+                if (dataPattern.getDateStart().getSecond() > dataPattern.getDateEnd().getSecond()) {
+                    dataPattern.setDateEnd(dataPattern.getDateStart());
+                }
                 setData();
             }
         };
@@ -268,6 +284,11 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
                 date.getYear(),
                 date.getMonth(),
                 date.getDay());
+        if (isStart) {
+            dpDialog.getDatePicker().setMinDate(Calendar.getInstance().getTimeInMillis());
+        } else {
+            dpDialog.getDatePicker().setMinDate(dataPattern.getDateStart().getSecond() * 60000);
+        }
         dpDialog.show();
     }
 }

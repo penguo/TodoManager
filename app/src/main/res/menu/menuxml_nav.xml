@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_cal"
+        android:icon="@drawable/ic_calendar_white"
+        android:title="날짜 선택" />
+    <item
+        android:id="@+id/menu_today"
+        android:title="오늘로 이동" />
+    <item
+        android:id="@+id/menu_multi"
+        android:title="일괄 선택" />
+    <item
+        android:id="@+id/menu_pattern"
+        android:title="패턴 설정" />
+    <item
+        android:id="@+id/menu_setting"
+        android:title="설정" />
+    <item
+        android:id="@+id/menu_lock"
+        android:title="(test) 잠금화면" />
+</menu>

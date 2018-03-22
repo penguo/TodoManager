@@ -9,7 +9,7 @@ import java.util.Calendar;
 public class DataPattern {
     private int id;
     private String title, dow;
-    private DateForm dateStart, dateEnd;
+    private DateForm dateStart, dateEnd, dateRecently;
     private DataTodo dataTodo;
 
     public DataPattern(){
@@ -19,15 +19,17 @@ public class DataPattern {
         this.dateEnd = new DateForm(Calendar.getInstance());
         this.dow = "";
         this.dataTodo = new DataTodo();
+        this.dateRecently = new DateForm(Calendar.getInstance());
     }
 
-    public DataPattern(int id, String title, long secondSt, long secondEnd, String dow, DataTodo dataTodo){
+    public DataPattern(int id, String title, long secondSt, long secondEnd, String dow, DataTodo dataTodo, long secondRecently){
         this.id = id;
         this.title = title;
         this.dateStart = new DateForm(secondSt);
         this.dateEnd = new DateForm(secondEnd);
         this.dow = dow;
         this.dataTodo = dataTodo;
+        this.dateRecently = new DateForm(secondRecently);
     }
 
     public int getId() {
@@ -54,6 +56,10 @@ public class DataPattern {
         return dow;
     }
 
+    public DateForm getDateRecently() {
+        return dateRecently;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -76,5 +82,9 @@ public class DataPattern {
 
     public void setDow(String dow) {
         this.dow = dow;
+    }
+
+    public void setDateRecently(DateForm dateRecently) {
+        this.dateRecently = dateRecently;
     }
 }

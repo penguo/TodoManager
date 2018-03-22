@@ -16,7 +16,9 @@
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:minHeight="48dp"
+            android:minHeight="72dp"
+            android:paddingBottom="4dp"
+            android:paddingTop="4dp"
             android:visibility="visible"
             tools:layout_editor_absoluteX="384dp"
             tools:layout_editor_absoluteY="259dp">
@@ -49,22 +51,25 @@
                 app:layout_constraintStart_toEndOf="@+id/item_pattern_iv_left"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/item_pattern_tv_todo_title"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    tools:text="todo title" />
 
-                    <TextView
-                        android:id="@+id/item_pattern_tv_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:hint="이름 없는 패턴"
-                        android:textColor="@android:color/black"
-                        android:textSize="15sp"
-                        tools:layout_editor_absoluteX="268dp"
-                        tools:layout_editor_absoluteY="4dp" />
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/item_pattern_tv_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="@android:color/black"
+                    android:textSize="12sp"
+                    tools:layout_editor_absoluteX="268dp"
+                    tools:layout_editor_absoluteY="4dp"
+                    tools:text="memo" />
 
                 <TextView
                     android:id="@+id/item_pattern_tv_detail"

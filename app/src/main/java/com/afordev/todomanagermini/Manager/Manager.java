@@ -14,6 +14,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.SuperscriptSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -30,6 +31,7 @@ import com.afordev.todomanagermini.SubItem.DateForm;
 import com.greenfrvr.hashtagview.HashtagView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * Created by penguo on 2018-02-17.
@@ -163,9 +165,15 @@ public class Manager {
 
     public static String getDateForm(Context mContext, DateForm date) {
         StringBuilder sb = new StringBuilder();
+        DateForm pivot = new DateForm(Calendar.getInstance());
+        if (date.getYear() != pivot.getYear()) {
+            sb.append(date.getYear() + "년 ");
+        }
         sb.append((date.getMonth() + 1) + "월 ");
         sb.append(date.getDay() + "일 ");
-        sb.append(mContext.getResources().getStringArray(R.array.dayofweek)[date.getDayofweek() - 1] + "요일");
+        String[] sts = mContext.getResources().getStringArray(R.array.dayofweek);
+        sb.append(sts[date.getDayofweek() - 1]);
+        sb.append("요일");
         return sb.toString();
     }
 
@@ -177,9 +185,9 @@ public class Manager {
             if (hour != 12) {
                 hour -= 12;
             }
-        } else if (hour == 12){
+        } else if (hour == 12) {
             sb.append("오후 ");
-        }else{
+        } else {
             sb.append("오전 ");
         }
         sb.append(hour + "시 ");

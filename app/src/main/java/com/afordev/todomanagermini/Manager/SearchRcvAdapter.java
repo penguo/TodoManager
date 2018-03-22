@@ -85,7 +85,7 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     class VHItem extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView tvTitle, tvTags, tvDelay;
-        private LinearLayout layout, layoutPlus;
+        private LinearLayout layout, layoutPlus, layoutText;
         private ImageView ivCheck, ivIcon, ivImportance;
         private Button btnPDelete, btnPEdit, btnPDelay, btnPCheck;
 
@@ -103,6 +103,7 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             btnPDelay = itemView.findViewById(R.id.item_todo_btn_pdelay);
             btnPCheck = itemView.findViewById(R.id.item_todo_btn_pcheck);
             tvDelay = itemView.findViewById(R.id.item_todo_tv_delay);
+            layoutText = itemView.findViewById(R.id.item_todo_layout_text);
 
             layout.setOnClickListener(this);
             btnPDelete.setOnClickListener(this);
@@ -401,26 +402,21 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 ((VHItem) holder).layoutPlus.setVisibility(View.GONE);
             }
             ((VHItem) holder).tvTitle.setText(data.getTitle());
-            if (data.getIsTimeActivated() == 0 && data.getTags().equals("")) {
-                ((VHItem) holder).tvTags.setVisibility(View.GONE);
-            } else {
-                ((VHItem) holder).tvTags.setVisibility(View.VISIBLE);
-                StringBuffer sb = new StringBuffer();
-                sb.append(Manager.getDateForm(mContext, data.getDate()) + " ");
-                if (data.getIsTimeActivated() == 1) {
-                    sb.append(Manager.getTimeForm(data.getDate()));
-                }
-                if (data.getIsTimeActivated() == 1 && !data.getTags().equals("")) {
-                    sb.append(" ");
-                }
-                if (!data.getTags().equals("")) {
-                    ArrayList<String> st = data.getTagList();
-                    for (int i = 0; i < st.size(); i++) {
-                        sb.append("#" + st.get(i) + " ");
-                    }
-                }
-                ((VHItem) holder).tvTags.setText(sb.toString());
+            StringBuilder sb = new StringBuilder();
+            sb.append(Manager.getDateForm(mContext, data.getDate()) + " ");
+            if (data.getIsTimeActivated() == 1) {
+                sb.append(Manager.getTimeForm(data.getDate()));
             }
+            if (data.getIsTimeActivated() == 1 && !data.getTags().equals("")) {
+                sb.append(" ");
+            }
+            if (!data.getTags().equals("")) {
+                ArrayList<String> st = data.getTagList();
+                for (int i = 0; i < st.size(); i++) {
+                    sb.append("#" + st.get(i) + " ");
+                }
+            }
+            ((VHItem) holder).tvTags.setText(sb.toString());
             switch (data.getImportance()) {
                 case (1):
                     ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star_half);
@@ -442,13 +438,22 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 case (0):
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_false);
                     ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-                    ((VHItem) holder).tvTitle.setAlpha(1);
+                    ((VHItem) holder).layoutText.setAlpha(1);
                     break;
                 case (1):
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_true);
                     ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                     ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
-                    ((VHItem) holder).tvTitle.setAlpha((float) 0.5);
+                    ((VHItem) holder).layoutText.setAlpha((float) 0.5);
+                    ((VHItem) holder).btnPEdit.setVisibility(View.GONE);
+                    ((VHItem) holder).btnPDelay.setVisibility(View.GONE);
+                    ((VHItem) holder).btnPCheck.setVisibility(View.GONE);
+                    break;
+                case (2):
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
+                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_delay);
+                    ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    ((VHItem) holder).layoutText.setAlpha((float) 0.5);
                     ((VHItem) holder).btnPEdit.setVisibility(View.GONE);
                     ((VHItem) holder).btnPDelay.setVisibility(View.GONE);
                     ((VHItem) holder).btnPCheck.setVisibility(View.GONE);
@@ -491,7 +496,7 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             } else {
                 ((VHEdit) holder).tvTags.setVisibility(View.VISIBLE);
                 StringBuffer sb = new StringBuffer();
-                sb.append(Manager.getDateForm(mContext, data.getDate()));
+                sb.append(Manager.getDateForm(mContext, data.getDate()) + " ");
 
                 if (data.getIsTimeActivated() == 1) {
                     sb.append(Manager.getTimeForm(data.getDate()));

@@ -14,7 +14,7 @@
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         android:minHeight="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:theme="@style/MyToolbarTheme"
         app:title="새로운 패턴" />
 
     <LinearLayout
@@ -26,40 +26,135 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:minHeight="36dp"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="bottom"
                 android:paddingBottom="4dp"
                 android:paddingLeft="16dp"
-                android:text="패턴 이름"
+                android:text="항목"
                 android:textColor="@color/colorAccent" />
-
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/item_todo_layout_edit"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingBottom="2dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp">
+            android:background="@drawable/btn_accentlight"
+            android:orientation="vertical"
+            android:padding="4dp">
 
-            <EditText
-                android:id="@+id/add_pattern_et_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ems="10"
-                android:hint="이름 없는 패턴"
-                android:inputType="text" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <android.support.constraint.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:minHeight="48dp">
+
+                    <ImageView
+                        android:id="@+id/item_todo_iv_edit_left"
+                        style="@style/Icon"
+                        android:layout_marginBottom="4dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginTop="4dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_star_true" />
+
+                    <ImageView
+                        android:id="@+id/item_todo_iv_edit_save"
+                        style="@style/Icon"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginBottom="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:layout_marginTop="4dp"
+                        android:visibility="invisible"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_save" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/item_todo_iv_edit_save"
+                        app:layout_constraintStart_toEndOf="@+id/item_todo_iv_edit_left"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <EditText
+                            android:id="@+id/item_todo_et_edit_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="내용을 입력해주세요."
+                            android:inputType="text"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:id="@+id/item_todo_tv_edit_tag"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="오후 11시 #알고리즘"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                </android.support.constraint.ConstraintLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/item_todo_layout_expand"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/item_todo_btn_time"
+                    style="@style/Icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/ripple_box"
+                    android:drawableLeft="@drawable/ic_time"
+                    android:drawablePadding="4dp"
+                    android:text="시간"
+                    android:textSize="13sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <Button
+                    android:id="@+id/item_todo_btn_tag"
+                    style="@style/Icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:layout_margin="4dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/ripple_box"
+                    android:drawableLeft="@drawable/ic_archive"
+                    android:drawablePadding="4dp"
+                    android:text="태그"
+                    android:textSize="13sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </LinearLayout>
         </LinearLayout>
-
     </LinearLayout>
 
     <LinearLayout
@@ -82,6 +177,23 @@
                 android:paddingLeft="16dp"
                 android:text="기간"
                 android:textColor="@color/colorAccent" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/add_pattern_tv_recently"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingBottom="4dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="4dp"
+                android:text="최근 추가 날짜:" />
 
         </LinearLayout>
 
@@ -261,135 +373,40 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:minHeight="36dp"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="bottom"
                 android:paddingBottom="4dp"
                 android:paddingLeft="16dp"
-                android:text="항목"
+                android:text="패턴 메모"
                 android:textColor="@color/colorAccent" />
+
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/item_todo_layout_edit"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/btn_accentlight"
-            android:orientation="vertical"
-            android:padding="4dp">
+            android:clipToPadding="false"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingBottom="2dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <android.support.constraint.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:minHeight="48dp">
-
-                    <ImageView
-                        android:id="@+id/item_todo_iv_edit_left"
-                        style="@style/Icon"
-                        android:layout_marginBottom="4dp"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginTop="4dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/ic_star_true" />
-
-                    <ImageView
-                        android:id="@+id/item_todo_iv_edit_save"
-                        style="@style/Icon"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_marginBottom="4dp"
-                        android:layout_marginEnd="4dp"
-                        android:layout_marginTop="4dp"
-                        android:visibility="invisible"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/ic_save" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
-                        android:layout_marginEnd="4dp"
-                        android:layout_marginStart="4dp"
-                        android:layout_marginTop="4dp"
-                        android:gravity="center_vertical"
-                        android:orientation="vertical"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/item_todo_iv_edit_save"
-                        app:layout_constraintStart_toEndOf="@+id/item_todo_iv_edit_left"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <EditText
-                            android:id="@+id/item_todo_et_edit_title"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="내용을 입력해주세요."
-                            android:inputType="text"
-                            android:textSize="15sp" />
-
-                        <TextView
-                            android:id="@+id/item_todo_tv_edit_tag"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="오후 11시 #알고리즘"
-                            android:textSize="11sp" />
-                    </LinearLayout>
-
-                </android.support.constraint.ConstraintLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/item_todo_layout_expand"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/item_todo_btn_time"
-                    style="@style/Icon"
-                    android:layout_width="match_parent"
-                    android:layout_height="36dp"
-                    android:layout_margin="4dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/ripple_box"
-                    android:drawableLeft="@drawable/ic_time"
-                    android:drawablePadding="4dp"
-                    android:text="시간"
-                    android:textSize="13sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <Button
-                    android:id="@+id/item_todo_btn_tag"
-                    style="@style/Icon"
-                    android:layout_width="match_parent"
-                    android:layout_height="36dp"
-                    android:layout_margin="4dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/ripple_box"
-                    android:drawableLeft="@drawable/ic_archive"
-                    android:drawablePadding="4dp"
-                    android:text="태그"
-                    android:textSize="13sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            </LinearLayout>
+            <EditText
+                android:id="@+id/add_pattern_et_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="이 패턴에 관하여 입력해주세요"
+                android:inputType="text"
+                android:textSize="14sp" />
         </LinearLayout>
+
     </LinearLayout>
 
 </LinearLayout>

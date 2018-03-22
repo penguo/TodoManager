@@ -6,13 +6,12 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:itemBackground">@android:color/white</item>
-        <item name="android:itemTextAppearance">@style/myCustomMenuTextApearance</item>
+        <item name="android:itemBackground">@drawable/btn_white</item>
+        <item name="android:itemTextAppearance">@style/myCustomMenuApearance</item>
         <item name="colorControlHighlight">@color/colorAccent</item>
-
     </style>
 
-    <style name="myCustomMenuTextApearance" parent="@android:style/TextAppearance.Widget.IconMenu.Item">
+    <style name="myCustomMenuApearance" parent="@android:style/TextAppearance.Widget.IconMenu.Item">
         <item name="android:textColor">@android:color/primary_text_light</item>
     </style>
 
@@ -30,6 +29,10 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:background">?android:attr/listDivider</item>
+    </style>
+
+    <style name="MyToolbarTheme" parent="@style/ThemeOverlay.AppCompat.Dark">
+        <item name="colorControlHighlight">@color/colorAccent</item>
     </style>
 
 </resources>

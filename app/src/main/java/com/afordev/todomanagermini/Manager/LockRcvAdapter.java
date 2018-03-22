@@ -68,7 +68,7 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
             layout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(temp != null && (!isDoubleClick || temp.equals(dataList.get(getAdapterPosition())))){
+                    if (!isDoubleClick || (temp != null && temp.equals(dataList.get(getAdapterPosition())))) {
                         switch (dataList.get(getAdapterPosition()).getChecked()) {
                             case (0):
                                 dataList.get(getAdapterPosition()).setChecked(1);

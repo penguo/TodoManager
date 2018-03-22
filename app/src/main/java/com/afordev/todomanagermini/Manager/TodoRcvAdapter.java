@@ -183,7 +183,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 case (R.id.item_todo_layout):
                     if (editPosition == -1 && ((MainActivity) mContext).getTemp() == null) {
                         if (isToday) {
-                            if(temp != null && (!isDoubleClick || temp.equals(dataList.get(getAdapterPosition())))){
+                            if (!isDoubleClick || (temp != null && temp.equals(dataList.get(getAdapterPosition())))) {
                                 switch (dataList.get(getAdapterPosition()).getChecked()) {
                                     case (0):
                                         dataList.get(getAdapterPosition()).setChecked(1);
@@ -201,7 +201,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 //                                notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
                                 }
                                 temp = null;
-                            }else{
+                            } else {
                                 temp = dataList.get(getAdapterPosition());
                             }
                             editPosition = -1;
@@ -662,7 +662,6 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     private void removeItemView(int position) {
-        dbManager.deleteTodo(dataList.get(position).getId());
         dataList.remove(position);
         notifyItemRemoved(position);
         if (position < header0_pos) {
