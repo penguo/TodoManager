@@ -13,7 +13,7 @@ import java.util.Calendar;
 public class DataTodo implements Parcelable, Cloneable {
     private String title, tags;
     private DateForm date;
-    private int id, checked, importance, type, isTimeActivated, patternId, autoDelay;
+    private int id, checked, importance, type, isTimeActivated, patternId, typeValue;
 
     public DataTodo() {
         this.id = -1;
@@ -25,7 +25,7 @@ public class DataTodo implements Parcelable, Cloneable {
         this.type = 0;
         this.isTimeActivated = 0;
         this.patternId = -1;
-        this.autoDelay = -1;
+        this.typeValue = -1;
     }
 
     public DataTodo(int id) {
@@ -38,7 +38,7 @@ public class DataTodo implements Parcelable, Cloneable {
         this.type = 0;
         this.isTimeActivated = 0;
         this.patternId = -1;
-        this.autoDelay = -1;
+        this.typeValue = -1;
     }
 
     public DataTodo(DateForm date) {
@@ -53,7 +53,7 @@ public class DataTodo implements Parcelable, Cloneable {
         this.isTimeActivated = 0;
         this.importance = 0;
         this.patternId = -1;
-        this.autoDelay = -1;
+        this.typeValue = -1;
     }
 
     public DataTodo(int id, String title, long second, String tags, int checked, int type, int isTimeActivited, int importance, int patternId, int autoDelay) {
@@ -66,7 +66,7 @@ public class DataTodo implements Parcelable, Cloneable {
         this.isTimeActivated = isTimeActivited;
         this.importance = importance;
         this.patternId = patternId;
-        this.autoDelay = autoDelay;
+        this.typeValue = autoDelay;
     }
 
     protected DataTodo(Parcel in) {
@@ -79,7 +79,7 @@ public class DataTodo implements Parcelable, Cloneable {
         isTimeActivated = in.readInt();
         importance = in.readInt();
         patternId = in.readInt();
-        autoDelay = in.readInt();
+        typeValue = in.readInt();
     }
 
     public static final Creator<DataTodo> CREATOR = new Creator<DataTodo>() {
@@ -130,8 +130,8 @@ public class DataTodo implements Parcelable, Cloneable {
         return patternId;
     }
 
-    public int getAutoDelay() {
-        return autoDelay;
+    public int getTypeValue() {
+        return typeValue;
     }
 
     public ArrayList<String> getTagList() {
@@ -182,8 +182,8 @@ public class DataTodo implements Parcelable, Cloneable {
         this.patternId = patternId;
     }
 
-    public void setAutoDelay(int autoDelay) {
-        this.autoDelay = autoDelay;
+    public void setTypeValue(int typeValue) {
+        this.typeValue = typeValue;
     }
 
     public void setTagList(ArrayList<String> list) {
@@ -213,7 +213,7 @@ public class DataTodo implements Parcelable, Cloneable {
         parcel.writeInt(isTimeActivated);
         parcel.writeInt(importance);
         parcel.writeInt(patternId);
-        parcel.writeInt(autoDelay);
+        parcel.writeInt(typeValue);
     }
 
     public DataTodo clone() {

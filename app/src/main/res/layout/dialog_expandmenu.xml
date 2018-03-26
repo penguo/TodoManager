@@ -50,6 +50,7 @@
         </LinearLayout>
 
         <View style="@style/Divider" />
+
         <LinearLayout
             android:id="@+id/dialog_em_layout_time"
             android:layout_width="match_parent"
@@ -87,6 +88,7 @@
         </LinearLayout>
 
         <View style="@style/Divider" />
+
         <LinearLayout
             android:id="@+id/dialog_em_layout_tag"
             android:layout_width="match_parent"
@@ -124,75 +126,109 @@
         </LinearLayout>
 
         <View style="@style/Divider" />
+
         <LinearLayout
             android:id="@+id/dialog_em_layout_autodelay"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:background="@drawable/btn_basic"
-            android:orientation="horizontal"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp">
+            android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:text="자동 딜레이"
-                android:textColor="@android:color/black"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/dialog_em_tv_autodelay"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:gravity="right|center_vertical"
+                android:orientation="horizontal"
                 android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:text="1일 연기됨" />
+                android:paddingRight="8dp">
 
-            <Switch
-                android:id="@+id/dialog_em_switch_autodelay"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="right|center_vertical"
-                android:background="@null"
-                android:clickable="false"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:text="자동 딜레이"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/dialog_em_tv_autodelay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="right|center_vertical"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:text="1일 연기됨" />
+
+                <Switch
+                    android:id="@+id/dialog_em_switch_autodelay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="right|center_vertical"
+                    android:background="@null"
+                    android:clickable="false"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp" />
+            </LinearLayout>
+
+            <View style="@style/Divider" />
+
 
         </LinearLayout>
 
-        <View style="@style/Divider" />
         <LinearLayout
+            android:id="@+id/dialog_em_layout_pattern"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:background="@drawable/btn_basic"
-            android:orientation="horizontal"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:visibility="gone">
+            android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:text="태그 설정"
-                android:textColor="@android:color/black"
-                android:textSize="16sp" />
-
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="right|center_vertical"
+                android:orientation="horizontal"
                 android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:text="#안녕" />
+                android:paddingRight="8dp">
+
+                <ImageView
+                    style="@style/Icon"
+                    android:layout_marginRight="-8dp"
+                    android:background="@null"
+                    app:srcCompat="@drawable/ic_puzzle" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:text="패턴 정보"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/dialog_em_tv_pattern"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="right|center_vertical"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:text="title: n회차" />
+
+                <ImageView
+                    style="@style/Icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:background="@null"
+                    android:padding="0dp"
+                    app:srcCompat="@drawable/ic_arrow_right" />
+            </LinearLayout>
+
+            <View style="@style/Divider" />
+
         </LinearLayout>
 
     </LinearLayout>

@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private TodoRcvAdapter todoRcvAdapter;
     private SwipeRefreshLayout mSwipe;
     private DateForm date;
-    private DBManager            dbManager = DBManager.getInstance(this);
+    private DBManager dbManager = DBManager.getInstance(this);
     private boolean isToday;
     private SharedPreferences prefs;
     private InputMethodManager imm;
@@ -382,6 +382,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             setData();
         }
         if (requestCode == Manager.RC_MAIN_TO_MULTI) {
+            if (resultCode == RESULT_OK) {
+                setData();
+            }
+        }
+        if (requestCode == Manager.RC_MAIN_TO_PATTERN) {
             if (resultCode == RESULT_OK) {
                 setData();
             }

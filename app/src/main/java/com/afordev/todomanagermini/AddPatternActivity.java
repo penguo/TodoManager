@@ -126,7 +126,12 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
         btnDateStart.setText(Manager.getDateForm(this, dataPattern.getDateStart()));
         btnDateEnd.setText(Manager.getDateForm(this, dataPattern.getDateEnd()));
         etTodoTitle.setText(dataTodo.getTitle());
-        tvRecently.setText("최근 추가 날짜: " + Manager.getDateForm(this, dataPattern.getDateRecently()));
+        if (dataTodo.getTypeValue() != -1) {
+            tvRecently.setVisibility(View.VISIBLE);
+            tvRecently.setText("최근 추가 날짜: " + Manager.getDateForm(this, dataPattern.getDateRecently()) + ", " + dataTodo.getTypeValue() + "회차");
+        }else{
+            tvRecently.setVisibility(View.GONE);
+        }
         if (dataTodo.getIsTimeActivated() == 0 && dataTodo.getTags().equals("")) {
             tvTags.setVisibility(View.GONE);
         } else {

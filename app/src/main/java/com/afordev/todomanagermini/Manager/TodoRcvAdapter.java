@@ -9,19 +9,15 @@ import android.graphics.Paint;
 import android.preference.PreferenceManager;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -131,7 +127,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     class VHItem extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView tvTitle, tvTags, tvDelay;
-        private LinearLayout layout, layoutPlus, layoutText;
+        private LinearLayout layout, layoutPlus, layoutText, layoutRight1, layoutRight2;
         private ImageView ivCheck, ivIcon, ivImportance;
         private Button btnPDelete, btnPEdit, btnPDelay, btnPCheck;
 
@@ -150,6 +146,8 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             btnPCheck = itemView.findViewById(R.id.item_todo_btn_pcheck);
             layoutText = itemView.findViewById(R.id.item_todo_layout_text);
             tvDelay = itemView.findViewById(R.id.item_todo_tv_delay);
+            layoutRight1 = itemView.findViewById(R.id.item_todo_layout_right1);
+            layoutRight2 = itemView.findViewById(R.id.item_todo_layout_right2);
 
             layout.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
@@ -403,26 +401,30 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     break;
 
                 case (R.id.dialog_em_layout_autodelay):
-                    if (temp.getAutoDelay() == -1) {
-                        temp.setAutoDelay(0);
-                        setDataExpandMenu();
-                    } else {
-                        temp.setAutoDelay(-1);
+                    temp.setTypeValue(0);
+                    if (temp.getType() == 2) {
                         temp.setType(0);
-                        setDataExpandMenu();
+                    } else {
+                        temp.setType(2);
                     }
+                    setDataExpandMenu();
                     break;
 
                 case (R.id.dialog_em_layout_importance):
                     Manager.showImportance(mContext, temp, TodoRcvAdapter.this, getAdapterPosition());
                     dialogExpandMenu.dismiss();
                     break;
+                    
+                case (R.id.dialog_em_layout_pattern):
+                    Toast.makeText(mContext, "Next Version", Toast.LENGTH_SHORT).show();
+                    // TODO: 2018-03-26
+                    break;
             }
         }
 
         private AlertDialog dialogExpandMenu;
-        private LinearLayout layoutTime, layoutTag, layoutAutoDelay, layoutImportance;
-        private TextView tvTime, tvTag, tvAutoDelay, tvImportance;
+        private LinearLayout layoutTime, layoutTag, layoutAutoDelay, layoutImportance, layoutPattern;
+        private TextView tvTime, tvTag, tvAutoDelay, tvImportance, tvPattern;
         private Switch switchAutoDelay;
         private ImageView ivImportance;
 
@@ -433,10 +435,12 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             layoutTag = layout.findViewById(R.id.dialog_em_layout_tag);
             layoutAutoDelay = layout.findViewById(R.id.dialog_em_layout_autodelay);
             layoutImportance = layout.findViewById(R.id.dialog_em_layout_importance);
+            layoutPattern = layout.findViewById(R.id.dialog_em_layout_pattern);
             tvTime = layout.findViewById(R.id.dialog_em_tv_time);
             tvTag = layout.findViewById(R.id.dialog_em_tv_tag);
             tvAutoDelay = layout.findViewById(R.id.dialog_em_tv_autodelay);
             tvImportance = layout.findViewById(R.id.dialog_em_tv_importance);
+            tvPattern = layout.findViewById(R.id.dialog_em_tv_pattern);
             switchAutoDelay = layout.findViewById(R.id.dialog_em_switch_autodelay);
             ivImportance = layout.findViewById(R.id.dialog_em_iv_importance);
             AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
@@ -447,6 +451,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             layoutTag.setOnClickListener(this);
             layoutAutoDelay.setOnClickListener(this);
             layoutImportance.setOnClickListener(this);
+            layoutPattern.setOnClickListener(this);
 
             builder.setView(layout);
             builder.setPositiveButton("완료", new DialogInterface.OnClickListener() {
@@ -490,12 +495,20 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 sb.append("#" + st.get(i) + " ");
             }
             tvTag.setText(sb.toString());
-            if (temp.getAutoDelay() == -1) {
+            if (temp.getType() == 2) {
+                layoutAutoDelay.setVisibility(View.VISIBLE);
+                layoutPattern.setVisibility(View.GONE);
+                switchAutoDelay.setChecked(true);
+                tvAutoDelay.setText(temp.getTypeValue() + "일 연기됨");
+            } else if (temp.getType() == 1) {
+                layoutAutoDelay.setVisibility(View.GONE);
+                layoutPattern.setVisibility(View.VISIBLE);
+                tvPattern.setText(temp.getTypeValue() + "회차");
+            } else {
+                layoutAutoDelay.setVisibility(View.VISIBLE);
+                layoutPattern.setVisibility(View.GONE);
                 switchAutoDelay.setChecked(false);
                 tvAutoDelay.setText("");
-            } else {
-                switchAutoDelay.setChecked(true);
-                tvAutoDelay.setText(temp.getAutoDelay() + "일 연기됨");
             }
         }
     }
@@ -539,23 +552,6 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 }
                 ((VHItem) holder).tvTags.setText(sb.toString());
             }
-            switch (data.getImportance()) {
-                case (1):
-                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star_half);
-                    ((VHItem) holder).ivImportance.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_half);
-                    break;
-                case (2):
-                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star);
-                    ((VHItem) holder).ivImportance.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_true);
-                    break;
-                case (0):
-                default:
-                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
-                    ((VHItem) holder).ivImportance.setVisibility(View.INVISIBLE);
-                    break;
-            }
             switch (data.getChecked()) {
                 case (0):
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_false);
@@ -582,24 +578,39 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_error);
                     break;
             }
-            switch (data.getType()) {
+            switch (data.getImportance()) {
                 case (1):
-                    ((VHItem) holder).ivIcon.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_puzzle);
+                    ((VHItem) holder).layoutRight1.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star_half);
+                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_half);
                     break;
                 case (2):
-                    ((VHItem) holder).ivIcon.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_delay);
+                    ((VHItem) holder).layoutRight1.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star);
+                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_true);
                     break;
                 case (0):
                 default:
-                    ((VHItem) holder).ivIcon.setVisibility(View.INVISIBLE);
+                    ((VHItem) holder).layoutRight1.setVisibility(View.GONE);
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
                     break;
             }
-            if (data.getAutoDelay() > 0) {
-                ((VHItem) holder).tvDelay.setText(data.getAutoDelay() + "");
-            } else {
-                ((VHItem) holder).tvDelay.setText("");
+            switch (data.getType()) {
+                case (1):
+                    ((VHItem) holder).layoutRight2.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_puzzle);
+                    ((VHItem) holder).tvDelay.setText(data.getTypeValue() + "회");
+                    break;
+                case (2):
+                    ((VHItem) holder).layoutRight2.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_delay);
+                    ((VHItem) holder).tvDelay.setText(data.getTypeValue() + "일");
+                    break;
+                case (0):
+                default:
+                    ((VHItem) holder).layoutRight2.setVisibility(View.GONE);
+                    ((VHItem) holder).tvDelay.setText("");
+                    break;
             }
         } else if (holder instanceof VHEdit) {
             ((MainActivity) mContext).setViewBottom(false);

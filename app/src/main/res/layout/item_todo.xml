@@ -35,34 +35,18 @@
                 app:layout_constraintVertical_bias="0.5"
                 app:srcCompat="@drawable/ic_check_false" />
 
-            <TextView
-                android:id="@+id/item_todo_tv_delay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="8sp"
-                app:layout_constraintBottom_toBottomOf="@+id/item_todo_iv_left"
-                app:layout_constraintEnd_toStartOf="@+id/item_todo_iv_icon" />
-
-            <ImageView
-                android:id="@+id/item_todo_iv_icon"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="@+id/item_todo_iv_left"
-                app:layout_constraintEnd_toEndOf="@+id/item_todo_iv_left"
-                app:srcCompat="@drawable/ic_delay" />
-
             <LinearLayout
                 android:id="@+id/item_todo_layout_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
+                android:layout_marginEnd="4dp"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="8dp"
                 android:gravity="center_vertical"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/item_todo_layout_right"
+                app:layout_constraintEnd_toStartOf="@+id/item_todo_layout_right2"
                 app:layout_constraintStart_toEndOf="@+id/item_todo_iv_left"
                 app:layout_constraintTop_toTopOf="parent">
 
@@ -92,34 +76,55 @@
 
             </LinearLayout>
 
-            <android.support.constraint.ConstraintLayout
-                android:id="@+id/item_todo_layout_right"
+            <LinearLayout
+                android:id="@+id/item_todo_layout_right2"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/item_todo_layout_right1"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/item_todo_iv_icon"
+                    android:layout_width="13dp"
+                    android:layout_height="13dp"
+                    app:srcCompat="@drawable/ic_delay" />
+
+                <TextView
+                    android:id="@+id/item_todo_tv_delay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="3일"
+                    android:textSize="8sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/item_todo_layout_right1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0">
+                app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
                     android:id="@+id/item_todo_iv_importance"
                     style="@style/Icon"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginBottom="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginTop="4dp"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
                     android:background="@null"
                     android:clickable="false"
-                    android:padding="4dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.5"
+                    android:padding="0dp"
                     app:srcCompat="@drawable/ic_star_false" />
-            </android.support.constraint.ConstraintLayout>
+            </LinearLayout>
 
         </android.support.constraint.ConstraintLayout>
 

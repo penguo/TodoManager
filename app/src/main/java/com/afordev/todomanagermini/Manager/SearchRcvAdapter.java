@@ -85,7 +85,7 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     class VHItem extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView tvTitle, tvTags, tvDelay;
-        private LinearLayout layout, layoutPlus, layoutText;
+        private LinearLayout layout, layoutPlus, layoutText, layoutRight1, layoutRight2;
         private ImageView ivCheck, ivIcon, ivImportance;
         private Button btnPDelete, btnPEdit, btnPDelay, btnPCheck;
 
@@ -104,6 +104,8 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             btnPCheck = itemView.findViewById(R.id.item_todo_btn_pcheck);
             tvDelay = itemView.findViewById(R.id.item_todo_tv_delay);
             layoutText = itemView.findViewById(R.id.item_todo_layout_text);
+            layoutRight1 = itemView.findViewById(R.id.item_todo_layout_right1);
+            layoutRight2 = itemView.findViewById(R.id.item_todo_layout_right2);
 
             layout.setOnClickListener(this);
             btnPDelete.setOnClickListener(this);
@@ -295,13 +297,13 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     break;
 
                 case (R.id.dialog_em_layout_autodelay):
-                    if (temp.getAutoDelay() == -1) {
-                        temp.setAutoDelay(0);
-                        setDataExpandMenu();
+                    temp.setTypeValue(0);
+                    if (temp.getType() == 2) {
+                        temp.setType(0);
                     } else {
-                        temp.setAutoDelay(-1);
-                        setDataExpandMenu();
+                        temp.setType(2);
                     }
+                    setDataExpandMenu();
                     break;
 
                 case (R.id.dialog_em_layout_importance):
@@ -381,12 +383,12 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 sb.append("#" + st.get(i) + " ");
             }
             tvTag.setText(sb.toString());
-            if (temp.getAutoDelay() == -1) {
+            if (temp.getType() == 2) {
+                switchAutoDelay.setChecked(true);
+                tvAutoDelay.setText(temp.getTypeValue() + "일 연기됨");
+            } else {
                 switchAutoDelay.setChecked(false);
                 tvAutoDelay.setText("");
-            } else {
-                switchAutoDelay.setChecked(true);
-                tvAutoDelay.setText(temp.getAutoDelay() + "일 연기됨");
             }
         }
     }
@@ -417,23 +419,6 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 }
             }
             ((VHItem) holder).tvTags.setText(sb.toString());
-            switch (data.getImportance()) {
-                case (1):
-                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star_half);
-                    ((VHItem) holder).ivImportance.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_half);
-                    break;
-                case (2):
-                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star);
-                    ((VHItem) holder).ivImportance.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_true);
-                    break;
-                case (0):
-                default:
-                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
-                    ((VHItem) holder).ivImportance.setVisibility(View.INVISIBLE);
-                    break;
-            }
             switch (data.getChecked()) {
                 case (0):
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_false);
@@ -441,13 +426,10 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     ((VHItem) holder).layoutText.setAlpha(1);
                     break;
                 case (1):
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_true);
                     ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
                     ((VHItem) holder).layoutText.setAlpha((float) 0.5);
-                    ((VHItem) holder).btnPEdit.setVisibility(View.GONE);
-                    ((VHItem) holder).btnPDelay.setVisibility(View.GONE);
-                    ((VHItem) holder).btnPCheck.setVisibility(View.GONE);
                     break;
                 case (2):
                     ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
@@ -459,27 +441,43 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     ((VHItem) holder).btnPCheck.setVisibility(View.GONE);
                     break;
                 default:
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_error);
+                    break;
+            }
+            switch (data.getImportance()) {
+                case (1):
+                    ((VHItem) holder).layoutRight1.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star_half);
+                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_half);
+                    break;
+                case (2):
+                    ((VHItem) holder).layoutRight1.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star);
+                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_true);
+                    break;
+                case (0):
+                default:
+                    ((VHItem) holder).layoutRight1.setVisibility(View.GONE);
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
                     break;
             }
             switch (data.getType()) {
                 case (1):
-                    ((VHItem) holder).ivIcon.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).layoutRight2.setVisibility(View.VISIBLE);
                     ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_puzzle);
+                    ((VHItem) holder).tvDelay.setText(data.getTypeValue() + "회");
                     break;
                 case (2):
-                    ((VHItem) holder).ivIcon.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).layoutRight2.setVisibility(View.VISIBLE);
                     ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_delay);
+                    ((VHItem) holder).tvDelay.setText(data.getTypeValue() + "일");
                     break;
                 case (0):
                 default:
-                    ((VHItem) holder).ivIcon.setVisibility(View.INVISIBLE);
+                    ((VHItem) holder).layoutRight2.setVisibility(View.GONE);
+                    ((VHItem) holder).tvDelay.setText("");
                     break;
-            }
-            if (data.getAutoDelay() > 0) {
-                ((VHItem) holder).tvDelay.setText(data.getAutoDelay() + "");
-            } else {
-                ((VHItem) holder).tvDelay.setText("");
             }
         } else if (holder instanceof VHEdit) {
             if (temp != null) {

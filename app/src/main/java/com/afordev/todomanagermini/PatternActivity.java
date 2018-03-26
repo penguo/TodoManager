@@ -30,6 +30,10 @@ public class PatternActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
 
         rcvPattern = findViewById(R.id.pattern_rcv);
+        setData();
+    }
+
+    public void setData(){
         patternRcvAdapter = new PatternRcvAdapter(this, dbManager);
         LinearLayoutManager llm = new LinearLayoutManager(this);
         rcvPattern.setLayoutManager(llm);
@@ -55,4 +59,19 @@ public class PatternActivity extends AppCompatActivity {
         return false;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Manager.RC_PATTERN_TO_ADDPATTERN) {
+            if (resultCode == RESULT_OK) {
+                setData();
+            }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_OK);
+        super.onBackPressed();
+    }
 }
