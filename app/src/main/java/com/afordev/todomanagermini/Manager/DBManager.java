@@ -30,7 +30,7 @@ public class DBManager extends SQLiteOpenHelper {
 
     public static DBManager getInstance(Context mContext) {
         if (instance == null) {
-            instance = new DBManager(mContext, "todo.db", null, 9);
+            instance = new DBManager(mContext, "todo.db", null, 10);
         } else {
             instance.setContext(mContext);
         }
@@ -63,7 +63,8 @@ public class DBManager extends SQLiteOpenHelper {
                 "IsTimeActivated Integer, " +
                 "Importance Integer DEFAULT 0," +
                 "PatternId Integer DEFAULT -1," +
-                "TypeValue Integer DEFAULT -1); ");
+                "TypeValue Integer DEFAULT -1," +
+                "Deadline Integer DEFAULT -1); ");
         db.execSQL("CREATE TABLE Pattern ( " +
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "Title TEXT, " +
@@ -77,7 +78,8 @@ public class DBManager extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         switch (newVersion) {
-            case (9):
+            case (10):
+                db.execSQL("ALTER TABLE Todo ADD COLUMN Deadline Integer DEFAULT -1;");
                 break;
         }
     }
@@ -85,6 +87,12 @@ public class DBManager extends SQLiteOpenHelper {
     public void insertTodo(DataTodo data) {
         db = getWritableDatabase();
         long second = data.getDate().getSecond();
+        long secondDeadline;
+        if(data.getDateDeadline()!=null) {
+            secondDeadline = data.getDateDeadline().getSecond();
+        }else {
+            secondDeadline = -1;
+        }
         db.execSQL(" INSERT INTO Todo VALUES ( " +
                 " null, " +
                 "'" + data.getTitle() + "', " +
@@ -95,13 +103,20 @@ public class DBManager extends SQLiteOpenHelper {
                 data.getIsTimeActivated() + ", " +
                 data.getImportance() + ", " +
                 data.getPatternId() + ", " +
-                data.getTypeValue() + ");");
+                data.getTypeValue() + "," +
+                secondDeadline + ");");
         db.close();
     }
 
     public void updateTodo(DataTodo data) {
         db = getWritableDatabase();
         long second = data.getDate().getSecond();
+        long secondDeadline;
+        if(data.getDateDeadline()!=null) {
+            secondDeadline = data.getDateDeadline().getSecond();
+        }else {
+            secondDeadline = -1;
+        }
         db.execSQL(" UPDATE Todo SET " +
                 "Title = '" + data.getTitle() + "', " +
                 "Date = " + second + ", " +
@@ -111,7 +126,8 @@ public class DBManager extends SQLiteOpenHelper {
                 "IsTimeActivated = " + data.getIsTimeActivated() + ", " +
                 "Importance = " + data.getImportance() + ", " +
                 "PatternId = " + data.getPatternId() + ", " +
-                "TypeValue = " + data.getTypeValue() + " " +
+                "TypeValue = " + data.getTypeValue() + ", " +
+                "Deadline = " + secondDeadline + " " +
                 "WHERE _id = " + data.getId() + " ; ");
         db.close();
     }
@@ -136,7 +152,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getInt(6),
                     cursor.getInt(7),
                     cursor.getInt(8),
-                    cursor.getInt(9));
+                    cursor.getInt(9),
+                    cursor.getLong(10));
         }
         cursor.close();
         return data;
@@ -164,7 +181,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getInt(6),
                     cursor.getInt(7),
                     cursor.getInt(8),
-                    cursor.getInt(9));
+                    cursor.getInt(9),
+                    cursor.getLong(10));
             list.add(data);
         }
         cursor.close();
@@ -229,29 +247,34 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getInt(6),
                     cursor.getInt(7),
                     cursor.getInt(8),
-                    cursor.getInt(9));
+                    cursor.getInt(9),
+                    cursor.getLong(10));
             list.add(data);
         }
         cursor.close();
 
         int i;
         ArrayList<ArrayList<DataTodo>> arrayLists = new ArrayList<>();
-        arrayLists.add(new ArrayList<DataTodo>());
-        arrayLists.add(new ArrayList<DataTodo>());
-        arrayLists.add(new ArrayList<DataTodo>());
+        arrayLists.add(new ArrayList<DataTodo>()); // 매우 중요
+        arrayLists.add(new ArrayList<DataTodo>()); // 미완료
+        arrayLists.add(new ArrayList<DataTodo>()); // 퍼즐들 따로 정렬
+        arrayLists.add(new ArrayList<DataTodo>()); // 완료
         for (i = 0; i < list.size(); i++) {
-            if (list.get(i).getImportance() >= 2 && list.get(i).getChecked() == 0) { // 매우 중요
+            if (list.get(i).getType() == 1) {
+                arrayLists.get(2).add(list.get(i));
+            } else if (list.get(i).getChecked() >= 1) {
+                arrayLists.get(3).add(list.get(i));
+            } else if (list.get(i).getImportance() >= 2) {
                 arrayLists.get(0).add(list.get(i));
-            } else if (list.get(i).getChecked() == 0) { // 미완료
+            } else if (list.get(i).getChecked() == 0) {
                 arrayLists.get(1).add(list.get(i));
-            } else if (list.get(i).getChecked() >= 1) { // 완료, 딜레이(2) 등
-                arrayLists.get(2).add(list.get(i));
             } else {
-                arrayLists.get(2).add(list.get(i));
+                arrayLists.get(3).add(list.get(i));
             }
         }
         for (i = 0; i < arrayLists.size(); i++) {
             sort_importance(arrayLists.get(i));
+            sort_checked(arrayLists.get(i));
         }
         return arrayLists;
     }
@@ -280,6 +303,27 @@ public class DBManager extends SQLiteOpenHelper {
         list.addAll(arrayLists.get(2));
         list.addAll(arrayLists.get(1));
         list.addAll(arrayLists.get(0));
+    }
+
+    private void sort_checked(ArrayList<DataTodo> list) {
+        ArrayList<ArrayList<DataTodo>> arrayLists = new ArrayList<>();
+        arrayLists.add(new ArrayList<DataTodo>());
+        arrayLists.add(new ArrayList<DataTodo>());
+        int i;
+        for (i = 0; i < list.size(); i++) {
+            switch (list.get(i).getChecked()) {
+                case (0):
+                    arrayLists.get(0).add(list.get(i));
+                    break;
+                case (1):
+                default:
+                    arrayLists.get(1).add(list.get(i));
+                    break;
+            }
+        }
+        list.clear();
+        list.addAll(arrayLists.get(0));
+        list.addAll(arrayLists.get(1));
     }
 
     public ArrayList<DataTodo> searchTodo(int select, String word) {
@@ -311,7 +355,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getInt(6),
                     cursor.getInt(7),
                     cursor.getInt(8),
-                    cursor.getInt(9));
+                    cursor.getInt(9),
+                    cursor.getLong(10));
             list.add(data);
         }
         cursor.close();
@@ -342,7 +387,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getInt(6),
                     cursor.getInt(7),
                     cursor.getInt(8),
-                    cursor.getInt(9));
+                    cursor.getInt(9),
+                    cursor.getLong(10));
             list.add(data);
         }
         cursor.close();
@@ -371,7 +417,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getInt(6),
                     cursor.getInt(7),
                     cursor.getInt(8),
-                    cursor.getInt(9));
+                    cursor.getInt(9),
+                    cursor.getLong(10));
             list.add(data);
         }
         cursor.close();
@@ -469,7 +516,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getInt(6),
                     cursor.getInt(7),
                     cursor.getInt(8),
-                    cursor.getInt(9));
+                    cursor.getInt(9),
+                    cursor.getLong(10));
             data.setDataTodo(dataTodo);
         }
         cursor.close();
@@ -500,7 +548,8 @@ public class DBManager extends SQLiteOpenHelper {
                         cursor2.getInt(6),
                         cursor2.getInt(7),
                         cursor2.getInt(8),
-                        cursor2.getInt(9));
+                        cursor2.getInt(9),
+                        cursor2.getLong(10));
                 data.setDataTodo(dataTodo);
             }
             cursor2.close();
@@ -559,7 +608,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor.getInt(6),
                     cursor.getInt(7),
                     cursor.getInt(8),
-                    cursor.getInt(9));
+                    cursor.getInt(9),
+                    cursor.getLong(10));
             list.add(data);
         }
         cursor.close();
@@ -618,7 +668,8 @@ public class DBManager extends SQLiteOpenHelper {
                     cursor2.getInt(6),
                     cursor2.getInt(7),
                     cursor2.getInt(8),
-                    cursor2.getInt(9));
+                    cursor2.getInt(9),
+                    cursor2.getLong(10));
             temp.getDate().setYear(date.getYear());
             temp.getDate().setMonth(date.getMonth());
             temp.getDate().setDay(date.getDay());

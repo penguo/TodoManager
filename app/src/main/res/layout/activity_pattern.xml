@@ -15,7 +15,7 @@
         android:elevation="4dp"
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/MyToolbarTheme"
-        app:title="패턴 목록" />
+        app:title="퍼즐 목록" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/pattern_rcv"

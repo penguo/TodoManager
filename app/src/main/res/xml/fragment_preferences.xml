@@ -4,13 +4,19 @@
     <PreferenceCategory android:title="기본 설정">
         <SwitchPreference
             android:defaultValue="false"
+            android:key="pref_double_click"
+            android:title="두 번 클릭하여 할 일 완료" />
+        <Preference android:title="데이터 동기화 설정(준비 중)" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="잠금 화면 설정">
+        <SwitchPreference
+            android:defaultValue="false"
             android:key="pref_lock_screen"
             android:title="잠금 화면 표시" />
         <SwitchPreference
             android:defaultValue="false"
-            android:key="pref_double_click"
-            android:title="두 번 클릭하여 할 일 완료" />
-        <Preference android:title="데이터 동기화 설정(준비 중)" />
+            android:key="pref_view_checked"
+            android:title="완료 항목 표시" />
     </PreferenceCategory>
     <PreferenceCategory android:title="목록 설정">
         <SwitchPreference
@@ -39,7 +45,7 @@
             android:summary="@string/version"
             android:title="앱 버전" />
         <Preference
-            android:title="데이터 초기화"
-            android:key="pref_db_reset" />
+            android:key="pref_db_reset"
+            android:title="데이터 초기화" />
     </PreferenceCategory>
 </PreferenceScreen>

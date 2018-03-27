@@ -34,7 +34,7 @@
                 android:gravity="center_vertical"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
-                android:text="중요도 설정"
+                android:text="중요도"
                 android:textColor="@android:color/black"
                 android:textSize="16sp" />
 
@@ -72,7 +72,7 @@
                 android:gravity="center_vertical"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
-                android:text="시간 설정"
+                android:text="시간"
                 android:textColor="@android:color/black"
                 android:textSize="16sp" />
 
@@ -110,7 +110,7 @@
                 android:gravity="center_vertical"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp"
-                android:text="태그 설정"
+                android:text="태그"
                 android:textColor="@android:color/black"
                 android:textSize="16sp" />
 
@@ -130,17 +130,22 @@
         <LinearLayout
             android:id="@+id/dialog_em_layout_autodelay"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/btn_basic"
             android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_height="48dp"
                 android:orientation="horizontal"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp">
+
+                <ImageView
+                    style="@style/Icon"
+                    android:layout_marginRight="-8dp"
+                    android:background="@null"
+                    app:srcCompat="@drawable/ic_delay" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -173,21 +178,40 @@
                     android:paddingRight="8dp" />
             </LinearLayout>
 
-            <View style="@style/Divider" />
+            <LinearLayout
+                android:id="@+id/dialog_em_layout_deadline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp">
 
+                <TextView
+                    android:id="@+id/dialog_em_tv_deadline"
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:gravity="right|center_vertical"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    android:text="yyyy년 M월 d일 오후 h시 mm분까지" />
+
+            </LinearLayout>
+
+            <View style="@style/Divider" />
 
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/dialog_em_layout_pattern"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/btn_basic"
             android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
                 android:orientation="horizontal"
                 android:paddingLeft="8dp"
                 android:paddingRight="8dp">

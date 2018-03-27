@@ -52,6 +52,7 @@ public class Manager {
     public static final String PREF_STAR_NOTICE = "pref_star_notice";
     public static final String PREF_HALF_STAR_NOTICE = "pref_half_star_notice";
     public static final String PREF_DOUBLE_CLICK = "pref_double_click";
+    public static final String PREF_VIEW_CHECKED = "pref_view_checked";
     public static int VERSIONCODE = -1;
     public static String VERSIONNAME = "";
 
@@ -90,18 +91,18 @@ public class Manager {
         }
     };
 
-    public static void showAddTag(final Activity activity, final DBManager dbManager, final DataTodo data, final RecyclerView.Adapter<RecyclerView.ViewHolder> rcvAdapter, final int position) {
-        LayoutInflater li = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    public static void showAddTag(final Context mContext, final DBManager dbManager, final DataTodo data, final RecyclerView.Adapter<RecyclerView.ViewHolder> rcvAdapter, final int position) {
+        LayoutInflater li = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout updateLayout = (LinearLayout) li.inflate(R.layout.dialog_tag, null);
         final HashtagView hashtagView = (HashtagView) updateLayout.findViewById(R.id.dialog_tag_hashtag);
         final AutoCompleteTextView et = (AutoCompleteTextView) updateLayout.findViewById(R.id.dialog_tag_et);
         final ImageButton btnAdd = (ImageButton) updateLayout.findViewById(R.id.dialog_tag_btn_add);
         final ArrayList<String> dbTags = dbManager.getTagList();
-        et.setAdapter(new ArrayAdapter<String>(activity,
+        et.setAdapter(new ArrayAdapter<String>(mContext,
                 R.layout.simple_dropdown_item_tag, dbTags));
         final ArrayList<String> tags = data.getTagList();
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         AlertDialog dialog;
         hashtagView.setData(tags, Manager.HASHTAG);
         hashtagView.addOnTagClickListener(new HashtagView.TagsClickListener() {
@@ -120,12 +121,12 @@ public class Manager {
             @Override
             public void onClick(View view) {
                 if (et.getText().toString().equals("")) {
-                    Toast.makeText(activity, "내용을 입력하세요.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "내용을 입력하세요.", Toast.LENGTH_SHORT).show();
                 } else {
                     if (!tags.contains(et.getText().toString())) {
                         tags.add(et.getText().toString());
                     } else {
-                        Toast.makeText(activity, "이미 등록된 태그입니다.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "이미 등록된 태그입니다.", Toast.LENGTH_SHORT).show();
                     }
                 }
                 et.setText("");
@@ -139,14 +140,14 @@ public class Manager {
                     if (!tags.contains(et.getText().toString())) {
                         tags.add(et.getText().toString());
                     } else {
-                        Toast.makeText(activity, "이미 등록된 태그입니다.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, "이미 등록된 태그입니다.", Toast.LENGTH_SHORT).show();
                     }
                 }
                 data.setTagList(tags);
                 if (position != -1) {
                     rcvAdapter.notifyItemChanged(position);
                 } else {
-                    ((MainActivity) activity).onRefreshBottom();
+                    ((MainActivity) mContext).onRefreshBottom();
                 }
                 dialog.dismiss();
             }

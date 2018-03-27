@@ -26,16 +26,31 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
     private ArrayList<DataTodo> dataList;
     private DateForm date;
     private DataTodo temp;
-    private boolean isDoubleClick;
+    private boolean isDoubleClick, isViewChecked;
 
     public LockRcvAdapter(Context mContext, DBManager dbManager) {
         this.mContext = mContext;
         this.dbManager = dbManager;
         this.date = new DateForm(Calendar.getInstance());
-        this.dataList = dbManager.getTodoList(date);
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         isDoubleClick = prefs.getBoolean(Manager.PREF_DOUBLE_CLICK, false);
+        isViewChecked = prefs.getBoolean(Manager.PREF_VIEW_CHECKED, false);
+
+        setData();
+    }
+
+    public void setData(){
+        dataList = dbManager.getTodoList(date);
+        if (!isViewChecked) {
+            ArrayList<DataTodo> list = new ArrayList<>();
+            for (int i = 0; i < dataList.size(); i++) {
+                if (dataList.get(i).getChecked() == 0) {
+                    list.add(dataList.get(i));
+                }
+            }
+            dataList = list;
+        }
     }
 
     @Override
@@ -84,7 +99,7 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
                         notifyItemChanged(getAdapterPosition());
                         notifyItemMoved(getAdapterPosition(), getSortedPosition(getAdapterPosition()));
                         temp = null;
-                    }else{
+                    } else {
                         temp = dataList.get(getAdapterPosition());
                     }
                 }
@@ -166,7 +181,7 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
     }
 
     public void onRefresh() {
-        this.dataList = dbManager.getTodoList(date);
+        setData();
         notifyDataSetChanged();
     }
 

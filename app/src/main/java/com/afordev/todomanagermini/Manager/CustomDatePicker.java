@@ -1,6 +1,5 @@
 package com.afordev.todomanagermini.Manager;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
@@ -8,23 +7,18 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
-import android.widget.Toast;
 
-import com.afordev.todomanagermini.MainActivity;
 import com.afordev.todomanagermini.R;
-import com.afordev.todomanagermini.SubItem.DataTodo;
 import com.afordev.todomanagermini.SubItem.DateForm;
-
-import java.util.Calendar;
 
 /**
  * Created by penguo on 2018-03-07.
  */
 
-public class CustomTimePicker {
+public class CustomDatePicker {
 
     private Context mContext;
     private RecyclerView.Adapter<RecyclerView.ViewHolder> rcvAdapter;
@@ -32,9 +26,9 @@ public class CustomTimePicker {
 
     private String dialogTitle, neutralTitle;
     private DialogInterface.OnClickListener positiveListener, negativeListener, neutralListener;
-    private TimePicker timePicker;
+    private DatePicker datePicker;
 
-    public CustomTimePicker(Context mContext, RecyclerView.Adapter<RecyclerView.ViewHolder> rcvAdapter, int position) {
+    public CustomDatePicker(Context mContext, RecyclerView.Adapter<RecyclerView.ViewHolder> rcvAdapter, int position) {
         this.mContext = mContext;
         this.rcvAdapter = rcvAdapter;
         this.position = position;
@@ -73,28 +67,23 @@ public class CustomTimePicker {
         this.neutralListener = neutralListener;
     }
 
-    public TimePicker getTimePicker() {
-        return timePicker;
+    public DatePicker getDatePicker() {
+        return datePicker;
     }
 
     public void show(DateForm date) {
         LayoutInflater li = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout layout = (LinearLayout) li.inflate(R.layout.dialog_timepicker, null);
-        timePicker = layout.findViewById(R.id.dialog_timepicker);
+        datePicker = layout.findViewById(R.id.dialog_datepicker);
         TextView tvTitle = layout.findViewById(R.id.dialog_tp_tv_title);
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         final AlertDialog dialog;
 
-        int hour, minute;
-        hour = date.getHour();
-        minute = date.getMinute();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            timePicker.setHour(hour);
-            timePicker.setMinute(minute);
-        } else {
-            timePicker.setCurrentHour(hour);
-            timePicker.setCurrentMinute(minute);
-        }
+        datePicker.init(date.getYear(), date.getMonth(), date.getDay(), new DatePicker.OnDateChangedListener() {
+            @Override
+            public void onDateChanged(DatePicker datePicker, int year, int monthOfYear, int dayOfMonth) {
+            }
+        });
         if(!dialogTitle.equals("")){
             tvTitle.setText(dialogTitle);
         }else{

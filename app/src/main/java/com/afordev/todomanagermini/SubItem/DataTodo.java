@@ -12,7 +12,7 @@ import java.util.Calendar;
 
 public class DataTodo implements Parcelable, Cloneable {
     private String title, tags;
-    private DateForm date;
+    private DateForm date, dateDeadline;
     private int id, checked, importance, type, isTimeActivated, patternId, typeValue;
 
     public DataTodo() {
@@ -26,6 +26,7 @@ public class DataTodo implements Parcelable, Cloneable {
         this.isTimeActivated = 0;
         this.patternId = -1;
         this.typeValue = -1;
+        this.dateDeadline = null;
     }
 
     public DataTodo(int id) {
@@ -39,6 +40,7 @@ public class DataTodo implements Parcelable, Cloneable {
         this.isTimeActivated = 0;
         this.patternId = -1;
         this.typeValue = -1;
+        this.dateDeadline = null;
     }
 
     public DataTodo(DateForm date) {
@@ -54,9 +56,10 @@ public class DataTodo implements Parcelable, Cloneable {
         this.importance = 0;
         this.patternId = -1;
         this.typeValue = -1;
+        this.dateDeadline = null;
     }
 
-    public DataTodo(int id, String title, long second, String tags, int checked, int type, int isTimeActivited, int importance, int patternId, int autoDelay) {
+    public DataTodo(int id, String title, long second, String tags, int checked, int type, int isTimeActivited, int importance, int patternId, int autoDelay, long deadline) {
         this.id = id;
         this.title = title;
         this.date = new DateForm(second);
@@ -67,6 +70,11 @@ public class DataTodo implements Parcelable, Cloneable {
         this.importance = importance;
         this.patternId = patternId;
         this.typeValue = autoDelay;
+        if(deadline == -1){
+            this.dateDeadline = null;
+        }else{
+            this.dateDeadline = new DateForm(deadline);
+        }
     }
 
     protected DataTodo(Parcel in) {
@@ -80,6 +88,7 @@ public class DataTodo implements Parcelable, Cloneable {
         importance = in.readInt();
         patternId = in.readInt();
         typeValue = in.readInt();
+        dateDeadline = in.readParcelable(DateForm.class.getClassLoader());
     }
 
     public static final Creator<DataTodo> CREATOR = new Creator<DataTodo>() {
@@ -134,6 +143,10 @@ public class DataTodo implements Parcelable, Cloneable {
         return typeValue;
     }
 
+    public DateForm getDateDeadline() {
+        return dateDeadline;
+    }
+
     public ArrayList<String> getTagList() {
         ArrayList<String> list = new ArrayList<>();
         String[] st = tags.split(",");
@@ -186,6 +199,10 @@ public class DataTodo implements Parcelable, Cloneable {
         this.typeValue = typeValue;
     }
 
+    public void setDateDeadline(DateForm dateDeadline) {
+        this.dateDeadline = dateDeadline;
+    }
+
     public void setTagList(ArrayList<String> list) {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < list.size(); i++) {
@@ -214,6 +231,7 @@ public class DataTodo implements Parcelable, Cloneable {
         parcel.writeInt(importance);
         parcel.writeInt(patternId);
         parcel.writeInt(typeValue);
+        parcel.writeParcelable(dateDeadline, i);
     }
 
     public DataTodo clone() {

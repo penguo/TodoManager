@@ -84,10 +84,10 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
         int id = getIntent().getIntExtra("pattern_id", -1);
         if (id == -1) {
             dataPattern = new DataPattern();
-            mToolbar.setTitle("새로운 패턴");
+            mToolbar.setTitle("새로운 퍼즐");
         } else {
             dataPattern = dbManager.getPattern(id);
-            mToolbar.setTitle("패턴 수정");
+            mToolbar.setTitle("퍼즐 수정");
         }
         dataTodo = dataPattern.getDataTodo();
         String[] sts = dataPattern.getDow().split(",");
