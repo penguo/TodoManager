@@ -176,6 +176,18 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 }
                 tvTags.setText(sb.toString());
             }
+            switch (temp.getImportance()) {
+                case (1):
+                    ivEditLeft.setImageResource(R.drawable.ic_star_half);
+                    break;
+                case (2):
+                    ivEditLeft.setImageResource(R.drawable.ic_star_true);
+                    break;
+                case (0):
+                default:
+                    ivEditLeft.setImageResource(R.drawable.ic_star_false);
+                    break;
+            }
         }
     }
 
@@ -216,6 +228,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                         temp.setImportance(0);
                         break;
                 }
+                onRefreshBottom();
                 break;
 
             case (R.id.item_todo_iv_edit_save):
