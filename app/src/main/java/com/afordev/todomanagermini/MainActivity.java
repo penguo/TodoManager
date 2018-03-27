@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.afordev.todomanagermini.Dialog.DialogExpandMenu;
 import com.afordev.todomanagermini.Manager.DBManager;
 import com.afordev.todomanagermini.Manager.Manager;
 import com.afordev.todomanagermini.Manager.TodoRcvAdapter;
@@ -62,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private DataTodo temp;
     private ConstraintLayout layoutNew;
     private LinearLayout layoutEdit;
-    private Button btnDelete, btnCancel;
+    private Button btnDelete, btnCancel, btnExpandMenu;
     private EditText etTitle;
     private ImageView ivEditLeft, ivEditSave;
     private TextView tvTags;
@@ -109,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         layoutNew = findViewById(R.id.item_todo_layout_new);
         layoutEdit = findViewById(R.id.item_todo_layout_edit);
         btnDelete = findViewById(R.id.item_todo_btn_delete);
+        btnExpandMenu = findViewById(R.id.item_todo_btn_expandmenu);
         btnCancel = findViewById(R.id.item_todo_btn_cancel);
         etTitle = findViewById(R.id.item_todo_et_edit_title);
         ivEditLeft = findViewById(R.id.item_todo_iv_edit_left);
@@ -118,6 +120,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         btnCancel.setOnClickListener(this);
         ivEditLeft.setOnClickListener(this);
         ivEditSave.setOnClickListener(this);
+        btnExpandMenu.setOnClickListener(this);
         btnDelete.setVisibility(View.GONE);
         imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
     }
@@ -202,7 +205,17 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 break;
 
             case (R.id.item_todo_iv_edit_left):
-                Toast.makeText(this, "Next Version...", Toast.LENGTH_SHORT).show();
+                switch (temp.getImportance()) {
+                    case (0):
+                        temp.setImportance(1);
+                        break;
+                    case (1):
+                        temp.setImportance(2);
+                        break;
+                    case (2):
+                        temp.setImportance(0);
+                        break;
+                }
                 break;
 
             case (R.id.item_todo_iv_edit_save):
@@ -234,6 +247,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     }
                 });
                 dialog.show();
+                break;
+
+            case (R.id.item_todo_btn_expandmenu):
+                DialogExpandMenu dialogExpandMenu = new DialogExpandMenu(MainActivity.this, temp, null, -1);
+                dialogExpandMenu.show();
                 break;
         }
     }

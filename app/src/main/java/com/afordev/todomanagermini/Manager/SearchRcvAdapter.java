@@ -19,16 +19,17 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.afordev.todomanagermini.Dialog.DialogExpandMenu;
 import com.afordev.todomanagermini.R;
-import com.afordev.todomanagermini.SearchActivity;
 import com.afordev.todomanagermini.SubItem.DataTodo;
+import com.afordev.todomanagermini.SubItem.DateForm;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
@@ -201,7 +202,7 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         private EditText etTitle;
         private TextView tvTags;
         private ImageView ivEditLeft, ivEditSave;
-        private Button btnDelete, btnCancel;
+        private Button btnDelete, btnCancel, btnExpandMenu;
         private ConstraintLayout layoutNew;
 
         public VHEdit(final View itemView) {
@@ -214,10 +215,13 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             ivEditSave = itemView.findViewById(R.id.item_todo_iv_edit_save);
             btnDelete = itemView.findViewById(R.id.item_todo_btn_delete);
             btnCancel = itemView.findViewById(R.id.item_todo_btn_cancel);
+            btnExpandMenu = itemView.findViewById(R.id.item_todo_btn_expandmenu);
+
             ivEditLeft.setOnClickListener(this);
             ivEditSave.setOnClickListener(this);
             btnDelete.setOnClickListener(this);
             btnCancel.setOnClickListener(this);
+            btnExpandMenu.setOnClickListener(this);
         }
 
         @Override
@@ -316,6 +320,44 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 }
             }
             ((VHItem) holder).tvTags.setText(sb.toString());
+            switch (data.getImportance()) {
+                case (1):
+                    ((VHItem) holder).layoutRight1.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star_half);
+                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_half);
+                    break;
+                case (2):
+                    ((VHItem) holder).layoutRight1.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star);
+                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_true);
+                    break;
+                case (0):
+                default:
+                    ((VHItem) holder).layoutRight1.setVisibility(View.GONE);
+                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
+                    break;
+            }
+            switch (data.getType()) {
+                case (1):
+                    ((VHItem) holder).layoutRight2.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_puzzle);
+                    ((VHItem) holder).tvDelay.setText(data.getTypeValue() + "회차");
+                    break;
+                case (2):
+                    ((VHItem) holder).layoutRight2.setVisibility(View.VISIBLE);
+                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_delay);
+                    if(data.getDateDeadline()==null){
+                        ((VHItem) holder).tvDelay.setText("D+" + data.getTypeValue());
+                    }else{
+                        ((VHItem) holder).tvDelay.setText("D" + new DateForm(Calendar.getInstance()).compareTo(data.getDateDeadline()));
+                    }
+                    break;
+                case (0):
+                default:
+                    ((VHItem) holder).layoutRight2.setVisibility(View.GONE);
+                    ((VHItem) holder).tvDelay.setText("");
+                    break;
+            }
             switch (data.getChecked()) {
                 case (0):
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_false);
@@ -342,39 +384,10 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_error);
                     break;
             }
-            switch (data.getImportance()) {
-                case (1):
-                    ((VHItem) holder).layoutRight1.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star_half);
-                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_half);
-                    break;
-                case (2):
-                    ((VHItem) holder).layoutRight1.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_star);
-                    ((VHItem) holder).ivImportance.setImageResource(R.drawable.ic_star_true);
-                    break;
-                case (0):
-                default:
-                    ((VHItem) holder).layoutRight1.setVisibility(View.GONE);
-                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
-                    break;
-            }
-            switch (data.getType()) {
-                case (1):
-                    ((VHItem) holder).layoutRight2.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_puzzle);
-                    ((VHItem) holder).tvDelay.setText(data.getTypeValue() + "회");
-                    break;
-                case (2):
-                    ((VHItem) holder).layoutRight2.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_delay);
-                    ((VHItem) holder).tvDelay.setText(data.getTypeValue() + "일");
-                    break;
-                case (0):
-                default:
-                    ((VHItem) holder).layoutRight2.setVisibility(View.GONE);
-                    ((VHItem) holder).tvDelay.setText("");
-                    break;
+            if (data.getChecked() != 2) {
+                ((VHItem) holder).btnPEdit.setVisibility(View.VISIBLE);
+                ((VHItem) holder).btnPDelay.setVisibility(View.VISIBLE);
+                ((VHItem) holder).btnPCheck.setVisibility(View.VISIBLE);
             }
         } else if (holder instanceof VHEdit) {
             if (temp != null) {

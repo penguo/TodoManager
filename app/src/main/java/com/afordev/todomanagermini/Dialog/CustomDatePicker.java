@@ -1,4 +1,4 @@
-package com.afordev.todomanagermini.Manager;
+package com.afordev.todomanagermini.Dialog;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,17 +21,13 @@ import com.afordev.todomanagermini.SubItem.DateForm;
 public class CustomDatePicker {
 
     private Context mContext;
-    private RecyclerView.Adapter<RecyclerView.ViewHolder> rcvAdapter;
-    private int position;
 
     private String dialogTitle, neutralTitle;
     private DialogInterface.OnClickListener positiveListener, negativeListener, neutralListener;
     private DatePicker datePicker;
 
-    public CustomDatePicker(Context mContext, RecyclerView.Adapter<RecyclerView.ViewHolder> rcvAdapter, int position) {
+    public CustomDatePicker(Context mContext) {
         this.mContext = mContext;
-        this.rcvAdapter = rcvAdapter;
-        this.position = position;
         initSet();
     }
 
@@ -73,9 +69,9 @@ public class CustomDatePicker {
 
     public void show(DateForm date) {
         LayoutInflater li = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        LinearLayout layout = (LinearLayout) li.inflate(R.layout.dialog_timepicker, null);
+        LinearLayout layout = (LinearLayout) li.inflate(R.layout.dialog_datepicker, null);
         datePicker = layout.findViewById(R.id.dialog_datepicker);
-        TextView tvTitle = layout.findViewById(R.id.dialog_tp_tv_title);
+        TextView tvTitle = layout.findViewById(R.id.dialog_dp_tv_title);
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         final AlertDialog dialog;
 

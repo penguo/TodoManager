@@ -1,5 +1,6 @@
-package com.afordev.todomanagermini.Manager;
+package com.afordev.todomanagermini.Dialog;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,6 +14,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afordev.todomanagermini.AddPatternActivity;
+import com.afordev.todomanagermini.MainActivity;
+import com.afordev.todomanagermini.Manager.DBManager;
+import com.afordev.todomanagermini.Manager.Manager;
 import com.afordev.todomanagermini.R;
 import com.afordev.todomanagermini.SubItem.DataTodo;
 import com.afordev.todomanagermini.SubItem.DateForm;
@@ -30,12 +35,15 @@ public class DialogExpandMenu implements View.OnClickListener {
     private DataTodo temp;
     private int position;
     private RecyclerView.Adapter<RecyclerView.ViewHolder> rcvAdapter;
+
     private AlertDialog dialogExpandMenu;
     private LinearLayout layoutTime, layoutTag, layoutAutoDelay, layoutImportance, layoutPattern, layoutDeadline;
     private TextView tvTime, tvTag, tvAutoDelay, tvImportance, tvPattern, tvDeadline;
     private Switch switchAutoDelay;
     private ImageView ivImportance;
     private DBManager dbManager;
+    private CustomDatePicker mDatePicker;
+    private CustomTimePicker mTimePicker;
 
     public DialogExpandMenu(Context mContext, DataTodo temp, RecyclerView.Adapter<RecyclerView.ViewHolder> rcvAdapter, int position) {
         this.mContext = mContext;
@@ -43,6 +51,21 @@ public class DialogExpandMenu implements View.OnClickListener {
         this.rcvAdapter = rcvAdapter;
         this.position = position;
         dbManager = DBManager.getInstance(mContext);
+    }
+
+    public void refreshParentForFinish() {
+        if (rcvAdapter != null) {
+            rcvAdapter.notifyItemChanged(position);
+        } else { // Today의 BottomSheet
+            switch (((Activity) mContext).getLocalClassName()) {
+                case ("MainActivity"):
+                    ((MainActivity) mContext).onRefreshBottom();
+                    break;
+                case ("AddPatternActivity"):
+                    ((AddPatternActivity) mContext).setData();
+                    break;
+            }
+        }
     }
 
     public void show() {
@@ -118,8 +141,19 @@ public class DialogExpandMenu implements View.OnClickListener {
         tvTag.setText(sb.toString());
         if (temp.getType() == 2) {
             layoutPattern.setVisibility(View.GONE);
+            layoutDeadline.setVisibility(View.VISIBLE);
             switchAutoDelay.setChecked(true);
             tvAutoDelay.setText(temp.getTypeValue() + "일 연기됨");
+            if (temp.getDateDeadline() != null) {
+                sb = new StringBuilder();
+                sb.append(Manager.getDateForm(mContext, temp.getDateDeadline()));
+                sb.append(" ");
+                sb.append(Manager.getTimeForm(temp.getDateDeadline()));
+                sb.append("까지");
+                tvDeadline.setText(sb.toString());
+            } else {
+                tvDeadline.setText("마감 날짜 없음");
+            }
         } else if (temp.getType() == 1) {
             layoutTime.setVisibility(View.GONE);
             layoutTag.setVisibility(View.GONE);
@@ -128,17 +162,9 @@ public class DialogExpandMenu implements View.OnClickListener {
             tvPattern.setText(temp.getTypeValue() + "회차");
         } else {
             layoutPattern.setVisibility(View.GONE);
+            layoutDeadline.setVisibility(View.GONE);
             switchAutoDelay.setChecked(false);
             tvAutoDelay.setText("");
-        }
-        if (temp.getDateDeadline() != null) {
-            sb = new StringBuilder();
-            sb.append(Manager.getDateForm(mContext, temp.getDateDeadline()));
-            sb.append(" ");
-            sb.append(Manager.getTimeForm(temp.getDateDeadline()));
-            tvDeadline.setText(sb.toString());
-        } else {
-            tvDeadline.setText("기간 제한 없음");
         }
     }
 
@@ -146,44 +172,45 @@ public class DialogExpandMenu implements View.OnClickListener {
     public void onClick(View view) {
         switch (view.getId()) {
             case (R.id.dialog_em_layout_time):
-                final CustomTimePicker cTP = new CustomTimePicker(mContext, rcvAdapter, position);
-                cTP.setTitle("할 일의 시간을 선택해주세요");
-                cTP.setPositiveListener(new DialogInterface.OnClickListener() {
+                mTimePicker = new CustomTimePicker(mContext);
+                mTimePicker.setTitle("할 일의 시간을 선택해주세요");
+                mTimePicker.setPositiveListener(new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         int hour, minute;
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            hour = cTP.getTimePicker().getHour();
-                            minute = cTP.getTimePicker().getMinute();
+                            hour = mTimePicker.getTimePicker().getHour();
+                            minute = mTimePicker.getTimePicker().getMinute();
                         } else {
-                            hour = cTP.getTimePicker().getCurrentHour();
-                            minute = cTP.getTimePicker().getCurrentMinute();
+                            hour = mTimePicker.getTimePicker().getCurrentHour();
+                            minute = mTimePicker.getTimePicker().getCurrentMinute();
                         }
                         temp.getDate().setMinute(minute);
                         temp.getDate().setHour(hour);
                         temp.setIsTimeActivated(1);
-                        rcvAdapter.notifyItemChanged(position);
                         dialogInterface.dismiss();
+                        refreshParentForFinish();
                     }
                 });
-                cTP.setNeutralListener("하루 종일", new DialogInterface.OnClickListener() {
+                mTimePicker.setNeutralListener("하루 종일", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         temp.setIsTimeActivated(0);
-                        rcvAdapter.notifyItemChanged(position);
                         dialogInterface.dismiss();
+                        refreshParentForFinish();
                     }
                 });
                 if (temp.getIsTimeActivated() != 0) {
-                    cTP.show(temp.getDate());
+                    mTimePicker.show(temp.getDate());
                 } else {
-                    cTP.show(new DateForm(Calendar.getInstance()));
+                    mTimePicker.show(new DateForm(Calendar.getInstance()));
                 }
                 dialogExpandMenu.dismiss();
                 break;
 
             case (R.id.dialog_em_layout_tag):
-                Manager.showAddTag(mContext, dbManager, temp, rcvAdapter, position);
+                TagPicker tagPicker = new TagPicker(mContext, DialogExpandMenu.this);
+                tagPicker.show(temp);
                 dialogExpandMenu.dismiss();
                 break;
 
@@ -198,7 +225,8 @@ public class DialogExpandMenu implements View.OnClickListener {
                 break;
 
             case (R.id.dialog_em_layout_importance):
-                Manager.showImportance(mContext, temp, rcvAdapter, position);
+                ImportancePicker importancePicker = new ImportancePicker(mContext, DialogExpandMenu.this);
+                importancePicker.show(temp);
                 dialogExpandMenu.dismiss();
                 break;
 
@@ -208,8 +236,68 @@ public class DialogExpandMenu implements View.OnClickListener {
                 break;
 
             case (R.id.dialog_em_layout_deadline):
-                Toast.makeText(mContext, "Next Version", Toast.LENGTH_SHORT).show();
-                // TODO: 2018-03-26
+                mDatePicker = new CustomDatePicker(mContext);
+                mTimePicker = new CustomTimePicker(mContext);
+                mDatePicker.setTitle("마감 날짜를 입력해주세요");
+                mDatePicker.setPositiveListener(new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (temp.getDateDeadline() == null) {
+                            temp.setDateDeadline(new DateForm(mDatePicker.getDatePicker().getYear(),
+                                    mDatePicker.getDatePicker().getMonth(),
+                                    mDatePicker.getDatePicker().getDayOfMonth()));
+                        } else {
+                            temp.getDateDeadline().setYear(mDatePicker.getDatePicker().getYear());
+                            temp.getDateDeadline().setMonth(mDatePicker.getDatePicker().getMonth());
+                            temp.getDateDeadline().setDay(mDatePicker.getDatePicker().getDayOfMonth());
+                        }
+                        mTimePicker.show(temp.getDateDeadline());
+                        dialogInterface.dismiss();
+                    }
+                });
+                mDatePicker.setNeutralListener("마감 날짜 없음", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        temp.setDateDeadline(null);
+                        dialogInterface.dismiss();
+                        refreshParentForFinish();
+                    }
+                });
+                mTimePicker.setTitle("마감 시간을 선택해주세요");
+                mTimePicker.setPositiveListener(new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        int hour, minute;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            hour = mTimePicker.getTimePicker().getHour();
+                            minute = mTimePicker.getTimePicker().getMinute();
+                        } else {
+                            hour = mTimePicker.getTimePicker().getCurrentHour();
+                            minute = mTimePicker.getTimePicker().getCurrentMinute();
+                        }
+                        temp.getDateDeadline().setMinute(minute);
+                        temp.getDateDeadline().setHour(hour);
+                        dialogInterface.dismiss();
+                        refreshParentForFinish();
+                        setDataExpandMenu();
+                    }
+                });
+                mTimePicker.setNeutralListener("당일 까지", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        temp.getDateDeadline().setMinute(59);
+                        temp.getDateDeadline().setHour(23);
+                        dialogInterface.dismiss();
+                        setDataExpandMenu();
+                        refreshParentForFinish();
+                        setDataExpandMenu();
+                    }
+                });
+                if (temp.getDateDeadline() == null) {
+                    mDatePicker.show(new DateForm(Calendar.getInstance()));
+                } else {
+                    mDatePicker.show(temp.getDateDeadline());
+                }
                 break;
         }
     }

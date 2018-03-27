@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afordev.todomanagermini.Dialog.DialogExpandMenu;
 import com.afordev.todomanagermini.Manager.DBManager;
 import com.afordev.todomanagermini.Manager.Manager;
 import com.afordev.todomanagermini.SubItem.DataPattern;
@@ -37,8 +38,7 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
 
     private EditText etTodoTitle;
     private TextView tvTags;
-    private ImageView ivEditLeft;
-    private Button btnTime, btnTag;
+    private ImageView ivEditLeft, ivEditExpandMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +64,7 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
         etTodoTitle = findViewById(R.id.item_todo_et_edit_title);
         tvTags = findViewById(R.id.item_todo_tv_edit_tag);
         ivEditLeft = findViewById(R.id.item_todo_iv_edit_left);
-        btnTime = findViewById(R.id.item_todo_btn_time);
-        btnTag = findViewById(R.id.item_todo_btn_tag);
+        ivEditExpandMenu = findViewById(R.id.item_todo_iv_edit_expandmenu);
 
         btnDOW0.setOnClickListener(this);
         btnDOW1.setOnClickListener(this);
@@ -76,6 +75,8 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
         btnDOW6.setOnClickListener(this);
         btnDateStart.setOnClickListener(this);
         btnDateEnd.setOnClickListener(this);
+        ivEditLeft.setOnClickListener(this);
+        ivEditExpandMenu.setOnClickListener(this);
 
         initSet();
     }
@@ -129,11 +130,11 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
         if (dataTodo.getTypeValue() != -1) {
             tvRecently.setVisibility(View.VISIBLE);
             tvRecently.setText("최근 추가 날짜: " + Manager.getDateForm(this, dataPattern.getDateRecently()) + ", " + dataTodo.getTypeValue() + "회차");
-        }else{
+        } else {
             tvRecently.setVisibility(View.GONE);
         }
         if (dataTodo.getIsTimeActivated() == 0 && dataTodo.getTags().equals("")) {
-            tvTags.setVisibility(View.GONE);
+            tvTags.setVisibility(View.INVISIBLE);
         } else {
             tvTags.setVisibility(View.VISIBLE);
             StringBuilder sb = new StringBuilder();
@@ -196,6 +197,18 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
             }
             sb.append("요일");
             tvDOW.setText(sb.toString());
+        }
+        switch (dataTodo.getImportance()) {
+            case (1):
+                ivEditLeft.setImageResource(R.drawable.ic_star_half);
+                break;
+            case (2):
+                ivEditLeft.setImageResource(R.drawable.ic_star_true);
+                break;
+            case (0):
+            default:
+                ivEditLeft.setImageResource(R.drawable.ic_star_false);
+                break;
         }
     }
 
@@ -260,6 +273,26 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
                 break;
             case (R.id.add_pattern_btn_date_end):
                 datePicker(false);
+                break;
+
+            case (R.id.item_todo_iv_edit_left):
+                switch (dataTodo.getImportance()) {
+                    case (0):
+                        dataTodo.setImportance(1);
+                        break;
+                    case (1):
+                        dataTodo.setImportance(2);
+                        break;
+                    case (2):
+                        dataTodo.setImportance(0);
+                        break;
+                }
+                setData();
+                break;
+
+            case (R.id.item_todo_iv_edit_expandmenu):
+                DialogExpandMenu dialogExpandMenu = new DialogExpandMenu(AddPatternActivity.this, dataTodo, null, -1);
+                dialogExpandMenu.show();
                 break;
         }
     }

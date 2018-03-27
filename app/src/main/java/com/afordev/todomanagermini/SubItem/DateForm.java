@@ -94,13 +94,16 @@ public class DateForm implements Parcelable{
         DateForm date2 = new DateForm(anotherDate.getSecond());
         date2.setHour(0);
         date2.setMinute(0);
-        if (date1.getSecond() < date2.getSecond()) {
-            return 1;
-        } else if (date1.getSecond() > date2.getSecond()) {
-            return -1;
-        } else {
-            return 0;
-        }
+        long diff = date1.getSecond() - date2.getSecond();
+        diff /= (24 * 60);
+//        if (date1.getSecond() < date2.getSecond()) {
+//            return 1;
+//        } else if (date1.getSecond() > date2.getSecond()) {
+//            return -1;
+//        } else {
+//            return 0;
+//        }
+        return (int) diff;
     }
 
     public int getDayofweek() {

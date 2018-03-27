@@ -441,7 +441,8 @@ public class DBManager extends SQLiteOpenHelper {
                 dataTodo.getIsTimeActivated() + ", " +
                 dataTodo.getImportance() + ", " +
                 "-1, " +
-                "0);");
+                "0, " +
+                "-1);");
 
         db = getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM Todo ;", null);
@@ -632,6 +633,12 @@ public class DBManager extends SQLiteOpenHelper {
         for (int i = 0; i < list.size(); i++) {
             temp = list.get(i);
             long second = temp.getDate().getSecond();
+            long secondDeadline;
+            if(temp.getDateDeadline()!=null) {
+                secondDeadline = temp.getDateDeadline().getSecond();
+            }else {
+                secondDeadline = -1;
+            }
             db.execSQL(" INSERT INTO Todo VALUES ( " +
                     " null, " +
                     "'" + temp.getTitle() + "', " +
@@ -642,7 +649,8 @@ public class DBManager extends SQLiteOpenHelper {
                     temp.getIsTimeActivated() + ", " +
                     temp.getImportance() + ", " +
                     temp.getPatternId() + ", " +
-                    temp.getTypeValue() + ");");
+                    temp.getTypeValue() + ", " +
+                    secondDeadline + ");");
         }
         db.close();
 
@@ -674,6 +682,12 @@ public class DBManager extends SQLiteOpenHelper {
             temp.getDate().setMonth(date.getMonth());
             temp.getDate().setDay(date.getDay());
             temp.setTypeValue(temp.getTypeValue() + 1);
+            long secondDeadline;
+            if(temp.getDateDeadline()!=null) {
+                secondDeadline = temp.getDateDeadline().getSecond();
+            }else {
+                secondDeadline = -1;
+            }
             db2.execSQL(" INSERT INTO Todo VALUES ( " +
                     " null, " +
                     "'" + temp.getTitle() + "', " +
@@ -684,7 +698,8 @@ public class DBManager extends SQLiteOpenHelper {
                     temp.getIsTimeActivated() + ", " +
                     temp.getImportance() + ", " +
                     temp.getPatternId() + ", " +
-                    temp.getTypeValue() + ");");
+                    temp.getTypeValue() + ", " +
+                    secondDeadline + ");");
             db2.execSQL(" UPDATE Pattern SET " +
                     "RecentlyDate = " + date.getSecond() + " " +
                     "WHERE _id = " + cursor.getInt(0) + " ; ");

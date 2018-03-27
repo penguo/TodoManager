@@ -1,4 +1,4 @@
-package com.afordev.todomanagermini.Manager;
+package com.afordev.todomanagermini.Dialog;
 
 import android.app.Activity;
 import android.content.Context;
@@ -27,17 +27,13 @@ import java.util.Calendar;
 public class CustomTimePicker {
 
     private Context mContext;
-    private RecyclerView.Adapter<RecyclerView.ViewHolder> rcvAdapter;
-    private int position;
 
     private String dialogTitle, neutralTitle;
     private DialogInterface.OnClickListener positiveListener, negativeListener, neutralListener;
     private TimePicker timePicker;
 
-    public CustomTimePicker(Context mContext, RecyclerView.Adapter<RecyclerView.ViewHolder> rcvAdapter, int position) {
+    public CustomTimePicker(Context mContext) {
         this.mContext = mContext;
-        this.rcvAdapter = rcvAdapter;
-        this.position = position;
         initSet();
     }
 

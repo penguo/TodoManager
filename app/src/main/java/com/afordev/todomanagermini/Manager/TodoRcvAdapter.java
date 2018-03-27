@@ -18,10 +18,10 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afordev.todomanagermini.Dialog.DialogExpandMenu;
 import com.afordev.todomanagermini.MainActivity;
 import com.afordev.todomanagermini.R;
 import com.afordev.todomanagermini.SubItem.DataTodo;
@@ -196,7 +196,6 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                             }
                             editPosition = -1;
                         } else {
-                            temp = dataList.get(getAdapterPosition()).clone();
                             int i = itemExpandPosition;
                             if (itemExpandPosition == getAdapterPosition()) {
                                 itemExpandPosition = -1;
@@ -246,7 +245,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     break;
 
                 case (R.id.item_todo_btn_pdelay):
-                    dateDelayOption();
+                    dateDelayOption(dataList.get(getAdapterPosition()));
                     break;
 
                 case (R.id.item_todo_btn_pcheck):
@@ -274,7 +273,6 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
         }
     }
-
 
     class VHEdit extends RecyclerView.ViewHolder implements View.OnClickListener {
         private EditText etTitle;
@@ -452,7 +450,11 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 case (2):
                     ((VHItem) holder).layoutRight2.setVisibility(View.VISIBLE);
                     ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_delay);
-                    ((VHItem) holder).tvDelay.setText(data.getTypeValue() + "일");
+                    if(data.getDateDeadline()==null){
+                        ((VHItem) holder).tvDelay.setText("D+" + data.getTypeValue());
+                    }else{
+                        ((VHItem) holder).tvDelay.setText("D" + new DateForm(Calendar.getInstance()).compareTo(data.getDateDeadline()));
+                    }
                     break;
                 case (0):
                 default:
@@ -631,22 +633,21 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 //        return 0;
 //    }
 
-    public void dateDelayOption() {
+    public void dateDelayOption(final DataTodo temp) {
+        DatePickerDialog.OnDateSetListener listenerDate = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                temp.getDate().set(year, monthOfYear, dayOfMonth);
+                dbManager.updateTodo(temp);
+                onRefresh();
+            }
+        };
         DatePickerDialog dpDialog = new DatePickerDialog(mContext, listenerDate,
                 temp.getDate().getYear(),
                 temp.getDate().getMonth(),
                 temp.getDate().getDay());
         dpDialog.show();
     }
-
-    private DatePickerDialog.OnDateSetListener listenerDate = new DatePickerDialog.OnDateSetListener() {
-        @Override
-        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-            temp.getDate().set(year, monthOfYear, dayOfMonth);
-            dbManager.updateTodo(temp);
-            onRefresh();
-        }
-    };
 
     public ArrayList<DataTodo> getDataList() {
         ArrayList<DataTodo> list = new ArrayList<>();
@@ -659,5 +660,9 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
         }
         return list;
+    }
+
+    public DataTodo getTemp() {
+        return temp;
     }
 }

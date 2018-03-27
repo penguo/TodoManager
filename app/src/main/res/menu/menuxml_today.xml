@@ -3,19 +3,24 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/menu_filter"
+        android:icon="@drawable/ic_filter_white"
+        android:title="필터"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/menu_search"
         android:icon="@drawable/ic_search_white"
         android:title="검색"
         app:showAsAction="always" />
     <item
-        android:id="@+id/menu_cal"
-        android:icon="@drawable/ic_calendar_white"
-        android:title="날짜 선택" />
-    <item
         android:id="@+id/menu_notice"
         android:icon="@drawable/ic_notification_white"
         android:title="알림"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_cal"
+        android:icon="@drawable/ic_calendar_white"
+        android:title="날짜 선택" />
     <item
         android:id="@+id/menu_today"
         android:title="오늘로 이동" />
