@@ -19,6 +19,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private EditText etTitle;
     private ImageView ivEditLeft, ivEditSave;
     private TextView tvTags;
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -307,6 +308,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 return true;
             case (R.id.menu_lock):
                 intent = new Intent(MainActivity.this, LockActivity.class);
+                startActivity(intent);
+                return true;
+            case(R.id.menu_filter):
+                intent = new Intent(MainActivity.this, CalendarActivity.class);
                 startActivity(intent);
                 return true;
         }

@@ -262,14 +262,14 @@ public class DBManager extends SQLiteOpenHelper {
         for (i = 0; i < list.size(); i++) {
             if (list.get(i).getType() == 1) {
                 arrayLists.get(2).add(list.get(i));
-            } else if (list.get(i).getChecked() >= 1) {
+            } else if (list.get(i).getChecked() == 1) {
                 arrayLists.get(3).add(list.get(i));
             } else if (list.get(i).getImportance() >= 2) {
                 arrayLists.get(0).add(list.get(i));
-            } else if (list.get(i).getChecked() == 0) {
+            } else if (list.get(i).getChecked() != 1) {
                 arrayLists.get(1).add(list.get(i));
             } else {
-                arrayLists.get(3).add(list.get(i));
+                arrayLists.get(1).add(list.get(i));
             }
         }
         for (i = 0; i < arrayLists.size(); i++) {

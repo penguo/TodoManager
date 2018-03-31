@@ -274,8 +274,10 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
     }
 
+    private EditText etEditTitle;
+
     class VHEdit extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private EditText etTitle;
+        //        private EditText etTitle;
         private TextView tvTags;
         private ImageView ivEditLeft, ivEditSave;
         private Button btnDelete, btnCancel, btnExpandMenu;
@@ -285,7 +287,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             super(itemView);
             layoutNew = itemView.findViewById(R.id.item_todo_layout_new);
             layoutNew.setVisibility(View.GONE);
-            etTitle = itemView.findViewById(R.id.item_todo_et_edit_title);
+            etEditTitle = itemView.findViewById(R.id.item_todo_et_edit_title);
             tvTags = itemView.findViewById(R.id.item_todo_tv_edit_tag);
             ivEditLeft = itemView.findViewById(R.id.item_todo_iv_edit_left);
             ivEditSave = itemView.findViewById(R.id.item_todo_iv_edit_save);
@@ -320,14 +322,14 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     break;
 
                 case (R.id.item_todo_iv_edit_save):
-                    temp.setTitle(etTitle.getText().toString());
+                    temp.setTitle(etEditTitle.getText().toString());
                     dbManager.updateTodo(temp);
                     dataList.set(getAdapterPosition(), temp);
                     temp = null;
                     editPosition = -1;
                     itemExpandPosition = -1;
                     notifyItemChanged(getAdapterPosition());
-                    imm.hideSoftInputFromWindow(etTitle.getWindowToken(), 0);
+                    imm.hideSoftInputFromWindow(etEditTitle.getWindowToken(), 0);
                     ((MainActivity) mContext).setViewBottom(true);
                     break;
 
@@ -337,7 +339,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     dialog.setPositiveButton("삭제", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            imm.hideSoftInputFromWindow(etTitle.getWindowToken(), 0);
+                            imm.hideSoftInputFromWindow(etEditTitle.getWindowToken(), 0);
                             dbManager.deleteTodo(temp.getId());
                             temp = null;
                             editPosition = -1;
@@ -363,7 +365,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                             temp = null;
                             editPosition = -1;
                             notifyItemChanged(getAdapterPosition());
-                            imm.hideSoftInputFromWindow(etTitle.getWindowToken(), 0);
+                            imm.hideSoftInputFromWindow(etEditTitle.getWindowToken(), 0);
                             ((MainActivity) mContext).setViewBottom(true);
                             dialog.dismiss();
                         }
@@ -450,10 +452,17 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 case (2):
                     ((VHItem) holder).layoutRight2.setVisibility(View.VISIBLE);
                     ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_delay);
-                    if(data.getDateDeadline()==null){
+                    if (data.getDateDeadline() == null) {
                         ((VHItem) holder).tvDelay.setText("D+" + data.getTypeValue());
-                    }else{
-                        ((VHItem) holder).tvDelay.setText("D" + new DateForm(Calendar.getInstance()).compareTo(data.getDateDeadline()));
+                    } else {
+                        int i = new DateForm(Calendar.getInstance()).compareTo(data.getDateDeadline());
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("D");
+                        if (i >= 0) {
+                            sb.append("+");
+                        }
+                        sb.append(i + "");
+                        ((VHItem) holder).tvDelay.setText(sb.toString());
                     }
                     break;
                 case (0):
@@ -467,6 +476,11 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_false);
                     ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
                     ((VHItem) holder).layoutText.setAlpha(1);
+                    if (isToday) {
+                        ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_false);
+                    } else {
+                        ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_close);
+                    }
                     break;
                 case (1):
                     ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
@@ -502,8 +516,8 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 data.setTitle("유효기간이 만료되어 초기화되었습니다. 취소 후 시작해주세요.");
                 // TODO: 2018-03-21 초기화될 경우 해결방안 - 초기화 안되게 하면 더 좋음.
             }
-            ((VHEdit) holder).etTitle.setText(data.getTitle());
-            ((VHEdit) holder).etTitle.requestFocus();
+            etEditTitle.setText(data.getTitle());
+            etEditTitle.requestFocus();
             if (data.getIsTimeActivated() == 0 && data.getTags().equals("")) {
                 ((VHEdit) holder).tvTags.setVisibility(View.INVISIBLE);
             } else {
@@ -664,5 +678,9 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     public DataTodo getTemp() {
         return temp;
+    }
+
+    public void saveTemp() {
+        temp.setTitle(etEditTitle.getText().toString());
     }
 }
