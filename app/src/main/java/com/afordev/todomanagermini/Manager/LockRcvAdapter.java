@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afordev.todomanagermini.R;
 import com.afordev.todomanagermini.SubItem.DataTodo;
@@ -45,7 +44,7 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
         if (!isViewChecked) {
             ArrayList<DataTodo> list = new ArrayList<>();
             for (int i = 0; i < dataList.size(); i++) {
-                if (dataList.get(i).getChecked() == 0) {
+                if (dataList.get(i).getTimeChecked().isNull()) {
                     list.add(dataList.get(i));
                 }
             }
@@ -67,7 +66,7 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
     class ViewHolder extends RecyclerView.ViewHolder {
         private TextView tvTitle, tvTag;
         private ImageView ivCheck, ivIcon, ivImportance;
-        private LinearLayout layout;
+        private LinearLayout layout, layoutText;
 
         public ViewHolder(final View itemView) {
             super(itemView);
@@ -77,6 +76,7 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
             ivImportance = itemView.findViewById(R.id.item_todo_iv_importance);
             layout = itemView.findViewById(R.id.item_todo_layout);
             tvTag = itemView.findViewById(R.id.item_todo_tv_tag);
+            layoutText = itemView.findViewById(R.id.item_todo_layout_text);
 
             ivImportance.setVisibility(View.GONE);
 
@@ -84,16 +84,10 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
                 @Override
                 public void onClick(View view) {
                     if (!isDoubleClick || (temp != null && temp.equals(dataList.get(getAdapterPosition())))) {
-                        switch (dataList.get(getAdapterPosition()).getChecked()) {
-                            case (0):
-                                dataList.get(getAdapterPosition()).setChecked(1);
-                                break;
-                            case (1):
-                                dataList.get(getAdapterPosition()).setChecked(0);
-                                break;
-                            default:
-                                Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
-                                break;
+                        if (dataList.get(getAdapterPosition()).getTimeChecked().isNull()) {
+                            dataList.get(getAdapterPosition()).setTimeChecked(new DateForm(Manager.getCurrentTime()));
+                        } else {
+                            dataList.get(getAdapterPosition()).setTimeChecked(null);
                         }
                         dbManager.updateTodo(dataList.get(getAdapterPosition()));
                         notifyItemChanged(getAdapterPosition());
@@ -112,71 +106,55 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
         DataTodo data = dataList.get(position);
         holder.layout.setVisibility(View.VISIBLE);
         holder.tvTitle.setText(data.getTitle());
-        if (data.getIsTimeActivated() == 0 && data.getTags().equals("")) {
+
+        StringBuilder sb = new StringBuilder();
+        if (data.getTimeDead().compareTo(new DateForm(Calendar.getInstance())) == 0) {
+            sb.append(Manager.getTimeForm(data.getTimeDead()));
+        }
+        if (!data.getTags().equals("")) {
+            if (!sb.toString().equals("")) {
+                sb.append(", ");
+            }
+            ArrayList<String> st = data.getTagList();
+            for (int i = 0; i < st.size(); i++) {
+                sb.append("#" + st.get(i) + " ");
+            }
+        }
+        if (sb.toString().equals("")) {
             holder.tvTag.setVisibility(View.GONE);
         } else {
             holder.tvTag.setVisibility(View.VISIBLE);
-            StringBuffer sb = new StringBuffer();
-            if (data.getIsTimeActivated() == 1) {
-                sb.append(Manager.getTimeForm(data.getDate()));
-            }
-            if (data.getIsTimeActivated() == 1 && !data.getTags().equals("")) {
-                sb.append(" ");
-            }
-            if (!data.getTags().equals("")) {
-                ArrayList<String> st = data.getTagList();
-                for (int i = 0; i < st.size(); i++) {
-                    sb.append("#" + st.get(i) + " ");
-                }
-            }
             holder.tvTag.setText(sb.toString());
         }
         switch (data.getImportance()) {
             case (1):
                 holder.layout.setBackgroundResource(R.drawable.btn_star_half);
-//                holder.ivImportance.setVisibility(View.VISIBLE);
-//                holder.ivImportance.setImageResource(R.drawable.ic_star_half);
                 break;
             case (2):
                 holder.layout.setBackgroundResource(R.drawable.btn_star);
-//                holder.ivImportance.setVisibility(View.VISIBLE);
-//                holder.ivImportance.setImageResource(R.drawable.ic_star_true);
                 break;
             case (0):
             default:
                 holder.layout.setBackgroundResource(R.drawable.btn_basic);
-//                holder.ivImportance.setVisibility(View.INVISIBLE);
                 break;
         }
-        switch (data.getChecked()) {
-            case (0):
-                holder.ivCheck.setImageResource(R.drawable.ic_check_false);
-                holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-                holder.tvTitle.setAlpha(1);
-                break;
-            case (1):
+        if (data.getTimeChecked().isNull()) {
+            if (data.getTimeDead().compareTo(new DateForm(Calendar.getInstance())) < 0) {
+                holder.ivCheck.setImageResource(R.drawable.ic_close);
+            } else {
+                holder.ivCheck.setImageResource(R.drawable.ic_delay);
+            }
+            holder.tvTitle.setPaintFlags((holder.tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG));
+            holder.layoutText.setAlpha(1);
+        } else {
+            if (data.getTimeChecked().compareTo(new DateForm(Calendar.getInstance())) <= 0) {
+                holder.layout.setBackgroundResource(R.drawable.btn_basic);
                 holder.ivCheck.setImageResource(R.drawable.ic_check_true);
-                holder.tvTitle.setPaintFlags(holder.tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                holder.layout.setBackgroundResource(R.drawable.btn_basic);
-                holder.tvTitle.setAlpha((float) 0.5);
-                break;
-            default:
-                holder.ivCheck.setImageResource(R.drawable.ic_error);
-                break;
-        }
-        switch (data.getType()) {
-            case (1):
-                holder.ivIcon.setVisibility(View.VISIBLE);
-                holder.ivIcon.setImageResource(R.drawable.ic_puzzle);
-                break;
-            case (2):
-                holder.ivIcon.setVisibility(View.VISIBLE);
-                holder.ivIcon.setImageResource(R.drawable.ic_delay);
-                break;
-            case (0):
-            default:
-                holder.ivIcon.setVisibility(View.INVISIBLE);
-                break;
+                holder.tvTitle.setPaintFlags((holder.tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG));
+                holder.layoutText.setAlpha((float) 0.5);
+            } else {
+                holder.ivCheck.setImageResource(R.drawable.ic_delay);
+            }
         }
     }
 
@@ -211,13 +189,10 @@ public class LockRcvAdapter extends RecyclerView.Adapter<LockRcvAdapter.ViewHold
         list0 = new ArrayList<>();
         list1 = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
-            switch (list.get(i).getChecked()) {
-                case (0):
-                    list0.add(list.get(i));
-                    break;
-                case (1):
-                    list1.add(list.get(i));
-                    break;
+            if (list.get(i).getTimeChecked().isNull()) {
+                list0.add(list.get(i));
+            } else {
+                list1.add(list.get(i));
             }
         }
         list = new ArrayList<>();

@@ -11,84 +11,57 @@ import java.util.Calendar;
  */
 
 public class DataTodo implements Parcelable, Cloneable {
-    private String title, tags;
-    private DateForm date, dateDeadline;
-    private int id, checked, importance, type, isTimeActivated, patternId, typeValue;
+    private int id, patternTodoId, importance, turn;
+    private DateForm timeStart, timeDead, timeChecked, timePivot;
+    private String title, tags, option;
 
-    public DataTodo() {
-        this.id = -1;
-        this.title = "";
-        this.date = new DateForm(Calendar.getInstance());
-        this.tags = "";
-        this.checked = 0;
-        this.importance = 0;
-        this.type = 0;
-        this.isTimeActivated = 0;
-        this.patternId = -1;
-        this.typeValue = -1;
-        this.dateDeadline = null;
-    }
-
-    public DataTodo(int id) {
+    public DataTodo(int id, DateForm date) {
         this.id = id;
+        this.patternTodoId = -1;
         this.title = "";
-        this.date = new DateForm(Calendar.getInstance());
         this.tags = "";
-        this.checked = 0;
-        this.importance = 0;
-        this.type = 0;
-        this.isTimeActivated = 0;
-        this.patternId = -1;
-        this.typeValue = -1;
-        this.dateDeadline = null;
-    }
-
-    public DataTodo(DateForm date) {
-        this.id = -1;
-        this.title = "";
-        this.date = new DateForm(date.getSecond());
-        this.date.setHour(0);
-        this.date.setMinute(0);
-        this.tags = "";
-        this.checked = 0;
-        this.type = 0;
-        this.isTimeActivated = 0;
-        this.importance = 0;
-        this.patternId = -1;
-        this.typeValue = -1;
-        this.dateDeadline = null;
-    }
-
-    public DataTodo(int id, String title, long second, String tags, int checked, int type, int isTimeActivited, int importance, int patternId, int autoDelay, long deadline) {
-        this.id = id;
-        this.title = title;
-        this.date = new DateForm(second);
-        this.tags = tags;
-        this.checked = checked;
-        this.type = type;
-        this.isTimeActivated = isTimeActivited;
-        this.importance = importance;
-        this.patternId = patternId;
-        this.typeValue = autoDelay;
-        if(deadline == -1){
-            this.dateDeadline = null;
-        }else{
-            this.dateDeadline = new DateForm(deadline);
+        DateForm tempDate;
+        if(date == null){
+            tempDate = new DateForm(Calendar.getInstance());
+        }else {
+            tempDate = date.clone();
         }
+        tempDate.setHour(0);
+        tempDate.setMinute(0);
+        this.timeStart = tempDate.clone();
+        tempDate.addDate(1);
+        this.timeDead = tempDate.clone();
+        this.timeChecked = null;
+        this.importance = 0;
+        this.option = "";
+        this.turn = 0;
+        this.timePivot = null;
+        setOption();
     }
 
-    protected DataTodo(Parcel in) {
-        title = in.readString();
-        tags = in.readString();
-        date = in.readParcelable(DateForm.class.getClassLoader());
-        id = in.readInt();
-        checked = in.readInt();
-        type = in.readInt();
-        isTimeActivated = in.readInt();
-        importance = in.readInt();
-        patternId = in.readInt();
-        typeValue = in.readInt();
-        dateDeadline = in.readParcelable(DateForm.class.getClassLoader());
+    public DataTodo(int id,
+                    int patternTodoId,
+                    String title,
+                    String tags,
+                    long timeStart,
+                    long timeDead,
+                    long timeChecked,
+                    int importance,
+                    String option,
+                    int turn,
+                    DateForm timePivot) {
+        this.id = id;
+        this.patternTodoId = patternTodoId;
+        this.title = title;
+        this.tags = tags;
+        this.timeStart = new DateForm(timeStart);
+        this.timeDead = new DateForm(timeDead);
+        this.timeChecked = new DateForm(timeChecked);
+        this.importance = importance;
+        this.option = option;
+        this.turn = turn;
+        this.timePivot = timePivot;
+        setOption();
     }
 
     public static final Creator<DataTodo> CREATOR = new Creator<DataTodo>() {
@@ -103,48 +76,33 @@ public class DataTodo implements Parcelable, Cloneable {
         }
     };
 
-    public int getIsTimeActivated() {
-        return isTimeActivated;
+    protected DataTodo(Parcel in) {
+        id = in.readInt();
+        patternTodoId = in.readInt();
+        title = in.readString();
+        tags = in.readString();
+        timeStart = in.readParcelable(DateForm.class.getClassLoader());
+        timeDead = in.readParcelable(DateForm.class.getClassLoader());
+        timeChecked = in.readParcelable(DateForm.class.getClassLoader());
+        importance = in.readInt();
+        option = in.readString();
+        turn = in.readInt();
+        timePivot = in.readParcelable(DateForm.class.getClassLoader());
+        setOption();
     }
 
-    public DateForm getDate() {
-        return date;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public int getImportance() {
-        return importance;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public int getChecked() {
-        return checked;
-    }
-
-    public String getTags() {
-        return tags;
-    }
-
-    public int getPatternId() {
-        return patternId;
-    }
-
-    public int getTypeValue() {
-        return typeValue;
-    }
-
-    public DateForm getDateDeadline() {
-        return dateDeadline;
+    private void setOption() {
+        if (option.equals("")) {
+            return;
+        }
+        String[] list = option.split(",");
+        for (int i = 0; i < list.length; i++) {
+            String[] st = list[i].split(":");
+            switch(st[0]){
+                case(""):
+                    break;
+            }
+        }
     }
 
     public ArrayList<String> getTagList() {
@@ -157,50 +115,6 @@ public class DataTodo implements Parcelable, Cloneable {
             list.remove("");
         }
         return list;
-    }
-
-    public void setIsTimeActivated(int isTimeActivated) {
-        this.isTimeActivated = isTimeActivated;
-    }
-
-    public void setDate(DateForm date) {
-        this.date = date;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setImportance(int importance) {
-        this.importance = importance;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setChecked(int checked) {
-        this.checked = checked;
-    }
-
-    public void setTags(String tags) {
-        this.tags = tags;
-    }
-
-    public void setPatternId(int patternId) {
-        this.patternId = patternId;
-    }
-
-    public void setTypeValue(int typeValue) {
-        this.typeValue = typeValue;
-    }
-
-    public void setDateDeadline(DateForm dateDeadline) {
-        this.dateDeadline = dateDeadline;
     }
 
     public void setTagList(ArrayList<String> list) {
@@ -221,17 +135,17 @@ public class DataTodo implements Parcelable, Cloneable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(id);
+        parcel.writeInt(patternTodoId);
         parcel.writeString(title);
         parcel.writeString(tags);
-        parcel.writeParcelable(date, i);
-        parcel.writeInt(id);
-        parcel.writeInt(checked);
-        parcel.writeInt(type);
-        parcel.writeInt(isTimeActivated);
+        parcel.writeParcelable(timeStart, i);
+        parcel.writeParcelable(timeDead, i);
+        parcel.writeParcelable(timeChecked, i);
         parcel.writeInt(importance);
-        parcel.writeInt(patternId);
-        parcel.writeInt(typeValue);
-        parcel.writeParcelable(dateDeadline, i);
+        parcel.writeString(option);
+        parcel.writeInt(turn);
+        parcel.writeParcelable(timePivot, i);
     }
 
     public DataTodo clone() {
@@ -241,6 +155,102 @@ public class DataTodo implements Parcelable, Cloneable {
         } catch (Exception e) {
         }
         return obj;
+    }
+
+    public String getOption() {
+        return option;
+    }
+
+    public DateForm getTimeStart() {
+        if (timeStart != null) {
+            return timeStart;
+        } else {
+            return new DateForm(-1);
+        }
+    }
+
+    public DateForm getTimeChecked() {
+        if (timeChecked != null) {
+            return timeChecked;
+        } else {
+            return new DateForm(-1);
+        }
+    }
+
+    public DateForm getTimeDead() {
+        if (timeDead != null) {
+            return timeDead;
+        } else {
+            return new DateForm(-1);
+        }
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public int getImportance() {
+        return importance;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public int getPatternTodoId() {
+        return patternTodoId;
+    }
+
+    public void setTimeStart(DateForm timeStart) {
+        this.timeStart = timeStart;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setImportance(int importance) {
+        this.importance = importance;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
+    public void setPatternTodoId(int patternTodoId) {
+        this.patternTodoId = patternTodoId;
+    }
+
+    public void setTimeChecked(DateForm timeChecked) {
+        this.timeChecked = timeChecked;
+    }
+
+    public void setTimeDead(DateForm timeDead) {
+        this.timeDead = timeDead;
+    }
+
+    public DateForm getTimePivot() {
+        return timePivot;
+    }
+
+    public void setTimePivot(DateForm timePivot) {
+        this.timePivot = timePivot;
+    }
+
+    public int getTurn() {
+        return turn;
+    }
+
+    public void setTurn(int turn) {
+        this.turn = turn;
     }
 
 }

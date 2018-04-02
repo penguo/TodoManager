@@ -2,7 +2,6 @@ package com.afordev.todomanagermini;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,8 +17,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -33,8 +30,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.afordev.todomanagermini.Dialog.DialogExpandMenu;
 import com.afordev.todomanagermini.Manager.DBManager;
@@ -42,7 +37,6 @@ import com.afordev.todomanagermini.Manager.Manager;
 import com.afordev.todomanagermini.Manager.TodoRcvAdapter;
 import com.afordev.todomanagermini.SubItem.DataTodo;
 import com.afordev.todomanagermini.SubItem.DateForm;
-import com.afordev.todomanagermini.SubItem.ItemNotice;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -68,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private EditText etTitle;
     private ImageView ivEditLeft, ivEditSave;
     private TextView tvTags;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,8 +81,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         LinearLayoutManager llm = new LinearLayoutManager(this);
-//        DividerItemDecoration did = new DividerItemDecoration(this, llm.getOrientation());
-//        rcvTodo.addItemDecoration(did);
         rcvTodo.setLayoutManager(llm);
         mSwipe.setOnRefreshListener(this);
         setData();
@@ -158,25 +150,27 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             layoutEdit.setVisibility(View.VISIBLE);
             etTitle.setText(temp.getTitle());
             etTitle.requestFocus();
-            if (temp.getIsTimeActivated() == 0 && temp.getTags().equals("")) {
+
+            StringBuilder sb = new StringBuilder();
+            if (temp.getTimeDead().compareTo(new DateForm(Calendar.getInstance())) == 0) {
+                sb.append(Manager.getTimeForm(temp.getTimeDead()));
+            }
+            if (!temp.getTags().equals("")) {
+                if (!sb.toString().equals("")) {
+                    sb.append(", ");
+                }
+                ArrayList<String> st = temp.getTagList();
+                for (int i = 0; i < st.size(); i++) {
+                    sb.append("#" + st.get(i) + " ");
+                }
+            }
+            if (sb.toString().equals("")) {
                 tvTags.setVisibility(View.GONE);
             } else {
                 tvTags.setVisibility(View.VISIBLE);
-                StringBuffer sb = new StringBuffer();
-                if (temp.getIsTimeActivated() == 1) {
-                    sb.append(Manager.getTimeForm(temp.getDate()));
-                }
-                if (temp.getIsTimeActivated() == 1 && !temp.getTags().equals("")) {
-                    sb.append(", ");
-                }
-                if (!temp.getTags().equals("")) {
-                    ArrayList<String> st = temp.getTagList();
-                    for (int i = 0; i < st.size(); i++) {
-                        sb.append("#" + st.get(i) + " ");
-                    }
-                }
                 tvTags.setText(sb.toString());
             }
+
             switch (temp.getImportance()) {
                 case (1):
                     ivEditLeft.setImageResource(R.drawable.ic_star_half);
@@ -212,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public void onClick(View view) {
         switch (view.getId()) {
             case (R.id.item_todo_layout_new):
-                temp = new DataTodo(date);
+                temp = new DataTodo(-1, date);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
                 onRefreshBottom();
                 break;
@@ -375,7 +369,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 }
             } else {
                 Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                intent.putExtra("date", temp.getSecond());
+                intent.putExtra("date", temp.getTime());
                 if (!isToday) {
                     finish();
                 }
@@ -383,23 +377,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             }
         }
     };
-
-    public void timeSelectOption() {
-        TimePickerDialog dialog = new TimePickerDialog(this, listenerTime,
-                temp.getDate().getHour(),
-                temp.getDate().getMinute(), false);
-
-        dialog.show();
-    }
-
-    private TimePickerDialog.OnTimeSetListener listenerTime = new TimePickerDialog.OnTimeSetListener() {
-        @Override
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            temp.getDate().setHour(hourOfDay);
-            temp.getDate().setMinute(minute);
-        }
-    };
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

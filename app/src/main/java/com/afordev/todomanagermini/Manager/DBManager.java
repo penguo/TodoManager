@@ -11,7 +11,6 @@ import com.afordev.todomanagermini.SubItem.DataTodo;
 import com.afordev.todomanagermini.SubItem.DateForm;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 /**
  * Created by pengu on 2018-02-11.
@@ -30,7 +29,7 @@ public class DBManager extends SQLiteOpenHelper {
 
     public static DBManager getInstance(Context mContext) {
         if (instance == null) {
-            instance = new DBManager(mContext, "todo.db", null, 10);
+            instance = new DBManager(mContext, "todo.db", null, 11);
         } else {
             instance.setContext(mContext);
         }
@@ -55,79 +54,76 @@ public class DBManager extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE Todo ( " +
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "PatternTodoId Integer DEFAULT -1, " +
                 "Title TEXT, " +
-                "Date Integer," +
                 "Tags TEXT," +
-                "Checked Integer, " +
-                "Type Integer, " +
-                "IsTimeActivated Integer, " +
+                "StartTime Integer, " +
+                "DeadTime Integer DEFAULT -1, " +
+                "CheckedTime Integer DEFAULT -1, " +
                 "Importance Integer DEFAULT 0," +
-                "PatternId Integer DEFAULT -1," +
-                "TypeValue Integer DEFAULT -1," +
-                "Deadline Integer DEFAULT -1); ");
+                "Turn Integer DEFAULT 0," +
+                "Option Text); ");
         db.execSQL("CREATE TABLE Pattern ( " +
                 "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "Title TEXT, " +
-                "DateStart Integer, " +
-                "DateEnd Integer," +
+                "PatternTodoId Integer, " +
+                "Memo TEXT, " +
+                "StartTime Integer, " +
+                "EndTime Integer," +
                 "DayOfWeek Text," +
-                "TodoId Integer," +
-                "RecentlyDate Integer DEFAULT 0); ");
+                "RecentlyTime Integer DEFAULT 0," +
+                "Option Text); ");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         switch (newVersion) {
-            case (10):
-                db.execSQL("ALTER TABLE Todo ADD COLUMN Deadline Integer DEFAULT -1;");
+            case (11):
                 break;
         }
     }
 
+    private DataTodo getTodoWithCursor(Cursor cursor, DateForm timePivot) {
+        DataTodo data = new DataTodo(cursor.getInt(0),
+                cursor.getInt(1),
+                cursor.getString(2),
+                cursor.getString(3),
+                cursor.getLong(4),
+                cursor.getLong(5),
+                cursor.getLong(6),
+                cursor.getInt(7),
+                cursor.getString(8),
+                cursor.getInt(9),
+                timePivot);
+        return data;
+    }
+
     public void insertTodo(DataTodo data) {
         db = getWritableDatabase();
-        long second = data.getDate().getSecond();
-        long secondDeadline;
-        if(data.getDateDeadline()!=null) {
-            secondDeadline = data.getDateDeadline().getSecond();
-        }else {
-            secondDeadline = -1;
-        }
         db.execSQL(" INSERT INTO Todo VALUES ( " +
                 " null, " +
+                data.getPatternTodoId() + ", " +
                 "'" + data.getTitle() + "', " +
-                second + ", " +
                 "'" + data.getTags() + "', " +
-                data.getChecked() + ", " +
-                data.getType() + ", " +
-                data.getIsTimeActivated() + ", " +
+                data.getTimeStart().getTime() + ", " +
+                data.getTimeDead().getTime() + ", " +
+                data.getTimeChecked().getTime() + ", " +
                 data.getImportance() + ", " +
-                data.getPatternId() + ", " +
-                data.getTypeValue() + "," +
-                secondDeadline + ");");
+                data.getTurn() + ", " +
+                "'" + data.getOption() + "'); ");
         db.close();
     }
 
     public void updateTodo(DataTodo data) {
         db = getWritableDatabase();
-        long second = data.getDate().getSecond();
-        long secondDeadline;
-        if(data.getDateDeadline()!=null) {
-            secondDeadline = data.getDateDeadline().getSecond();
-        }else {
-            secondDeadline = -1;
-        }
         db.execSQL(" UPDATE Todo SET " +
                 "Title = '" + data.getTitle() + "', " +
-                "Date = " + second + ", " +
                 "Tags = '" + data.getTags() + "', " +
-                "Checked = " + data.getChecked() + ", " +
-                "Type = " + data.getType() + ", " +
-                "IsTimeActivated = " + data.getIsTimeActivated() + ", " +
+                "StartTime = " + data.getTimeStart().getTime() + ", " +
+                "DeadTime = " + data.getTimeDead().getTime() + ", " +
+                "CheckedTime = " + data.getTimeChecked().getTime() + ", " +
                 "Importance = " + data.getImportance() + ", " +
-                "PatternId = " + data.getPatternId() + ", " +
-                "TypeValue = " + data.getTypeValue() + ", " +
-                "Deadline = " + secondDeadline + " " +
+                "Turn = " + data.getTurn() + ", " +
+                "Option = '" + data.getOption() + "' " +
                 "WHERE _id = " + data.getId() + " ; ");
         db.close();
     }
@@ -140,21 +136,9 @@ public class DBManager extends SQLiteOpenHelper {
 
     public DataTodo getTodo(int id) {
         db = getReadableDatabase();
-        DataTodo data = new DataTodo();
         Cursor cursor = db.rawQuery("SELECT * FROM Todo WHERE _id = " + id + ";", null);
-        while (cursor.moveToNext()) {
-            data = new DataTodo(cursor.getInt(0),
-                    cursor.getString(1),
-                    cursor.getLong(2),
-                    cursor.getString(3),
-                    cursor.getInt(4),
-                    cursor.getInt(5),
-                    cursor.getInt(6),
-                    cursor.getInt(7),
-                    cursor.getInt(8),
-                    cursor.getInt(9),
-                    cursor.getLong(10));
-        }
+        cursor.moveToLast();
+        DataTodo data = getTodoWithCursor(cursor, null);
         cursor.close();
         return data;
     }
@@ -162,28 +146,17 @@ public class DBManager extends SQLiteOpenHelper {
     public ArrayList<DataTodo> getTodoList(final DateForm date) {
         db = getReadableDatabase();
         ArrayList<DataTodo> list = new ArrayList<>();
-        DateForm temp = new DateForm(date.getSecond());
+        DateForm temp = date.clone();
         temp.setHour(0);
         temp.setMinute(0);
-        long secondL = temp.getSecond();
+        long timeL = temp.getTime();
         temp.addDate(1);
-        long secondR = temp.getSecond();
+        long timeR = temp.getTime();
         Cursor cursor = db.rawQuery("SELECT * FROM Todo " +
-                "WHERE Date >= " + secondL + " " +
-                "AND Date < " + secondR + ";", null);
+                "WHERE (DeadTime > " + timeL + " OR DeadTime = -1) " +
+                "AND StartTime < " + timeR + ";", null);
         while (cursor.moveToNext()) {
-            DataTodo data = new DataTodo(cursor.getInt(0),
-                    cursor.getString(1),
-                    cursor.getLong(2),
-                    cursor.getString(3),
-                    cursor.getInt(4),
-                    cursor.getInt(5),
-                    cursor.getInt(6),
-                    cursor.getInt(7),
-                    cursor.getInt(8),
-                    cursor.getInt(9),
-                    cursor.getLong(10));
-            list.add(data);
+            list.add(getTodoWithCursor(cursor, date));
         }
         cursor.close();
 
@@ -210,13 +183,10 @@ public class DBManager extends SQLiteOpenHelper {
         list0 = new ArrayList<>();
         list1 = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
-            switch (list.get(i).getChecked()) {
-                case (0):
-                    list0.add(list.get(i));
-                    break;
-                case (1):
-                    list1.add(list.get(i));
-                    break;
+            if (list.get(i).getTimeChecked() == null) {
+                list0.add(list.get(i));
+            } else {
+                list1.add(list.get(i));
             }
         }
         list = new ArrayList<>();
@@ -228,28 +198,18 @@ public class DBManager extends SQLiteOpenHelper {
     public ArrayList<ArrayList<DataTodo>> getSortedList(final DateForm date) {
         db = getReadableDatabase();
         ArrayList<DataTodo> list = new ArrayList<>();
-        DateForm temp = new DateForm(date.getSecond());
+        DateForm temp = date.clone();
         temp.setHour(0);
         temp.setMinute(0);
-        long secondL = temp.getSecond();
+        long timeL = temp.getTime();
         temp.addDate(1);
-        long secondR = temp.getSecond();
+        long timeR = temp.getTime();
         Cursor cursor = db.rawQuery("SELECT * FROM Todo " +
-                "WHERE Date >= " + secondL + " " +
-                "AND Date < " + secondR + ";", null);
+                "WHERE (DeadTime > " + timeL + " OR DeadTime = -1) " +
+                "AND StartTime < " + timeR + " " +
+                "AND (CheckedTime = -1 OR (CheckedTime >= " + timeL + "));", null);
         while (cursor.moveToNext()) {
-            DataTodo data = new DataTodo(cursor.getInt(0),
-                    cursor.getString(1),
-                    cursor.getLong(2),
-                    cursor.getString(3),
-                    cursor.getInt(4),
-                    cursor.getInt(5),
-                    cursor.getInt(6),
-                    cursor.getInt(7),
-                    cursor.getInt(8),
-                    cursor.getInt(9),
-                    cursor.getLong(10));
-            list.add(data);
+            list.add(getTodoWithCursor(cursor, date));
         }
         cursor.close();
 
@@ -260,15 +220,13 @@ public class DBManager extends SQLiteOpenHelper {
         arrayLists.add(new ArrayList<DataTodo>()); // 퍼즐들 따로 정렬
         arrayLists.add(new ArrayList<DataTodo>()); // 완료
         for (i = 0; i < list.size(); i++) {
-            if (list.get(i).getType() == 1) {
+            if (list.get(i).getPatternTodoId() != -1) {
                 arrayLists.get(2).add(list.get(i));
-            } else if (list.get(i).getChecked() == 1) {
+            } else if (!list.get(i).getTimeChecked().isNull()) {
                 arrayLists.get(3).add(list.get(i));
-            } else if (list.get(i).getImportance() >= 2) {
+            }else if(list.get(i).getImportance() >= 2){
                 arrayLists.get(0).add(list.get(i));
-            } else if (list.get(i).getChecked() != 1) {
-                arrayLists.get(1).add(list.get(i));
-            } else {
+            }else{
                 arrayLists.get(1).add(list.get(i));
             }
         }
@@ -311,14 +269,10 @@ public class DBManager extends SQLiteOpenHelper {
         arrayLists.add(new ArrayList<DataTodo>());
         int i;
         for (i = 0; i < list.size(); i++) {
-            switch (list.get(i).getChecked()) {
-                case (0):
-                    arrayLists.get(0).add(list.get(i));
-                    break;
-                case (1):
-                default:
-                    arrayLists.get(1).add(list.get(i));
-                    break;
+            if (list.get(i).getTimeChecked() == null) {
+                arrayLists.get(0).add(list.get(i));
+            } else {
+                arrayLists.get(1).add(list.get(i));
             }
         }
         list.clear();
@@ -341,23 +295,12 @@ public class DBManager extends SQLiteOpenHelper {
                 query = "SELECT * FROM Todo WHERE Tags Like '%" + word + "%';";
                 break;
             default:
-                query = "SELECT * FROM Todo Where Date = 'NOTHING FOUNDED';";
+                query = "SELECT * FROM Todo;";
                 break;
         }
         Cursor cursor = db.rawQuery(query, null);
         while (cursor.moveToNext()) {
-            DataTodo data = new DataTodo(cursor.getInt(0),
-                    cursor.getString(1),
-                    cursor.getLong(2),
-                    cursor.getString(3),
-                    cursor.getInt(4),
-                    cursor.getInt(5),
-                    cursor.getInt(6),
-                    cursor.getInt(7),
-                    cursor.getInt(8),
-                    cursor.getInt(9),
-                    cursor.getLong(10));
-            list.add(data);
+            list.add(getTodoWithCursor(cursor, null));
         }
         cursor.close();
         return list;
@@ -366,30 +309,19 @@ public class DBManager extends SQLiteOpenHelper {
     public ArrayList<DataTodo> getMissedHalfStarList(final DateForm date) {
         db = getReadableDatabase();
         ArrayList<DataTodo> list = new ArrayList<>();
-        DateForm temp = new DateForm(date.getSecond());
+        DateForm temp = new DateForm(date.getTime());
         temp.setHour(0);
         temp.setMinute(0);
-        long secondL = temp.getSecond();
+        long secondL = temp.getTime();
         temp.addDate(1);
-        long secondR = temp.getSecond();
+        long secondR = temp.getTime();
         Cursor cursor = db.rawQuery("SELECT * FROM Todo " +
                 "WHERE Date >= " + secondL + " " +
                 "AND Date < " + secondR + " " +
                 "AND Type = 1 " +
                 "AND Checked = 0;", null);
         while (cursor.moveToNext()) {
-            DataTodo data = new DataTodo(cursor.getInt(0),
-                    cursor.getString(1),
-                    cursor.getLong(2),
-                    cursor.getString(3),
-                    cursor.getInt(4),
-                    cursor.getInt(5),
-                    cursor.getInt(6),
-                    cursor.getInt(7),
-                    cursor.getInt(8),
-                    cursor.getInt(9),
-                    cursor.getLong(10));
-            list.add(data);
+            list.add(getTodoWithCursor(cursor, date));
         }
         cursor.close();
         return list;
@@ -397,10 +329,10 @@ public class DBManager extends SQLiteOpenHelper {
 
     public ArrayList<DataTodo> getMissedStarList(final DateForm date) {
         db = getReadableDatabase();
-        DateForm temp = new DateForm(date.getSecond());
+        DateForm temp = new DateForm(date.getTime());
         temp.setHour(0);
         temp.setMinute(0);
-        long second = temp.getSecond();
+        long second = temp.getTime();
         ArrayList<DataTodo> list = new ArrayList<>();
         Cursor cursor = db.rawQuery("SELECT * FROM Todo " +
                 "Where Date > 0 " +
@@ -408,18 +340,7 @@ public class DBManager extends SQLiteOpenHelper {
                 "AND Type = 2 " +
                 "AND Checked = 0;", null);
         while (cursor.moveToNext()) {
-            DataTodo data = new DataTodo(cursor.getInt(0),
-                    cursor.getString(1),
-                    cursor.getLong(2),
-                    cursor.getString(3),
-                    cursor.getInt(4),
-                    cursor.getInt(5),
-                    cursor.getInt(6),
-                    cursor.getInt(7),
-                    cursor.getInt(8),
-                    cursor.getInt(9),
-                    cursor.getLong(10));
-            list.add(data);
+            list.add(getTodoWithCursor(cursor, date));
         }
         cursor.close();
         return list;
@@ -429,59 +350,58 @@ public class DBManager extends SQLiteOpenHelper {
     public void insertPattern(DataPattern dataPattern) {
         db = getWritableDatabase();
 
-        DataTodo dataTodo = dataPattern.getDataTodo();
+        DataTodo dataTodo = dataPattern.getPatternTodo();
 
         db.execSQL(" INSERT INTO Todo VALUES ( " +
                 " null, " +
+                "-2, " +
                 "'" + dataTodo.getTitle() + "', " +
-                "-1, " +
                 "'" + dataTodo.getTags() + "', " +
-                dataTodo.getChecked() + ", " +
-                "1, " +
-                dataTodo.getIsTimeActivated() + ", " +
-                dataTodo.getImportance() + ", " +
+                dataTodo.getTimeStart().getTime() + ", " +
+                dataTodo.getTimeDead().getTime() + ", " +
                 "-1, " +
-                "0, " +
-                "-1);");
+                dataTodo.getImportance() + ", " +
+                "'" + dataTodo.getOption() + "'); ");
 
         db = getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM Todo ;", null);
+        Cursor cursor = db.rawQuery("SELECT _id FROM Todo WHERE PatternTodoId = -2;", null);
         cursor.moveToLast();
         int dataTodoId = cursor.getInt(0);
         cursor.close();
 
-        long secondStart = dataPattern.getDateStart().getSecond();
-        long secondEnd = dataPattern.getDateEnd().getSecond();
         db.execSQL(" INSERT INTO Pattern VALUES ( " +
                 " null, " +
-                "'" + dataPattern.getTitle() + "', " +
-                secondStart + ", " +
-                secondEnd + ", " +
-                "'" + dataPattern.getDow() + "', " +
                 dataTodoId + ", " +
-                "0);");
+                "'" + dataPattern.getMemo() + "', " +
+                dataPattern.getTimeStart().getTime() + ", " +
+                dataPattern.getTimeEnd().getTime() + ", " +
+                "'" + dataPattern.getDayOfWeek() + "', " +
+                dataPattern.getTimeRecently() + ", " +
+                "'" + dataPattern.getOption() + ");");
         db.close();
     }
 
     public void updatePattern(DataPattern dataPattern) {
         db = getWritableDatabase();
 
-        DataTodo dataTodo = dataPattern.getDataTodo();
+        DataTodo dataTodo = dataPattern.getPatternTodo();
         db.execSQL(" UPDATE Todo SET " +
                 "Title = '" + dataTodo.getTitle() + "', " +
-                "Date = -1, " +
-                "Checked = " + dataTodo.getChecked() + ", " +
                 "Tags = '" + dataTodo.getTags() + "', " +
+                "StartTime = " + dataTodo.getTimeStart().getTime() + ", " +
+                "DeadTime = " + dataTodo.getTimeDead().getTime() + ", " +
+                "CheckedTime = " + dataTodo.getTimeChecked().getTime() + ", " +
                 "Importance = " + dataTodo.getImportance() + ", " +
-                "Type = " + dataTodo.getType() + ", " +
-                "IsTimeActivated = " + dataTodo.getIsTimeActivated() + ", " +
-                "TypeValue = " + dataTodo.getTypeValue() + " " +
+                "Turn = " + dataTodo.getTurn() + ", " +
+                "Option = '" + dataTodo.getOption() + "' " +
                 "WHERE _id = " + dataTodo.getId() + " ; ");
         db.execSQL(" UPDATE Pattern SET " +
-                "Title = '" + dataPattern.getTitle() + "', " +
-                "DateStart = " + dataPattern.getDateStart().getSecond() + ", " +
-                "DateEnd = " + dataPattern.getDateEnd().getSecond() + ", " +
-                "DayOfWeek = '" + dataPattern.getDow() + "' " +
+                "Memo = '" + dataPattern.getMemo() + "', " +
+                "StartTime = " + dataPattern.getTimeStart().getTime() + ", " +
+                "EndTime = " + dataPattern.getTimeEnd().getTime() + ", " +
+                "DayOfWeek = '" + dataPattern.getDayOfWeek() + "', " +
+                "RecentlyTime = " + dataPattern.getTimeRecently().getTime() + ", " +
+                "Option = '" + dataPattern.getOption() + "' " +
                 "WHERE _id = " + dataPattern.getId() + " ; ");
         db.close();
     }
@@ -489,7 +409,7 @@ public class DBManager extends SQLiteOpenHelper {
     public void deletePattern(DataPattern data) {
         db = getWritableDatabase();
         db.execSQL("DELETE FROM Pattern WHERE _id = " + data.getId() + ";");
-        db.execSQL("DELETE FROM Todo WHERE _id = " + data.getDataTodo().getId() + ";");
+        db.execSQL("DELETE FROM Todo WHERE _id = " + data.getPatternTodo().getId() + ";");
         db.close();
     }
 
@@ -499,27 +419,17 @@ public class DBManager extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM Pattern WHERE _id = " + id + ";", null);
         while (cursor.moveToNext()) {
             data = new DataPattern(cursor.getInt(0),
-                    cursor.getString(1),
-                    cursor.getLong(2),
+                    new DataTodo(cursor.getInt(1), null),
+                    cursor.getString(2),
                     cursor.getLong(3),
-                    cursor.getString(4),
-                    new DataTodo(cursor.getInt(5)),
-                    cursor.getLong(6));
+                    cursor.getLong(4),
+                    cursor.getString(5),
+                    cursor.getLong(6),
+                    cursor.getString(7));
         }
-        cursor = db.rawQuery("SELECT * FROM Todo WHERE _id = " + data.getDataTodo().getId() + ";", null);
+        cursor = db.rawQuery("SELECT * FROM Todo WHERE _id = " + data.getPatternTodo().getId() + ";", null);
         while (cursor.moveToNext()) {
-            DataTodo dataTodo = new DataTodo(cursor.getInt(0),
-                    cursor.getString(1),
-                    cursor.getLong(2),
-                    cursor.getString(3),
-                    cursor.getInt(4),
-                    cursor.getInt(5),
-                    cursor.getInt(6),
-                    cursor.getInt(7),
-                    cursor.getInt(8),
-                    cursor.getInt(9),
-                    cursor.getLong(10));
-            data.setDataTodo(dataTodo);
+            data.setPatternTodo(getTodoWithCursor(cursor, null));
         }
         cursor.close();
         return data;
@@ -532,26 +442,16 @@ public class DBManager extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery("SELECT * FROM Pattern;", null);
         while (cursor.moveToNext()) {
             data = new DataPattern(cursor.getInt(0),
-                    cursor.getString(1),
-                    cursor.getLong(2),
+                    new DataTodo(cursor.getInt(1), null),
+                    cursor.getString(2),
                     cursor.getLong(3),
-                    cursor.getString(4),
-                    new DataTodo(cursor.getInt(5)),
-                    cursor.getLong(6));
-            Cursor cursor2 = db.rawQuery("SELECT * FROM Todo WHERE _id = " + data.getDataTodo().getId() + ";", null);
+                    cursor.getLong(4),
+                    cursor.getString(5),
+                    cursor.getLong(6),
+                    cursor.getString(7));
+            Cursor cursor2 = db.rawQuery("SELECT * FROM Todo WHERE _id = " + data.getPatternTodo().getId() + ";", null);
             while (cursor2.moveToNext()) {
-                DataTodo dataTodo = new DataTodo(cursor2.getInt(0),
-                        cursor2.getString(1),
-                        cursor2.getLong(2),
-                        cursor2.getString(3),
-                        cursor2.getInt(4),
-                        cursor2.getInt(5),
-                        cursor2.getInt(6),
-                        cursor2.getInt(7),
-                        cursor2.getInt(8),
-                        cursor2.getInt(9),
-                        cursor2.getLong(10));
-                data.setDataTodo(dataTodo);
+                data.setPatternTodo(getTodoWithCursor(cursor2, null));
             }
             cursor2.close();
             dataList.add(data);
@@ -559,7 +459,6 @@ public class DBManager extends SQLiteOpenHelper {
         cursor.close();
         return dataList;
     }
-
 
     public ArrayList<String> getTagList() {
         db = getReadableDatabase();
@@ -584,132 +483,128 @@ public class DBManager extends SQLiteOpenHelper {
 
 
     public void checkToday() {
-        db = getReadableDatabase();
-
-        ArrayList<DataTodo> list = new ArrayList<>();
-        DateForm date = new DateForm(Calendar.getInstance());
-        date.setHour(0);
-        date.setMinute(0);
-        date.addDate(-1);
-        long secondL = date.getSecond();
-        date.addDate(1);
-        long secondR = date.getSecond();
-        Cursor cursor = db.rawQuery("SELECT * FROM Todo " +
-                "WHERE Date >= " + secondL + " " +
-                "AND Date < " + secondR + " " +
-                "AND Type = 2 " +
-                "AND Checked = 0;", null);
-        while (cursor.moveToNext()) {
-            DataTodo data = new DataTodo(cursor.getInt(0),
-                    cursor.getString(1),
-                    cursor.getLong(2),
-                    cursor.getString(3),
-                    cursor.getInt(4),
-                    cursor.getInt(5),
-                    cursor.getInt(6),
-                    cursor.getInt(7),
-                    cursor.getInt(8),
-                    cursor.getInt(9),
-                    cursor.getLong(10));
-            list.add(data);
-        }
-        cursor.close();
-
-        db = getWritableDatabase();
-        for (int i = 0; i < list.size(); i++) {
-            db.execSQL(" UPDATE Todo SET " +
-                    "Checked = 2 " +
-                    "WHERE _id = " + list.get(i).getId() + " ; ");
-        }
-        db.close();
-        DataTodo temp;
-        for (int i = 0; i < list.size(); i++) {
-            temp = list.get(i);
-            temp.getDate().addDate(1);
-            temp.setTypeValue(temp.getTypeValue() + 1);
-            temp.setChecked(0);
-        }
-        db = getWritableDatabase();
-        for (int i = 0; i < list.size(); i++) {
-            temp = list.get(i);
-            long second = temp.getDate().getSecond();
-            long secondDeadline;
-            if(temp.getDateDeadline()!=null) {
-                secondDeadline = temp.getDateDeadline().getSecond();
-            }else {
-                secondDeadline = -1;
-            }
-            db.execSQL(" INSERT INTO Todo VALUES ( " +
-                    " null, " +
-                    "'" + temp.getTitle() + "', " +
-                    second + ", " +
-                    "'" + temp.getTags() + "', " +
-                    temp.getChecked() + ", " +
-                    temp.getType() + ", " +
-                    temp.getIsTimeActivated() + ", " +
-                    temp.getImportance() + ", " +
-                    temp.getPatternId() + ", " +
-                    temp.getTypeValue() + ", " +
-                    secondDeadline + ");");
-        }
-        db.close();
-
-        db = getReadableDatabase();
-        SQLiteDatabase db2 = getWritableDatabase();
-        date = new DateForm(Calendar.getInstance());
-        date.setHour(0);
-        date.setMinute(0);
-        cursor = db.rawQuery("SELECT _id, TodoId FROM Pattern " +
-                "WHERE DateStart <= " + date.getSecond() + " " +
-                "AND DateEnd > " + date.getSecond() + " " +
-                "AND DayOfWeek Like '%" + (date.getDayofweek() - 1) + "%' " +
-                "AND RecentlyDate < " + date.getSecond() + " ;", null);
-        while (cursor.moveToNext()) {
-            Cursor cursor2 = db.rawQuery("SELECT * FROM Todo WHERE _id = " + cursor.getInt(1) + ";", null);
-            cursor2.moveToLast();
-            temp = new DataTodo(cursor2.getInt(0),
-                    cursor2.getString(1),
-                    cursor2.getLong(2),
-                    cursor2.getString(3),
-                    cursor2.getInt(4),
-                    cursor2.getInt(5),
-                    cursor2.getInt(6),
-                    cursor2.getInt(7),
-                    cursor2.getInt(8),
-                    cursor2.getInt(9),
-                    cursor2.getLong(10));
-            temp.getDate().setYear(date.getYear());
-            temp.getDate().setMonth(date.getMonth());
-            temp.getDate().setDay(date.getDay());
-            temp.setTypeValue(temp.getTypeValue() + 1);
-            long secondDeadline;
-            if(temp.getDateDeadline()!=null) {
-                secondDeadline = temp.getDateDeadline().getSecond();
-            }else {
-                secondDeadline = -1;
-            }
-            db2.execSQL(" INSERT INTO Todo VALUES ( " +
-                    " null, " +
-                    "'" + temp.getTitle() + "', " +
-                    temp.getDate().getSecond() + ", " +
-                    "'" + temp.getTags() + "', " +
-                    temp.getChecked() + ", " +
-                    temp.getType() + ", " +
-                    temp.getIsTimeActivated() + ", " +
-                    temp.getImportance() + ", " +
-                    temp.getPatternId() + ", " +
-                    temp.getTypeValue() + ", " +
-                    secondDeadline + ");");
-            db2.execSQL(" UPDATE Pattern SET " +
-                    "RecentlyDate = " + date.getSecond() + " " +
-                    "WHERE _id = " + cursor.getInt(0) + " ; ");
-            db2.execSQL(" UPDATE Todo SET " +
-                    "TypeValue = " + temp.getTypeValue() + " " +
-                    "WHERE _id = " + cursor.getInt(1) + " ; ");
-            cursor2.close();
-        }
-        db.close();
-        db2.close();
-        cursor.close();
+//        db = getReadableDatabase();
+//
+//        ArrayList<DataTodo> list = new ArrayList<>();
+//        DateForm date = new DateForm(Calendar.getInstance());
+//        date.setHour(0);
+//        date.setMinute(0);
+//        date.addDate(-1);
+//        long secondL = date.getTime();
+//        date.addDate(1);
+//        long secondR = date.getTime();
+//        Cursor cursor = db.rawQuery("SELECT * FROM Todo " +
+//                "WHERE Date >= " + secondL + " " +
+//                "AND Date < " + secondR + " " +
+//                "AND Type = 2 " +
+//                "AND Checked = 0;", null);
+//        while (cursor.moveToNext()) {
+//            DataTodo data = new DataTodo(cursor.getInt(0),
+//                    cursor.getInt(1),
+//                    cursor.getString(2),
+//                    cursor.getString(3),
+//                    cursor.getLong(4),
+//                    cursor.getLong(5),
+//                    cursor.getLong(6),
+//                    cursor.getInt(7),
+//                    cursor.getString(8));
+//            list.add(data);
+//        }
+//        cursor.close();
+//
+//        db = getWritableDatabase();
+//        for (int i = 0; i < list.size(); i++) {
+//            db.execSQL(" UPDATE Todo SET " +
+//                    "Checked = 2 " +
+//                    "WHERE _id = " + list.get(i).getId() + " ; ");
+//        }
+//        db.close();
+//        DataTodo temp;
+//        for (int i = 0; i < list.size(); i++) {
+//            temp = list.get(i);
+//            temp.getDate().addDate(1);
+//            temp.setTypeValue(temp.getTypeValue() + 1);
+//            temp.setChecked(0);
+//        }
+//        db = getWritableDatabase();
+//        for (int i = 0; i < list.size(); i++) {
+//            temp = list.get(i);
+//            long second = temp.getDate().getSecond();
+//            long secondDeadline;
+//            if (temp.getDateDeadline() != null) {
+//                secondDeadline = temp.getDateDeadline().getSecond();
+//            } else {
+//                secondDeadline = -1;
+//            }
+//            db.execSQL(" INSERT INTO Todo VALUES ( " +
+//                    " null, " +
+//                    "'" + temp.getTitle() + "', " +
+//                    second + ", " +
+//                    "'" + temp.getTags() + "', " +
+//                    temp.getChecked() + ", " +
+//                    temp.getType() + ", " +
+//                    temp.getIsTimeActivated() + ", " +
+//                    temp.getImportance() + ", " +
+//                    temp.getPatternId() + ", " +
+//                    temp.getTypeValue() + ", " +
+//                    secondDeadline + ");");
+//        }
+//        db.close();
+//
+//        db = getReadableDatabase();
+//        SQLiteDatabase db2 = getWritableDatabase();
+//        date = new DateForm(Calendar.getInstance());
+//        date.setHour(0);
+//        date.setMinute(0);
+//        cursor = db.rawQuery("SELECT _id, TodoId FROM Pattern " +
+//                "WHERE DateStart <= " + date.getTime() + " " +
+//                "AND DateEnd > " + date.getTime() + " " +
+//                "AND DayOfWeek Like '%" + (date.getDayofweek() - 1) + "%' " +
+//                "AND RecentlyDate < " + date.getTime() + " ;", null);
+//        while (cursor.moveToNext()) {
+//            Cursor cursor2 = db.rawQuery("SELECT * FROM Todo WHERE _id = " + cursor.getInt(1) + ";", null);
+//            cursor2.moveToLast();
+//            temp = new DataTodo(cursor.getInt(0),
+//                    cursor.getInt(1),
+//                    cursor.getString(2),
+//                    cursor.getString(3),
+//                    cursor.getLong(4),
+//                    cursor.getLong(5),
+//                    cursor.getLong(6),
+//                    cursor.getInt(7),
+//                    cursor.getString(8));
+//            temp.getDate().setYear(date.getYear());
+//            temp.getDate().setMonth(date.getMonth());
+//            temp.getDate().setDay(date.getDay());
+//            temp.setTypeValue(temp.getTypeValue() + 1);
+//            long secondDeadline;
+//            if (temp.getDateDeadline() != null) {
+//                secondDeadline = temp.getDateDeadline().getSecond();
+//            } else {
+//                secondDeadline = -1;
+//            }
+//            db2.execSQL(" INSERT INTO Todo VALUES ( " +
+//                    " null, " +
+//                    "'" + temp.getTitle() + "', " +
+//                    temp.getDate().getSecond() + ", " +
+//                    "'" + temp.getTags() + "', " +
+//                    temp.getChecked() + ", " +
+//                    temp.getType() + ", " +
+//                    temp.getIsTimeActivated() + ", " +
+//                    temp.getImportance() + ", " +
+//                    temp.getPatternId() + ", " +
+//                    temp.getTypeValue() + ", " +
+//                    secondDeadline + ");");
+//            db2.execSQL(" UPDATE Pattern SET " +
+//                    "RecentlyDate = " + date.getTime() + " " +
+//                    "WHERE _id = " + cursor.getInt(0) + " ; ");
+//            db2.execSQL(" UPDATE Todo SET " +
+//                    "TypeValue = " + temp.getTypeValue() + " " +
+//                    "WHERE _id = " + cursor.getInt(1) + " ; ");
+//            cursor2.close();
+//        }
+//        db.close();
+//        db2.close();
+//        cursor.close();
     }
 }

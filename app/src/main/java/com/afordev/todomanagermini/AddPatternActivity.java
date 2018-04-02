@@ -33,7 +33,7 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
     private DBManager dbManager = DBManager.getInstance(this);
     private DataPattern dataPattern;
     private DataTodo dataTodo;
-    private EditText etTitle;
+    private EditText etMemo;
     private ArrayList<String> dowNum = new ArrayList<>();
 
     private EditText etTodoTitle;
@@ -59,7 +59,7 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
         tvRecently = findViewById(R.id.add_pattern_tv_recently);
         btnDateStart = findViewById(R.id.add_pattern_btn_date_start);
         btnDateEnd = findViewById(R.id.add_pattern_btn_date_end);
-        etTitle = findViewById(R.id.add_pattern_et_title);
+        etMemo = findViewById(R.id.add_pattern_et_title);
 
         etTodoTitle = findViewById(R.id.item_todo_et_edit_title);
         tvTags = findViewById(R.id.item_todo_tv_edit_tag);
@@ -90,8 +90,8 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
             dataPattern = dbManager.getPattern(id);
             mToolbar.setTitle("퍼즐 수정");
         }
-        dataTodo = dataPattern.getDataTodo();
-        String[] sts = dataPattern.getDow().split(",");
+        dataTodo = dataPattern.getPatternTodo();
+        String[] sts = dataPattern.getDayOfWeek().split(",");
         for (int i = 0; i < sts.length; i++) {
             switch (sts[i]) {
                 case ("0"):
@@ -123,35 +123,31 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
     public void setData() {
         ArrayList<String> dowList = new ArrayList<>();
         dowNum.clear();
-        etTitle.setText(dataPattern.getTitle());
-        btnDateStart.setText(Manager.getDateForm(this, dataPattern.getDateStart()));
-        btnDateEnd.setText(Manager.getDateForm(this, dataPattern.getDateEnd()));
+        etMemo.setText(dataPattern.getMemo());
+        btnDateStart.setText(Manager.getDateForm(this, dataPattern.getTimeStart()));
+        btnDateEnd.setText(Manager.getDateForm(this, dataPattern.getTimeEnd()));
         etTodoTitle.setText(dataTodo.getTitle());
-        if (dataTodo.getTypeValue() != -1) {
+        if (dataTodo.getTurn() > 0) {
             tvRecently.setVisibility(View.VISIBLE);
-            tvRecently.setText("최근 추가 날짜: " + Manager.getDateForm(this, dataPattern.getDateRecently()) + ", " + dataTodo.getTypeValue() + "회차");
+            tvRecently.setText("최근 추가 날짜: " + Manager.getDateForm(this, dataPattern.getTimeRecently()) + ", " + dataTodo.getTurn() + "회차");
         } else {
             tvRecently.setVisibility(View.GONE);
         }
-        if (dataTodo.getIsTimeActivated() == 0 && dataTodo.getTags().equals("")) {
-            tvTags.setVisibility(View.INVISIBLE);
-        } else {
-            tvTags.setVisibility(View.VISIBLE);
-            StringBuilder sb = new StringBuilder();
-            if (dataTodo.getIsTimeActivated() == 1) {
-                sb.append(Manager.getTimeForm(dataTodo.getDate()));
-            }
-            if (dataTodo.getIsTimeActivated() == 1 && !dataTodo.getTags().equals("")) {
+
+        StringBuilder sb = new StringBuilder();
+        if (dataTodo.getTimeDead().compareTo(new DateForm(Calendar.getInstance())) == 0) {
+            sb.append(Manager.getTimeForm(dataTodo.getTimeDead()));
+        }
+        if (!dataTodo.getTags().equals("")) {
+            if (!sb.toString().equals("")) {
                 sb.append(", ");
             }
-            if (!dataTodo.getTags().equals("")) {
-                ArrayList<String> st = dataTodo.getTagList();
-                for (int i = 0; i < st.size(); i++) {
-                    sb.append("#" + st.get(i) + " ");
-                }
+            ArrayList<String> st = dataTodo.getTagList();
+            for (int i = 0; i < st.size(); i++) {
+                sb.append("#" + st.get(i) + " ");
             }
-            tvTags.setText(sb.toString());
         }
+        tvTags.setText(sb.toString());
 
         String[] dow = getResources().getStringArray(R.array.dayofweek);
         if (btnDOW0.isSelected()) {
@@ -187,7 +183,7 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
         } else if (dowList.size() == 7) {
             tvDOW.setText("매일");
         } else {
-            StringBuilder sb = new StringBuilder();
+            sb = new StringBuilder();
             sb.append("매 주 ");
             for (int i = 0; i < dowList.size(); i++) {
                 sb.append(dowList.get(i));
@@ -224,7 +220,7 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
         Intent intent;
         switch (item.getItemId()) {
             case (R.id.menu_save):
-                dataPattern.setTitle(etTitle.getText().toString());
+                dataPattern.setMemo(etMemo.getText().toString());
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < dowNum.size(); i++) {
                     sb.append(dowNum.get(i));
@@ -232,9 +228,9 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
                         sb.append(",");
                     }
                 }
-                dataPattern.setDow(sb.toString());
+                dataPattern.setDayOfWeek(sb.toString());
                 dataTodo.setTitle(etTodoTitle.getText().toString());
-                dataPattern.setDataTodo(dataTodo);
+                dataPattern.setPatternTodo(dataTodo);
 
                 if (dataPattern.getId() == -1) {
                     dbManager.insertPattern(dataPattern);
@@ -251,7 +247,7 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void onClick(View view) {
         dataTodo.setTitle(etTodoTitle.getText().toString());
-        dataPattern.setTitle(etTitle.getText().toString());
+        dataPattern.setMemo(etMemo.getText().toString());
         switch (view.getId()) {
             case (R.id.add_pattern_btn_dow0):
             case (R.id.add_pattern_btn_dow1):
@@ -300,9 +296,9 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
     public void datePicker(final boolean isStart) {
         final DateForm date;
         if (isStart) {
-            date = dataPattern.getDateStart();
+            date = dataPattern.getTimeStart();
         } else {
-            date = dataPattern.getDateEnd();
+            date = dataPattern.getTimeEnd();
         }
         DatePickerDialog.OnDateSetListener listener = new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -312,8 +308,8 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
                 date.setDay(dayOfMonth);
                 date.setHour(0);
                 date.setMinute(0);
-                if (dataPattern.getDateStart().getSecond() > dataPattern.getDateEnd().getSecond()) {
-                    dataPattern.setDateEnd(dataPattern.getDateStart());
+                if (dataPattern.getTimeStart().getTime() > dataPattern.getTimeEnd().getTime()) {
+                    dataPattern.setTimeEnd(dataPattern.getTimeStart());
                 }
                 setData();
             }
@@ -325,7 +321,7 @@ public class AddPatternActivity extends AppCompatActivity implements View.OnClic
         if (isStart) {
             dpDialog.getDatePicker().setMinDate(Calendar.getInstance().getTimeInMillis());
         } else {
-            dpDialog.getDatePicker().setMinDate(dataPattern.getDateStart().getSecond() * 60000);
+            dpDialog.getDatePicker().setMinDate(dataPattern.getTimeStart().getTime() * 60000);
         }
         dpDialog.show();
     }

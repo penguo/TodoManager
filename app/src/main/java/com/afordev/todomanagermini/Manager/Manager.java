@@ -118,8 +118,19 @@ public class Manager {
         } else {
             sb.append("오전 ");
         }
-        sb.append(hour + "시 ");
-        sb.append(date.getMinute() + "분");
+        sb.append(hour + "시");
+        if (date.getMinute() != 0) {
+            sb.append(" ");
+            sb.append(date.getMinute() + "분");
+        }
         return sb.toString();
+    }
+
+    public static Calendar getCurrentTime() {
+        Calendar cal = Calendar.getInstance();
+        int min = cal.get(Calendar.MINUTE);
+        min = min + 5 - (min % 5);
+        cal.set(Calendar.MINUTE, min);
+        return cal;
     }
 }

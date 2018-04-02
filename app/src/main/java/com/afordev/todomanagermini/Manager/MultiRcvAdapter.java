@@ -12,8 +12,10 @@ import android.widget.TextView;
 
 import com.afordev.todomanagermini.R;
 import com.afordev.todomanagermini.SubItem.DataTodo;
+import com.afordev.todomanagermini.SubItem.DateForm;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class MultiRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
@@ -52,7 +54,7 @@ public class MultiRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     class VHItem extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView tvTitle, tvTags;
-        private LinearLayout layout;
+        private LinearLayout layout, layoutText;
         private ImageView ivSelect, ivIcon, ivImportance;
 
         public VHItem(final View itemView) {
@@ -63,6 +65,7 @@ public class MultiRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             ivSelect = itemView.findViewById(R.id.item_todo_iv_left);
             ivIcon = itemView.findViewById(R.id.item_todo_iv_icon);
             ivImportance = itemView.findViewById(R.id.item_todo_iv_importance);
+            layoutText = itemView.findViewById(R.id.item_todo_layout_text);
 
             layout.setOnClickListener(this);
         }
@@ -88,23 +91,24 @@ public class MultiRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         if (holder instanceof VHItem) {
             data = dataList.get(position);
             ((VHItem) holder).tvTitle.setText(data.getTitle());
-            if (data.getIsTimeActivated() == 0 && data.getTags().equals("")) {
+
+            StringBuilder sb = new StringBuilder();
+            if (data.getTimeDead().compareTo(new DateForm(Calendar.getInstance())) == 0) {
+                sb.append(Manager.getTimeForm(data.getTimeDead()));
+            }
+            if (!data.getTags().equals("")) {
+                if (!sb.toString().equals("")) {
+                    sb.append(", ");
+                }
+                ArrayList<String> st = data.getTagList();
+                for (int i = 0; i < st.size(); i++) {
+                    sb.append("#" + st.get(i) + " ");
+                }
+            }
+            if (sb.toString().equals("")) {
                 ((VHItem) holder).tvTags.setVisibility(View.GONE);
             } else {
                 ((VHItem) holder).tvTags.setVisibility(View.VISIBLE);
-                StringBuffer sb = new StringBuffer();
-                if (data.getIsTimeActivated() == 1) {
-                    sb.append(Manager.getTimeForm(data.getDate()));
-                }
-                if (data.getIsTimeActivated() == 1 && !data.getTags().equals("")) {
-                    sb.append(", ");
-                }
-                if (!data.getTags().equals("")) {
-                    ArrayList<String> st = data.getTagList();
-                    for (int i = 0; i < st.size(); i++) {
-                        sb.append("#" + st.get(i) + " ");
-                    }
-                }
                 ((VHItem) holder).tvTags.setText(sb.toString());
             }
             switch (data.getImportance()) {
@@ -121,31 +125,15 @@ public class MultiRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     ((VHItem) holder).ivImportance.setVisibility(View.INVISIBLE);
                     break;
             }
-            switch (data.getChecked()) {
-                case (0):
-                    ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-                    ((VHItem) holder).tvTitle.setAlpha(1);
-                    break;
-                case (1):
+            if (data.getTimeChecked().isNull()) {
+                ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+                ((VHItem) holder).layoutText.setAlpha(1);
+            } else {
+                if (data.getTimeChecked().compareTo(new DateForm(Calendar.getInstance())) <= 0) {
                     ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                    ((VHItem) holder).tvTitle.setAlpha((float) 0.5);
-                    break;
-                default:
-                    break;
-            }
-            switch (data.getType()) {
-                case (1):
-                    ((VHItem) holder).ivIcon.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_puzzle);
-                    break;
-                case (2):
-                    ((VHItem) holder).ivIcon.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_delay);
-                    break;
-                case (0):
-                default:
-                    ((VHItem) holder).ivIcon.setVisibility(View.INVISIBLE);
-                    break;
+                    ((VHItem) holder).layoutText.setAlpha((float) 0.5);
+                } else {
+                }
             }
             if (selectList.contains(data)) {
                 ((VHItem) holder).ivSelect.setImageResource(R.drawable.ic_check_true);

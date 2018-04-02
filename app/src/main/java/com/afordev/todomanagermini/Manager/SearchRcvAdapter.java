@@ -2,7 +2,6 @@ package com.afordev.todomanagermini.Manager;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -20,7 +19,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.afordev.todomanagermini.Dialog.DialogExpandMenu;
@@ -103,7 +101,7 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             btnPEdit = itemView.findViewById(R.id.item_todo_btn_pedit);
             btnPDelay = itemView.findViewById(R.id.item_todo_btn_pdelay);
             btnPCheck = itemView.findViewById(R.id.item_todo_btn_pcheck);
-            tvDelay = itemView.findViewById(R.id.item_todo_tv_delay);
+            tvDelay = itemView.findViewById(R.id.item_todo_tv_turn);
             layoutText = itemView.findViewById(R.id.item_todo_layout_text);
             layoutRight1 = itemView.findViewById(R.id.item_todo_layout_right1);
             layoutRight2 = itemView.findViewById(R.id.item_todo_layout_right2);
@@ -169,23 +167,17 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     break;
 
                 case (R.id.item_todo_btn_pdelay):
-                    dateSelectOption();
+                    dateDelayOption(dataList.get(getAdapterPosition()));
                     break;
 
                 case (R.id.item_todo_btn_pcheck):
                     if (editPosition != -1) {
                         Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
                     } else {
-                        switch (dataList.get(getAdapterPosition()).getChecked()) {
-                            case (0):
-                                dataList.get(getAdapterPosition()).setChecked(1);
-                                break;
-                            case (1):
-                                dataList.get(getAdapterPosition()).setChecked(0);
-                                break;
-                            default:
-                                Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
-                                break;
+                        if (dataList.get(getAdapterPosition()).getTimeChecked().isNull()) {
+                            dataList.get(getAdapterPosition()).setTimeChecked(new DateForm(Manager.getCurrentTime()));
+                        } else {
+                            dataList.get(getAdapterPosition()).setTimeChecked(null);
                         }
                         dbManager.updateTodo(dataList.get(getAdapterPosition()));
                         itemExpandPosition = -1;
@@ -197,6 +189,8 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             }
         }
     }
+
+    private EditText etEditTitle;
 
     class VHEdit extends RecyclerView.ViewHolder implements View.OnClickListener {
         private EditText etTitle;
@@ -305,21 +299,27 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 ((VHItem) holder).layoutPlus.setVisibility(View.GONE);
             }
             ((VHItem) holder).tvTitle.setText(data.getTitle());
+
             StringBuilder sb = new StringBuilder();
-            sb.append(Manager.getDateForm(mContext, data.getDate()) + " ");
-            if (data.getIsTimeActivated() == 1) {
-                sb.append(Manager.getTimeForm(data.getDate()));
-            }
-            if (data.getIsTimeActivated() == 1 && !data.getTags().equals("")) {
-                sb.append(" ");
+            sb.append(Manager.getDateForm(mContext, data.getTimeStart()) + "부터 " + Manager.getDateForm(mContext, data.getTimeDead()) + "까지 ");
+            if (data.getTimeDead().compareTo(new DateForm(Calendar.getInstance())) == 0) {
+                sb.append(Manager.getTimeForm(data.getTimeDead()));
             }
             if (!data.getTags().equals("")) {
+                if (!sb.toString().equals("")) {
+                    sb.append(", ");
+                }
                 ArrayList<String> st = data.getTagList();
                 for (int i = 0; i < st.size(); i++) {
                     sb.append("#" + st.get(i) + " ");
                 }
             }
-            ((VHItem) holder).tvTags.setText(sb.toString());
+            if (sb.toString().equals("")) {
+                ((VHItem) holder).tvTags.setVisibility(View.GONE);
+            } else {
+                ((VHItem) holder).tvTags.setVisibility(View.VISIBLE);
+                ((VHItem) holder).tvTags.setText(sb.toString());
+            }
             switch (data.getImportance()) {
                 case (1):
                     ((VHItem) holder).layoutRight1.setVisibility(View.VISIBLE);
@@ -337,88 +337,64 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
                     break;
             }
-            switch (data.getType()) {
-                case (1):
-                    ((VHItem) holder).layoutRight2.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_puzzle);
-                    ((VHItem) holder).tvDelay.setText(data.getTypeValue() + "회차");
-                    break;
-                case (2):
-                    ((VHItem) holder).layoutRight2.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_delay);
-                    if(data.getDateDeadline()==null){
-                        ((VHItem) holder).tvDelay.setText("D+" + data.getTypeValue());
-                    }else{
-                        ((VHItem) holder).tvDelay.setText("D" + new DateForm(Calendar.getInstance()).compareTo(data.getDateDeadline()));
-                    }
-                    break;
-                case (0):
-                default:
-                    ((VHItem) holder).layoutRight2.setVisibility(View.GONE);
-                    ((VHItem) holder).tvDelay.setText("");
-                    break;
-            }
-            switch (data.getChecked()) {
-                case (0):
-                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_false);
-                    ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-                    ((VHItem) holder).layoutText.setAlpha(1);
-                    break;
-                case (1):
+            if (data.getTimeChecked().isNull()) {
+                if (data.getTimeDead().compareTo(new DateForm(Calendar.getInstance())) < 0) {
+                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_close);
+                } else {
+                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_delay);
+                }
+                ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+                ((VHItem) holder).layoutText.setAlpha(1);
+            } else {
+                if (data.getTimeChecked().compareTo(new DateForm(Calendar.getInstance())) <= 0) {
                     ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_true);
                     ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                     ((VHItem) holder).layoutText.setAlpha((float) 0.5);
-                    break;
-                case (2):
-                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
+                } else {
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_delay);
-                    ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                    ((VHItem) holder).layoutText.setAlpha((float) 0.5);
-                    ((VHItem) holder).btnPEdit.setVisibility(View.GONE);
-                    ((VHItem) holder).btnPDelay.setVisibility(View.GONE);
-                    ((VHItem) holder).btnPCheck.setVisibility(View.GONE);
-                    break;
-                default:
-                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
-                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_error);
-                    break;
-            }
-            if (data.getChecked() != 2) {
-                ((VHItem) holder).btnPEdit.setVisibility(View.VISIBLE);
-                ((VHItem) holder).btnPDelay.setVisibility(View.VISIBLE);
-                ((VHItem) holder).btnPCheck.setVisibility(View.VISIBLE);
+                }
             }
         } else if (holder instanceof VHEdit) {
             if (temp != null) {
                 data = temp;
             } else {
-                data = new DataTodo();
+                data = new DataTodo(-1, null);
                 data.setTitle("유효기간이 만료되어 초기화되었습니다. 취소 후 시작해주세요.");
                 // TODO: 2018-03-21 초기화될 경우 해결방안 - 초기화 안되게 하면 더 좋음.
             }
-            ((VHEdit) holder).etTitle.setText(data.getTitle());
-            ((VHEdit) holder).etTitle.requestFocus();
-            if (data.getIsTimeActivated() == 0 && data.getTags().equals("")) {
-                ((VHEdit) holder).tvTags.setVisibility(View.INVISIBLE);
-            } else {
-                ((VHEdit) holder).tvTags.setVisibility(View.VISIBLE);
-                StringBuffer sb = new StringBuffer();
-                sb.append(Manager.getDateForm(mContext, data.getDate()) + " ");
-
-                if (data.getIsTimeActivated() == 1) {
-                    sb.append(Manager.getTimeForm(data.getDate()));
-                }
-                if (data.getIsTimeActivated() == 1 && !data.getTags().equals("")) {
+            etEditTitle.setText(data.getTitle());
+            etEditTitle.requestFocus();
+            StringBuffer sb = new StringBuffer();
+            if (data.getTimeDead().compareTo(new DateForm(Calendar.getInstance())) == 0) {
+                sb.append(Manager.getTimeForm(data.getTimeDead()));
+            }
+            if (!data.getTags().equals("")) {
+                if (!sb.toString().equals("")) {
                     sb.append(", ");
                 }
-                if (!data.getTags().equals("")) {
-                    ArrayList<String> st = data.getTagList();
-                    for (int i = 0; i < st.size(); i++) {
-                        sb.append("#" + st.get(i) + " ");
-                    }
+                ArrayList<String> st = data.getTagList();
+                for (int i = 0; i < st.size(); i++) {
+                    sb.append("#" + st.get(i) + " ");
                 }
+            }
+            if (sb.toString().equals("")) {
+                ((VHEdit) holder).tvTags.setVisibility(View.GONE);
+            } else {
+                ((VHEdit) holder).tvTags.setVisibility(View.VISIBLE);
                 ((VHEdit) holder).tvTags.setText(sb.toString());
+            }
+            switch (data.getImportance()) {
+                case (1):
+                    ((VHEdit) holder).ivEditLeft.setImageResource(R.drawable.ic_star_half);
+                    break;
+                case (2):
+                    ((VHEdit) holder).ivEditLeft.setImageResource(R.drawable.ic_star_true);
+                    break;
+                case (0):
+                default:
+                    ((VHEdit) holder).ivEditLeft.setImageResource(R.drawable.ic_star_false);
+                    break;
             }
         }
     }
@@ -456,13 +432,10 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         list0 = new ArrayList<>();
         list1 = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
-            switch (list.get(i).getChecked()) {
-                case (0):
-                    list0.add(list.get(i));
-                    break;
-                case (1):
-                    list1.add(list.get(i));
-                    break;
+            if (list.get(i).getTimeChecked().isNull()) {
+                list0.add(list.get(i));
+            } else {
+                list1.add(list.get(i));
             }
         }
         list = new ArrayList<>();
@@ -478,38 +451,23 @@ public class SearchRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return 0;
     }
 
-    public void dateSelectOption() {
-        DatePickerDialog dpDialog = new DatePickerDialog(mContext, listenerDate,
-                temp.getDate().getYear(),
-                temp.getDate().getMonth(),
-                temp.getDate().getDay());
-        dpDialog.show();
-    }
-
-    private DatePickerDialog.OnDateSetListener listenerDate = new DatePickerDialog.OnDateSetListener() {
-        @Override
-        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-            temp.getDate().set(year, monthOfYear, dayOfMonth);
-        }
-    };
-
-    public void timeSelectOption() {
-        TimePickerDialog dialog = new TimePickerDialog(mContext, listenerTime,
-                temp.getDate().getHour(),
-                temp.getDate().getMinute(), false);
-
-        dialog.show();
-    }
-
-    private TimePickerDialog.OnTimeSetListener listenerTime = new TimePickerDialog.OnTimeSetListener() {
-        @Override
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            temp.getDate().setHour(hourOfDay);
-            temp.getDate().setMinute(minute);
-        }
-    };
-
     public ArrayList<DataTodo> getDataList() {
         return dataList;
+    }
+
+    public void dateDelayOption(final DataTodo temp) {
+        DatePickerDialog.OnDateSetListener listenerDate = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                temp.getTimeDead().set(year, monthOfYear, dayOfMonth);
+                dbManager.updateTodo(temp);
+                notifyDataSetChanged();
+            }
+        };
+        DatePickerDialog dpDialog = new DatePickerDialog(mContext, listenerDate,
+                temp.getTimeDead().getYear(),
+                temp.getTimeDead().getMonth(),
+                temp.getTimeDead().getDay());
+        dpDialog.show();
     }
 }

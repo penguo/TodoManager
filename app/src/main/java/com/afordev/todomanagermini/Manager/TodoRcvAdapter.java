@@ -64,7 +64,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         for (int i = 0; i < headerPos.length; i++) {
             if (arrayLists.get(i).size() != 0) {
                 headerPos[i] = tempPos;
-                dataList.add(tempPos, new DataTodo(-2));
+                dataList.add(tempPos, new DataTodo(-2, null)); // 더미 데이터
                 tempPos += arrayLists.get(i).size();
                 tempPos++;
                 dataList.addAll(arrayLists.get(i));
@@ -118,7 +118,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     class VHItem extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private TextView tvTitle, tvTags, tvDelay;
+        private TextView tvTitle, tvTags, tvTurn;
         private LinearLayout layout, layoutPlus, layoutText, layoutRight1, layoutRight2;
         private ImageView ivCheck, ivIcon, ivImportance;
         private Button btnPDelete, btnPEdit, btnPDelay, btnPCheck;
@@ -137,7 +137,7 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             btnPDelay = itemView.findViewById(R.id.item_todo_btn_pdelay);
             btnPCheck = itemView.findViewById(R.id.item_todo_btn_pcheck);
             layoutText = itemView.findViewById(R.id.item_todo_layout_text);
-            tvDelay = itemView.findViewById(R.id.item_todo_tv_delay);
+            tvTurn = itemView.findViewById(R.id.item_todo_tv_turn);
             layoutRight1 = itemView.findViewById(R.id.item_todo_layout_right1);
             layoutRight2 = itemView.findViewById(R.id.item_todo_layout_right2);
 
@@ -174,16 +174,10 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     if (editPosition == -1 && ((MainActivity) mContext).getTemp() == null) {
                         if (isToday) {
                             if (!isDoubleClick || (temp != null && temp.equals(dataList.get(getAdapterPosition())))) {
-                                switch (dataList.get(getAdapterPosition()).getChecked()) {
-                                    case (0):
-                                        dataList.get(getAdapterPosition()).setChecked(1);
-                                        break;
-                                    case (1):
-                                        dataList.get(getAdapterPosition()).setChecked(0);
-                                        break;
-                                    default:
-                                        Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
-                                        break;
+                                if (dataList.get(getAdapterPosition()).getTimeChecked().isNull()) {
+                                    dataList.get(getAdapterPosition()).setTimeChecked(new DateForm(Manager.getCurrentTime()));
+                                } else {
+                                    dataList.get(getAdapterPosition()).setTimeChecked(null);
                                 }
                                 dbManager.updateTodo(dataList.get(getAdapterPosition()));
                                 notifyItemChanged(getAdapterPosition());
@@ -252,16 +246,10 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     if (editPosition != -1) {
                         Toast.makeText(mContext, "먼저 항목 수정을 마쳐야 합니다.", Toast.LENGTH_SHORT).show();
                     } else {
-                        switch (dataList.get(getAdapterPosition()).getChecked()) {
-                            case (0):
-                                dataList.get(getAdapterPosition()).setChecked(1);
-                                break;
-                            case (1):
-                                dataList.get(getAdapterPosition()).setChecked(0);
-                                break;
-                            default:
-                                Toast.makeText(mContext, "ERROR.", Toast.LENGTH_SHORT).show();
-                                break;
+                        if (dataList.get(getAdapterPosition()).getTimeChecked().isNull()) {
+                            dataList.get(getAdapterPosition()).setTimeChecked(new DateForm(Manager.getCurrentTime()));
+                        } else {
+                            dataList.get(getAdapterPosition()).setTimeChecked(null);
                         }
                         dbManager.updateTodo(dataList.get(getAdapterPosition()));
                         itemExpandPosition = -1;
@@ -407,25 +395,27 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 ((VHItem) holder).layoutPlus.setVisibility(View.GONE);
             }
             ((VHItem) holder).tvTitle.setText(data.getTitle());
-            if (data.getIsTimeActivated() == 0 && data.getTags().equals("")) {
+
+            StringBuilder sb = new StringBuilder();
+            if (data.getTimeDead().compareTo(new DateForm(Calendar.getInstance())) == 0) {
+                sb.append(Manager.getTimeForm(data.getTimeDead()));
+            }
+            if (!data.getTags().equals("")) {
+                if (!sb.toString().equals("")) {
+                    sb.append(", ");
+                }
+                ArrayList<String> st = data.getTagList();
+                for (int i = 0; i < st.size(); i++) {
+                    sb.append("#" + st.get(i) + " ");
+                }
+            }
+            if (sb.toString().equals("")) {
                 ((VHItem) holder).tvTags.setVisibility(View.GONE);
             } else {
                 ((VHItem) holder).tvTags.setVisibility(View.VISIBLE);
-                StringBuffer sb = new StringBuffer();
-                if (data.getIsTimeActivated() == 1) {
-                    sb.append(Manager.getTimeForm(data.getDate()));
-                }
-                if (data.getIsTimeActivated() == 1 && !data.getTags().equals("")) {
-                    sb.append(" ");
-                }
-                if (!data.getTags().equals("")) {
-                    ArrayList<String> st = data.getTagList();
-                    for (int i = 0; i < st.size(); i++) {
-                        sb.append("#" + st.get(i) + " ");
-                    }
-                }
                 ((VHItem) holder).tvTags.setText(sb.toString());
             }
+
             switch (data.getImportance()) {
                 case (1):
                     ((VHItem) holder).layoutRight1.setVisibility(View.VISIBLE);
@@ -443,98 +433,76 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
                     break;
             }
-            switch (data.getType()) {
-                case (1):
-                    ((VHItem) holder).layoutRight2.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_puzzle);
-                    ((VHItem) holder).tvDelay.setText(data.getTypeValue() + "회차");
-                    break;
-                case (2):
-                    ((VHItem) holder).layoutRight2.setVisibility(View.VISIBLE);
-                    ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_delay);
-                    if (data.getDateDeadline() == null) {
-                        ((VHItem) holder).tvDelay.setText("D+" + data.getTypeValue());
-                    } else {
-                        int i = new DateForm(Calendar.getInstance()).compareTo(data.getDateDeadline());
-                        StringBuilder sb = new StringBuilder();
-                        sb.append("D");
-                        if (i >= 0) {
-                            sb.append("+");
-                        }
-                        sb.append(i + "");
-                        ((VHItem) holder).tvDelay.setText(sb.toString());
-                    }
-                    break;
-                case (0):
-                default:
-                    ((VHItem) holder).layoutRight2.setVisibility(View.GONE);
-                    ((VHItem) holder).tvDelay.setText("");
-                    break;
+
+            int i = (int) (data.getTimeDead().getTime() - data.getTimePivot().getTime());
+            if (i >= 1440) {
+                i /= 1440;
+                ((VHItem) holder).layoutRight2.setVisibility(View.VISIBLE);
+                ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_calendar);
+                ((VHItem) holder).tvTurn.setText("D-" + i);
+            } else if (i >= 0) {
+                ((VHItem) holder).layoutRight2.setVisibility(View.VISIBLE);
+                ((VHItem) holder).ivIcon.setImageResource(R.drawable.ic_time);
+                if (i >= 60) {
+                    i /= 60;
+                    ((VHItem) holder).tvTurn.setText("H-" + i);
+                } else {
+                    ((VHItem) holder).tvTurn.setText("M-" + i);
+                }
+            } else {
+                ((VHItem) holder).layoutRight2.setVisibility(View.GONE);
             }
-            switch (data.getChecked()) {
-                case (0):
-                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_false);
-                    ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-                    ((VHItem) holder).layoutText.setAlpha(1);
-                    if (isToday) {
+            if (data.getTimeChecked().isNull()) {
+                ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+                ((VHItem) holder).layoutText.setAlpha(1);
+                if (data.getTimeDead().compareTo(data.getTimePivot()) >= 0) {
+                    if (data.getTimePivot().compareTo(new DateForm(Calendar.getInstance())) >= 0) {
                         ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_false);
                     } else {
-                        ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_close);
+                        ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_delay);
                     }
-                    break;
-                case (1):
-                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
+                } else {
+                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_close);
+                }
+            } else {
+                ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
+                ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                ((VHItem) holder).layoutText.setAlpha((float) 0.5);
+                if (data.getTimeChecked().compareTo(data.getTimePivot()) == 0) {
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_check_true);
-                    ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                    ((VHItem) holder).layoutText.setAlpha((float) 0.5);
-                    break;
-                case (2):
-                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
+                } else {
                     ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_delay);
-                    ((VHItem) holder).tvTitle.setPaintFlags(((VHItem) holder).tvTitle.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                    ((VHItem) holder).layoutText.setAlpha((float) 0.5);
-                    ((VHItem) holder).btnPEdit.setVisibility(View.GONE);
-                    ((VHItem) holder).btnPDelay.setVisibility(View.GONE);
-                    ((VHItem) holder).btnPCheck.setVisibility(View.GONE);
-                    break;
-                default:
-                    ((VHItem) holder).layout.setBackgroundResource(R.drawable.btn_basic);
-                    ((VHItem) holder).ivCheck.setImageResource(R.drawable.ic_error);
-                    break;
-            }
-            if (data.getChecked() != 2) {
-                ((VHItem) holder).btnPEdit.setVisibility(View.VISIBLE);
-                ((VHItem) holder).btnPDelay.setVisibility(View.VISIBLE);
-                ((VHItem) holder).btnPCheck.setVisibility(View.VISIBLE);
+                }
             }
         } else if (holder instanceof VHEdit) {
             ((MainActivity) mContext).setViewBottom(false);
             if (temp != null) {
                 data = temp;
             } else {
-                data = new DataTodo();
+                data = new DataTodo(-1, null);
                 data.setTitle("유효기간이 만료되어 초기화되었습니다. 취소 후 시작해주세요.");
                 // TODO: 2018-03-21 초기화될 경우 해결방안 - 초기화 안되게 하면 더 좋음.
             }
             etEditTitle.setText(data.getTitle());
             etEditTitle.requestFocus();
-            if (data.getIsTimeActivated() == 0 && data.getTags().equals("")) {
-                ((VHEdit) holder).tvTags.setVisibility(View.INVISIBLE);
-            } else {
-                ((VHEdit) holder).tvTags.setVisibility(View.VISIBLE);
-                StringBuffer sb = new StringBuffer();
-                if (data.getIsTimeActivated() == 1) {
-                    sb.append(Manager.getTimeForm(data.getDate()));
-                }
-                if (data.getIsTimeActivated() == 1 && !data.getTags().equals("")) {
+
+            StringBuffer sb = new StringBuffer();
+            if (data.getTimeDead().compareTo(new DateForm(Calendar.getInstance())) == 0) {
+                sb.append(Manager.getTimeForm(data.getTimeDead()));
+            }
+            if (!data.getTags().equals("")) {
+                if (!sb.toString().equals("")) {
                     sb.append(", ");
                 }
-                if (!data.getTags().equals("")) {
-                    ArrayList<String> st = data.getTagList();
-                    for (int i = 0; i < st.size(); i++) {
-                        sb.append("#" + st.get(i) + " ");
-                    }
+                ArrayList<String> st = data.getTagList();
+                for (int i = 0; i < st.size(); i++) {
+                    sb.append("#" + st.get(i) + " ");
                 }
+            }
+            if (sb.toString().equals("")) {
+                ((VHEdit) holder).tvTags.setVisibility(View.GONE);
+            } else {
+                ((VHEdit) holder).tvTags.setVisibility(View.VISIBLE);
                 ((VHEdit) holder).tvTags.setText(sb.toString());
             }
             switch (data.getImportance()) {
@@ -543,9 +511,6 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     break;
                 case (2):
                     ((VHEdit) holder).ivEditLeft.setImageResource(R.drawable.ic_star_true);
-                    break;
-                case (3):
-                    ((VHEdit) holder).ivEditLeft.setImageResource(R.drawable.ic_error);
                     break;
                 case (0):
                 default:
@@ -651,15 +616,15 @@ public class TodoRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         DatePickerDialog.OnDateSetListener listenerDate = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                temp.getDate().set(year, monthOfYear, dayOfMonth);
+                temp.getTimeDead().set(year, monthOfYear, dayOfMonth);
                 dbManager.updateTodo(temp);
                 onRefresh();
             }
         };
         DatePickerDialog dpDialog = new DatePickerDialog(mContext, listenerDate,
-                temp.getDate().getYear(),
-                temp.getDate().getMonth(),
-                temp.getDate().getDay());
+                temp.getTimeDead().getYear(),
+                temp.getTimeDead().getMonth(),
+                temp.getTimeDead().getDay());
         dpDialog.show();
     }
 

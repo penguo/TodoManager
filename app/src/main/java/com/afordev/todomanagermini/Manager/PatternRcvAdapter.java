@@ -4,8 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -56,14 +54,14 @@ public class PatternRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     class VHPattern extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private TextView tvTitle, tvDetail, tvTodoTitle;
+        private TextView tvMemo, tvDetail, tvTodoTitle;
         private LinearLayout layoutItem;
 
         public VHPattern(final View itemView) {
             super(itemView);
             layoutItem = itemView.findViewById(R.id.item_pattern_layout);
             tvTodoTitle = itemView.findViewById(R.id.item_pattern_tv_todo_title);
-            tvTitle = itemView.findViewById(R.id.item_pattern_tv_title);
+            tvMemo = itemView.findViewById(R.id.item_pattern_tv_title);
             tvDetail = itemView.findViewById(R.id.item_pattern_tv_detail);
 
             layoutItem.setOnClickListener(this);
@@ -110,14 +108,14 @@ public class PatternRcvAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         DataPattern data;
         if (holder instanceof VHPattern) {
             data = dataList.get(position);
-            ((VHPattern) holder).tvTodoTitle.setText(data.getDataTodo().getTitle());
-            if (!data.getTitle().equals("")) {
-                ((VHPattern) holder).tvTitle.setVisibility(View.VISIBLE);
-                ((VHPattern) holder).tvTitle.setText(data.getTitle());
+            ((VHPattern) holder).tvTodoTitle.setText(data.getPatternTodo().getTitle());
+            if (!data.getMemo().equals("")) {
+                ((VHPattern) holder).tvMemo.setVisibility(View.VISIBLE);
+                ((VHPattern) holder).tvMemo.setText(data.getMemo());
             } else {
-                ((VHPattern) holder).tvTitle.setVisibility(View.GONE);
+                ((VHPattern) holder).tvMemo.setVisibility(View.GONE);
             }
-            String[] sts = data.getDow().split(",");
+            String[] sts = data.getDayOfWeek().split(",");
             String[] dayOfWeek = mContext.getResources().getStringArray(R.array.dayofweek);
             StringBuilder sb = new StringBuilder();
             if (sts[0].equals("")) {

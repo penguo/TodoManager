@@ -46,7 +46,7 @@
                 android:gravity="center_vertical"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/item_todo_layout_right2"
+                app:layout_constraintEnd_toStartOf="@+id/item_todo_layout_right1"
                 app:layout_constraintStart_toEndOf="@+id/item_todo_iv_left"
                 app:layout_constraintTop_toTopOf="parent">
 
@@ -77,42 +77,13 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/item_todo_layout_right2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginTop="4dp"
-                android:gravity="center"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/item_todo_layout_right1"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageView
-                    android:id="@+id/item_todo_iv_icon"
-                    android:layout_width="13dp"
-                    android:layout_height="13dp"
-                    app:srcCompat="@drawable/ic_delay" />
-
-                <TextView
-                    android:id="@+id/item_todo_tv_delay"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="D-2"
-                    android:textSize="8sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
                 android:id="@+id/item_todo_layout_right1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/item_todo_layout_right2"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
@@ -124,6 +95,36 @@
                     android:clickable="false"
                     android:padding="0dp"
                     app:srcCompat="@drawable/ic_star_false" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/item_todo_layout_right2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="4dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/item_todo_iv_icon"
+                    android:layout_width="13dp"
+                    android:layout_height="13dp"
+                    android:visibility="visible"
+                    app:srcCompat="@drawable/ic_delay" />
+
+                <TextView
+                    android:id="@+id/item_todo_tv_turn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="13H"
+                    android:textSize="10sp" />
+
             </LinearLayout>
 
         </android.support.constraint.ConstraintLayout>

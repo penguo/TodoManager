@@ -8,83 +8,100 @@ import java.util.Calendar;
 
 public class DataPattern {
     private int id;
-    private String title, dow;
-    private DateForm dateStart, dateEnd, dateRecently;
-    private DataTodo dataTodo;
+    private String memo, dayOfWeek, option;
+    private DateForm timeStart, timeEnd, timeRecently;
+    private DataTodo patternTodo;
 
     public DataPattern(){
         this.id = -1;
-        this.title = "";
-        this.dateStart = new DateForm(Calendar.getInstance());
-        this.dateEnd = new DateForm(Calendar.getInstance());
-        this.dow = "";
-        this.dataTodo = new DataTodo();
-        this.dateRecently = new DateForm(Calendar.getInstance());
+        this.patternTodo = new DataTodo(-1, null);
+        this.memo = "";
+        DateForm tempDate = new DateForm(Calendar.getInstance());
+        tempDate.setHour(0);
+        tempDate.setMinute(0);
+        this.timeStart = tempDate.clone();
+        tempDate.addDate(1);
+        this.timeEnd = tempDate.clone();
+        this.dayOfWeek = "";
+        this.timeRecently = null;
+        this.option ="";
     }
 
-    public DataPattern(int id, String title, long secondSt, long secondEnd, String dow, DataTodo dataTodo, long secondRecently){
+    public DataPattern(int id,
+                       DataTodo patternTodo,
+                       String memo,
+                       long timeStart,
+                       long timeEnd,
+                       String dayOfWeek,
+                       long timeRecently,
+                       String option){
         this.id = id;
-        this.title = title;
-        this.dateStart = new DateForm(secondSt);
-        this.dateEnd = new DateForm(secondEnd);
-        this.dow = dow;
-        this.dataTodo = dataTodo;
-        this.dateRecently = new DateForm(secondRecently);
+        this.patternTodo = patternTodo;
+        this.memo = memo;
+        this.timeStart = new DateForm(timeStart);
+        this.timeEnd = new DateForm(timeEnd);
+        this.dayOfWeek = dayOfWeek;
+        this.timeRecently = new DateForm(timeRecently);
+        this.option = option;
     }
 
     public int getId() {
         return id;
     }
 
-    public String getTitle() {
-        return title;
+    public String getMemo() {
+        return memo;
     }
 
-    public DataTodo getDataTodo() {
-        return dataTodo;
+    public String getDayOfWeek() {
+        return dayOfWeek;
     }
 
-    public DateForm getDateEnd() {
-        return dateEnd;
+    public DataTodo getPatternTodo() {
+        return patternTodo;
     }
 
-    public DateForm getDateStart() {
-        return dateStart;
+    public DateForm getTimeEnd() {
+        return timeEnd;
     }
 
-    public String getDow() {
-        return dow;
+    public DateForm getTimeRecently() {
+        return timeRecently;
     }
 
-    public DateForm getDateRecently() {
-        return dateRecently;
+    public DateForm getTimeStart() {
+        return timeStart;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public String getOption() {
+        return option;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setMemo(String memo) {
+        this.memo = memo;
     }
 
-    public void setDataTodo(DataTodo dataTodo) {
-        this.dataTodo = dataTodo;
+    public void setDayOfWeek(String dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
     }
 
-    public void setDateEnd(DateForm dateEnd) {
-        this.dateEnd = dateEnd;
+    public void setOption(String option) {
+        this.option = option;
     }
 
-    public void setDateStart(DateForm dateStart) {
-        this.dateStart = dateStart;
+    public void setPatternTodo(DataTodo patternTodo) {
+        this.patternTodo = patternTodo;
     }
 
-    public void setDow(String dow) {
-        this.dow = dow;
+    public void setTimeEnd(DateForm timeEnd) {
+        this.timeEnd = timeEnd;
     }
 
-    public void setDateRecently(DateForm dateRecently) {
-        this.dateRecently = dateRecently;
+    public void setTimeRecently(DateForm timeRecently) {
+        this.timeRecently = timeRecently;
+    }
+
+    public void setTimeStart(DateForm timeStart) {
+        this.timeStart = timeStart;
     }
 }

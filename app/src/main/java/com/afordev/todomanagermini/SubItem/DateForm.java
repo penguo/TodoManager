@@ -9,35 +9,41 @@ import java.util.Calendar;
  * Created by penguo on 2018-03-03.
  */
 
-public class DateForm implements Parcelable{
+public class DateForm implements Parcelable, Cloneable {
     private int year, month, day;
     private int hour, minute;
     private int dayofweek = -1;
+    private boolean isNull = false;
 
-    public DateForm(long second) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(second * 60000);
-        year = cal.get(Calendar.YEAR);
-        month = cal.get(Calendar.MONTH);
-        day = cal.get(Calendar.DATE);
-        hour = cal.get(Calendar.HOUR_OF_DAY);
-        minute = cal.get(Calendar.MINUTE);
+    public DateForm(long time) {
+        if (time != -1) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(time * 60000);
+            year = cal.get(Calendar.YEAR);
+            month = cal.get(Calendar.MONTH);
+            day = cal.get(Calendar.DATE);
+            hour = cal.get(Calendar.HOUR_OF_DAY);
+            minute = cal.get(Calendar.MINUTE);
+        } else {
+            isNull = true;
+        }
     }
 
     public DateForm(Calendar cal) {
         year = cal.get(Calendar.YEAR);
         month = cal.get(Calendar.MONTH);
         day = cal.get(Calendar.DATE);
-        hour = 0;
-        minute = 0;
+        hour = cal.get(Calendar.HOUR);
+        minute = cal.get(Calendar.MINUTE);
     }
 
     public DateForm(int year, int month, int day) {
+        Calendar cal = Calendar.getInstance();
         this.year = year;
         this.month = month;
         this.day = day;
-        hour = 0;
-        minute = 0;
+        hour = cal.get(Calendar.HOUR);
+        minute = cal.get(Calendar.MINUTE);
     }
 
     protected DateForm(Parcel in) {
@@ -71,10 +77,14 @@ public class DateForm implements Parcelable{
         minute = cal.get(Calendar.MINUTE);
     }
 
-    public long getSecond() {
-        Calendar cal = Calendar.getInstance();
-        cal.set(year, month, day, hour, minute);
-        return cal.getTimeInMillis() / 60000;
+    public long getTime() {
+        if (!isNull) {
+            Calendar cal = Calendar.getInstance();
+            cal.set(year, month, day, hour, minute);
+            return cal.getTimeInMillis() / 60000;
+        } else {
+            return -1;
+        }
     }
 
     public void set(int year, int month, int day) {
@@ -87,22 +97,15 @@ public class DateForm implements Parcelable{
         minute = 0;
     }
 
-    public int compareTo(DateForm anotherDate) {
-        DateForm date1 = new DateForm(this.getSecond());
+    public int compareTo(DateForm rightDate) {
+        DateForm date1 = this.clone();
         date1.setHour(0);
         date1.setMinute(0);
-        DateForm date2 = new DateForm(anotherDate.getSecond());
+        DateForm date2 = rightDate.clone();
         date2.setHour(0);
         date2.setMinute(0);
-        long diff = date1.getSecond() - date2.getSecond();
+        long diff = date1.getTime() - date2.getTime();
         diff /= (24 * 60);
-//        if (date1.getSecond() < date2.getSecond()) {
-//            return 1;
-//        } else if (date1.getSecond() > date2.getSecond()) {
-//            return -1;
-//        } else {
-//            return 0;
-//        }
         return (int) diff;
     }
 
@@ -164,5 +167,18 @@ public class DateForm implements Parcelable{
         parcel.writeInt(day);
         parcel.writeInt(hour);
         parcel.writeInt(minute);
+    }
+
+    public boolean isNull() {
+        return isNull;
+    }
+
+    public DateForm clone() {
+        DateForm obj = null;
+        try {
+            obj = (DateForm) super.clone();
+        } catch (Exception e) {
+        }
+        return obj;
     }
 }

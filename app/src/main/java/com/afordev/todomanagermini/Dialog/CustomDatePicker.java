@@ -25,9 +25,16 @@ public class CustomDatePicker {
     private String dialogTitle, neutralTitle;
     private DialogInterface.OnClickListener positiveListener, negativeListener, neutralListener;
     private DatePicker datePicker;
+    private TextView tvTitle;
+    private LinearLayout layout;
 
     public CustomDatePicker(Context mContext) {
         this.mContext = mContext;
+
+        LayoutInflater li = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        layout = (LinearLayout) li.inflate(R.layout.dialog_datepicker, null);
+        datePicker = layout.findViewById(R.id.dialog_datepicker);
+        tvTitle = layout.findViewById(R.id.dialog_dp_tv_title);
         initSet();
     }
 
@@ -68,10 +75,6 @@ public class CustomDatePicker {
     }
 
     public void show(DateForm date) {
-        LayoutInflater li = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        LinearLayout layout = (LinearLayout) li.inflate(R.layout.dialog_datepicker, null);
-        datePicker = layout.findViewById(R.id.dialog_datepicker);
-        TextView tvTitle = layout.findViewById(R.id.dialog_dp_tv_title);
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         final AlertDialog dialog;
 
